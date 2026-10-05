@@ -15,7 +15,7 @@
   <header id="top" class="site-header">
     <a class="brand" href="#top" aria-label="NEXUS, back to top"><span class="brand-mark">N<span>·</span></span><span><strong>NEXUS</strong><small>by VIM</small></span></a>
     <nav aria-label="Primary navigation">
-      <a href="#architecture">Architecture</a><a href="#story">Built at Lifepal</a><a href="#insights">Results</a><a href="#featured-game">Game examples</a><a href="#proof">Code</a>
+      <a href="#architecture">Architecture</a><a href="#featured-game">Game examples</a><a href="#story">Built at Lifepal</a><a href="#insights">Results</a><a href="#proof">Code</a>
     </nav>
     <a class="header-cta" href="#contact">Let's talk <span aria-hidden="true">↗</span></a>
   </header>
@@ -33,7 +33,7 @@
         </div>
         <div class="hero-visual" aria-label="Animated NEXUS data path from events through dbt models to trusted measures">
           <div class="visual-top"><span>NEXUS / ARCHITECTURE PREVIEW</span><span class="visual-status"><i></i> INSPECTABLE</span></div>
-          <div class="visual-pipeline" aria-hidden="true"><div class="visual-line"><span class="traveller"></span></div><div class="visual-node"><span>01 / INPUT</span><strong>Events</strong><small>review · publish</small></div><div class="visual-node"><span>02 / MODEL</span><strong>dbt</strong><small>stage · join · test</small></div><div class="visual-node"><span>03 / USE</span><strong>Measures</strong><small>one meaning</small></div></div>
+          <div class="visual-pipeline" aria-hidden="true"><div class="visual-line"><span class="traveller"></span><span class="traveller traveller-two"></span></div><div class="visual-node"><svg><use href="assets/nexus-icons.svg#intake"></use></svg><span>01 / INPUT</span><strong>Events</strong><small>review · publish</small></div><div class="visual-node"><svg><use href="assets/nexus-icons.svg#title"></use></svg><span>02 / MODEL</span><strong>dbt</strong><small>stage · join · test</small></div><div class="visual-node"><svg><use href="assets/nexus-icons.svg#mart"></use></svg><span>03 / USE</span><strong>Measures</strong><small>one meaning</small></div></div>
           <div class="visual-answer"><span>THE ARCHITECTURE PROMISE</span><strong>One grain. Clear definitions. Tests before trust.</strong><p>Every block in the map below opens its source. The example data is fictional; the design choices are inspectable.</p></div>
           <div class="visual-footer"><span>◯ <i>△</i> □ ×</span><small>PlayStation role context · independent portfolio</small></div>
         </div>
@@ -51,26 +51,54 @@
           <div class="signal-readout" aria-live="polite"><span id="signal-value">50%</span><p id="signal-explanation">3 of 6 submitted titles cleared review on attempt one.</p><div class="signal-meter" aria-hidden="true"><i id="signal-meter-fill" style="width:50%"></i></div><small>Source → staging → title grain → mart → test</small></div>
         </div>
         <details class="map-accordion" open>
-          <summary><span><small>INTERACTIVE SYSTEM MAP</small><strong>Follow the publishing signal</strong><em>Click any block to inspect its working code or contract.</em></span><span class="map-toggle"><span class="open-word">Hide map</span><span class="closed-word">Show map</span><b aria-hidden="true">⌄</b></span></summary>
+          <summary><span><small>INTERACTIVE SYSTEM MAP</small><strong>Follow the publishing signal</strong><em>Click any block to inspect its working source.</em></span><span class="map-toggle"><span class="open-word">Hide map</span><span class="closed-word">Show map</span><b aria-hidden="true">⌄</b></span></summary>
+          <div class="map-art-cycle" aria-hidden="true"><img src="assets/monster-hunter-ascendance-art.png" alt=""><img src="assets/resident-evil-veronica-hero.jpg" alt=""><img src="assets/ff7-revelation-hero.jpg" alt=""><img src="assets/persona-6-hero.jpg" alt=""></div>
           <div class="map-body">
-            <div class="map-pulse" aria-hidden="true"><span></span></div>
+            <div id="route-console" class="route-console is-replaying"><div class="route-label"><span>REVIEW EVENT <b>→</b> TRUSTED MEASURE</span><button type="button" id="route-replay" aria-label="Replay the data path animation">Replay path ↻</button></div><div class="route-track" aria-hidden="true"><span class="route-station" style="--station:0">01</span><span class="route-station" style="--station:1">02</span><span class="route-station" style="--station:2">03</span><span class="route-station" style="--station:3">04</span><span class="route-station" style="--station:4">05</span><i class="route-packet"></i></div></div>
+            <div class="map-proof-strip"><div class="map-proof-lead"><img src="assets/roojai-lifepal-transparent.png" alt="Roojai and Lifepal"><span>BUILT AT LIFEPAL</span><strong>Speed and trust in production.</strong><a href="#story">Read the production story ↗</a></div><div class="map-proof-numbers"><div><strong>24h → &lt;5m</strong><small>reporting delay</small></div><div><strong>500+</strong><small>quality checks</small></div><div><strong>−60%</strong><small>ad-hoc requests</small></div><div><strong>−60%</strong><small>data-trust escalations</small></div></div></div>
             <div class="map-stages">
-              <article class="map-stage"><div class="stage-title"><span>01 / CAPTURE</span><h3>Know the input</h3><p>Partner, title, review and publication events.</p></div><button type="button" data-snippet="source"><small>SOURCE TESTS</small><strong>dbt sources</strong><span>Keys and relationships checked at the door.</span><b>Inspect YAML ↗</b></button><button type="button" data-snippet="snapshot"><small>HISTORY</small><strong>Partner snapshot</strong><span>Tier changes stay traceable.</span><b>Inspect SQL ↗</b></button></article>
-              <article class="map-stage"><div class="stage-title"><span>02 / STANDARDISE</span><h3>Give events shape</h3><p>Types and status values have one home.</p></div><button type="button" data-snippet="stage"><small>STAGING</small><strong>Typed submissions</strong><span>Dates and review status made consistent.</span><b>Inspect SQL ↗</b></button><button type="button" data-snippet="lifecycle"><small>WINDOW LOGIC</small><strong>Attempt lifecycle</strong><span>First attempt is defined by event time.</span><b>Inspect SQL ↗</b></button></article>
-              <article class="map-stage"><div class="stage-title"><span>03 / MODEL</span><h3>Protect the grain</h3><p>Separate streams before joining them.</p></div><button type="button" data-snippet="title"><small>ONE ROW PER TITLE</small><strong>Title outcomes</strong><span>Review and publication counts without fanout.</span><b>Inspect SQL ↗</b></button><button type="button" data-snippet="fact"><small>DIMENSIONAL</small><strong>Submission fact</strong><span>One row per review attempt.</span><b>Inspect SQL ↗</b></button><button type="button" data-snippet="dimension"><small>DIMENSIONAL</small><strong>Partner dimension</strong><span>Keys and business attributes.</span><b>Inspect SQL ↗</b></button></article>
-              <article class="map-stage"><div class="stage-title"><span>04 / EXPLAIN</span><h3>Share one meaning</h3><p>Measures fit the business question.</p></div><button type="button" data-snippet="mart"><small>BUSINESS MART</small><strong>Partner publishing</strong><span>Approval, review and publication measures.</span><b>Inspect SQL ↗</b></button><button type="button" data-snippet="semantic"><small>VERSIONED MEANING</small><strong>Metric contract</strong><span>Definition, denominator and evidence.</span><b>Inspect YAML ↗</b></button></article>
-              <article class="map-stage"><div class="stage-title"><span>05 / RELEASE</span><h3>Earn trust</h3><p>Tests and consumers stay connected.</p></div><button type="button" data-snippet="tests"><small>QUALITY GATE</small><strong>No title fanout</strong><span>A grain change fails the build.</span><b>Inspect test ↗</b></button><button type="button" data-snippet="exposure"><small>CONSUMPTION</small><strong>Dashboard exposure</strong><span>Proposed use, linked to the mart.</span><b>Inspect YAML ↗</b></button><button type="button" data-snippet="ci"><small>DEVELOPER FLOW</small><strong>GitHub CI</strong><span>Build and check evidence on each change.</span><b>Inspect workflow ↗</b></button></article>
+              <article class="map-stage"><div class="stage-title"><span class="stage-badge" aria-hidden="true"><svg><use href="assets/nexus-icons.svg#intake"></use></svg></span><span>01 / CAPTURE</span><h3>Know the input</h3><p>Partner, title, review and publication events.</p></div><button type="button" data-snippet="source"><svg class="block-icon" aria-hidden="true"><use href="assets/nexus-icons.svg#intake"></use></svg><small>SOURCE TESTS</small><strong>dbt sources</strong><span>Keys and relationships checked at the door.</span><b>Inspect YAML ↗</b></button><button type="button" data-snippet="snapshot"><svg class="block-icon" aria-hidden="true"><use href="assets/nexus-icons.svg#history"></use></svg><small>HISTORY</small><strong>Partner snapshot</strong><span>Tier changes stay traceable.</span><b>Inspect SQL ↗</b></button></article>
+              <article class="map-stage"><div class="stage-title"><span class="stage-badge" aria-hidden="true"><svg><use href="assets/nexus-icons.svg#staging"></use></svg></span><span>02 / STANDARDISE</span><h3>Give events shape</h3><p>Types and status values have one home.</p></div><button type="button" data-snippet="stage"><svg class="block-icon" aria-hidden="true"><use href="assets/nexus-icons.svg#staging"></use></svg><small>STAGING</small><strong>Typed submissions</strong><span>Dates and review status made consistent.</span><b>Inspect SQL ↗</b></button><button type="button" data-snippet="lifecycle"><svg class="block-icon" aria-hidden="true"><use href="assets/nexus-icons.svg#lifecycle"></use></svg><small>WINDOW LOGIC</small><strong>Attempt lifecycle</strong><span>First attempt is defined by event time.</span><b>Inspect SQL ↗</b></button></article>
+              <article class="map-stage"><div class="stage-title"><span class="stage-badge" aria-hidden="true"><svg><use href="assets/nexus-icons.svg#title"></use></svg></span><span>03 / MODEL</span><h3>Protect the grain</h3><p>Separate streams before joining them.</p></div><button type="button" data-snippet="title"><svg class="block-icon" aria-hidden="true"><use href="assets/nexus-icons.svg#title"></use></svg><small>ONE ROW PER TITLE</small><strong>Title outcomes</strong><span>Review and publication counts without fanout.</span><b>Inspect SQL ↗</b></button><button type="button" data-snippet="fact"><svg class="block-icon" aria-hidden="true"><use href="assets/nexus-icons.svg#fact"></use></svg><small>DIMENSIONAL</small><strong>Submission fact</strong><span>One row per review attempt.</span><b>Inspect SQL ↗</b></button><button type="button" data-snippet="dimension"><svg class="block-icon" aria-hidden="true"><use href="assets/nexus-icons.svg#dimension"></use></svg><small>DIMENSIONAL</small><strong>Partner dimension</strong><span>Keys and business attributes.</span><b>Inspect SQL ↗</b></button></article>
+              <article class="map-stage"><div class="stage-title"><span class="stage-badge" aria-hidden="true"><svg><use href="assets/nexus-icons.svg#semantic"></use></svg></span><span>04 / EXPLAIN</span><h3>Share one meaning</h3><p>Measures fit the business question.</p></div><button type="button" data-snippet="mart"><svg class="block-icon" aria-hidden="true"><use href="assets/nexus-icons.svg#mart"></use></svg><small>BUSINESS MART</small><strong>Partner publishing</strong><span>Approval, review and publication measures.</span><b>Inspect SQL ↗</b></button><button type="button" data-snippet="semantic"><svg class="block-icon" aria-hidden="true"><use href="assets/nexus-icons.svg#semantic"></use></svg><small>VERSIONED MEANING</small><strong>Metric contract</strong><span>Definition, denominator and evidence.</span><b>Inspect YAML ↗</b></button></article>
+              <article class="map-stage"><div class="stage-title"><span class="stage-badge" aria-hidden="true"><svg><use href="assets/nexus-icons.svg#test"></use></svg></span><span>05 / RELEASE</span><h3>Earn trust</h3><p>Tests and consumers stay connected.</p></div><button type="button" data-snippet="tests"><svg class="block-icon" aria-hidden="true"><use href="assets/nexus-icons.svg#test"></use></svg><small>QUALITY GATE</small><strong>No title fanout</strong><span>A grain change fails the build.</span><b>Inspect test ↗</b></button><button type="button" data-snippet="exposure"><svg class="block-icon" aria-hidden="true"><use href="assets/nexus-icons.svg#exposure"></use></svg><small>CONSUMPTION</small><strong>Dashboard exposure</strong><span>Proposed use, linked to the mart.</span><b>Inspect YAML ↗</b></button><button type="button" data-snippet="ci"><svg class="block-icon" aria-hidden="true"><use href="assets/nexus-icons.svg#ci"></use></svg><small>DEVELOPER FLOW</small><strong>GitHub CI</strong><span>Build and check evidence on each change.</span><b>Inspect workflow ↗</b></button></article>
             </div>
-            <p class="map-caption">Runnable reference: dbt Core + DuckDB. Relevant experience: AWS + Snowflake. This portfolio does not connect to SIE systems.</p>
+            <p class="map-caption">Lifepal results come from my CV. This inspectable map uses synthetic dbt data on DuckDB; AWS + Snowflake are relevant experience. Background art is an editorial reference to <a href="https://blog.playstation.com/2026/09/03/monster-hunter-wilds-ascendance-reveals-new-monsters-story-details-and-gameplay" target="_blank" rel="noopener noreferrer">Monster Hunter Wilds: Ascendance</a>, Resident Evil Veronica, Final Fantasy VII Revelation and Persona 6. No SIE systems are connected.</p>
           </div>
         </details>
+      </div>
+    </section>
+
+    <section id="featured-game" class="game-feature" aria-labelledby="game-title">
+      <div class="shell"><div class="section-index section-index-light"><span>02 / GAME EXAMPLES</span><span>Editorial references for partner questions</span></div></div>
+      <div class="shell game-shelf" role="group" aria-label="Choose a game world">
+        <button type="button" class="game-choice is-active" data-game="wilds" aria-pressed="true"><img src="assets/monster-hunter-ascendance-art.png" alt=""><span>01 / CAPCOM</span><strong>Monster Hunter Wilds: Ascendance</strong></button>
+        <button type="button" class="game-choice" data-game="revelation" aria-pressed="false"><img src="assets/ff7-revelation-cover.jpg" alt=""><span>02 / SQUARE ENIX</span><strong>Final Fantasy VII Revelation</strong></button>
+        <button type="button" class="game-choice" data-game="persona" aria-pressed="false"><img src="assets/persona-6-cover.jpg" alt=""><span>03 / ATLUS</span><strong>Persona 6</strong></button>
+        <button type="button" class="game-choice" data-game="veronica" aria-pressed="false"><img src="assets/resident-evil-veronica-cover.jpg" alt=""><span>04 / CAPCOM</span><strong>Resident Evil Veronica</strong></button>
+      </div>
+      <div class="shell game-feature-grid">
+        <div class="game-copy">
+          <p class="game-kicker">WHERE THE ARCHITECTURE COULD HELP</p>
+          <h2 id="game-title">Different game worlds.<br><em>The same need for trusted signals.</em></h2>
+          <p>These official game worlds make partner questions easier to picture: review progress, publication readiness and what changed after launch. The dbt example above uses fictional titles and partners. A dramatic reveal is welcome. A KPI surprise, less so.</p>
+          <div class="selected-game"><span>EDITORIAL EXAMPLE</span><strong id="selected-game-title">Monster Hunter Wilds: Ascendance</strong><p id="selected-game-context">After 750 hours in Wilds, Ascendance is a useful reminder that one player's enthusiasm is not a retention metric. The NEXUS reference contains no real game or partner records.</p><a id="selected-game-link" href="https://blog.playstation.com/2026/09/03/monster-hunter-wilds-ascendance-reveals-new-monsters-story-details-and-gameplay" target="_blank" rel="noopener noreferrer">Official source ↗</a></div>
+          <div class="heritage-mark"><img src="assets/sony-computer-entertainment-reference.webp" alt="Sony Computer Entertainment heritage mark supplied by VIM"><span><strong>PlayStation heritage</strong><small>Supplied visual reference; this is an independent portfolio, not an official Sony or Capcom site.</small></span></div>
+        </div>
+        <div class="trailer-panel">
+          <div class="trailer-heading"><span>WATCH THE WORLD</span><span id="trailer-provider">OFFICIAL ASCENDANCE TRAILER ↗</span></div>
+          <div id="trailer-frame" class="trailer-frame">
+            <button id="trailer-play" class="trailer-play" type="button" aria-label="Play the official Monster Hunter Wilds: Ascendance trailer"><span class="play-icon" aria-hidden="true">▶</span><span>Play official Ascendance trailer</span></button>
+          </div>
+          <p>Footage: <a id="trailer-credit-link" href="https://www.youtube.com/watch?v=SodbU0PEVH4" target="_blank" rel="noopener noreferrer">PlayStation’s official Ascendance trailer</a>. Video loads when you press play.</p>
+        </div>
       </div>
     </section>
 
     <section id="story" class="story section-pad" aria-labelledby="story-title">
       <div class="shell story-grid">
         <div>
-          <div class="section-index"><span>02 / BUILT AT LIFEPAL</span><span>The production experience behind NEXUS</span></div>
+          <div class="section-index"><span>03 / BUILT AT LIFEPAL</span><span>The production experience behind NEXUS</span></div>
           <p class="section-kicker">NEXUS · built at Lifepal</p>
           <h2 id="story-title">The dashboard is the easy part.<br><em>Agreeing on the number takes work.</em></h2>
           <p class="large-copy">At Lifepal, I owned NEXUS: a dbt-first analytics layer from tested sources and staging through reusable intermediate models, Kimball marts, canonical metrics and BI. Finance, Marketing and Product could work from the same definitions.</p>
@@ -90,7 +118,7 @@
 
     <section class="role-fit section-pad" aria-labelledby="fit-title">
       <div class="shell">
-        <div class="section-index"><span>03 / ROLE FIT</span><span>Analytics engineering for partner operations</span></div>
+        <div class="section-index"><span>04 / ROLE FIT</span><span>Analytics engineering for partner operations</span></div>
         <div class="split-heading"><h2 id="fit-title">A platform team needs more than <em>a pretty chart.</em></h2><p>PlayStation’s role calls for greenfield dbt standards, dimensional modelling, quality, observability and close work with business teams. At Lifepal, I wrote those standards and helped the team adopt them; this reference shows one inspectable application.</p></div>
         <div class="fit-cards">
           <article><span class="card-number">01 / DEFINE</span><h3>One meaning for each measure</h3><p>Partner, title and submission grains are explicit. “First-pass approval” has a numerator, denominator and owner, so teams can discuss the result rather than the SQL.</p><div class="tech-tags"><span>dbt</span><span>Dimensional models</span><span>Metric contract</span></div></article>
@@ -106,7 +134,7 @@
 
     <section id="math" class="math section-pad" aria-labelledby="math-title">
       <div class="shell">
-        <div class="section-index"><span>04 / THE MATH</span><span>Business definitions that can be checked</span></div>
+        <div class="section-index"><span>05 / THE MATH</span><span>Business definitions that can be checked</span></div>
         <div class="split-heading"><h2 id="math-title">The equations behind <em>the answer.</em></h2><p>These are the rules for the synthetic partner data product. Each one connects a business phrase to a model grain or a release check.</p></div>
         <div class="math-list">
           <details name="partner-math" open><summary><span>01</span><strong>First-pass approval<small>What portion cleared review on attempt one?</small></strong><i aria-hidden="true">+</i></summary><div class="math-body"><p class="formula">FPA = approved on attempt 1 / submitted titles</p><p>Count each title once. The denominator excludes titles that have not been submitted. The built synthetic result is <strong id="math-baseline">3 / 6 = 50%</strong>.</p></div><div class="math-explorer"><div class="math-explorer-head"><span>TRY A HYPOTHETICAL SCENARIO</span><strong id="math-result" aria-live="polite">3 / 6 = 50%</strong></div><p>The controls start with the dbt result. Moving them changes this illustration, not the built data.</p><div class="math-sliders"><label>Submitted titles <output id="submitted-output">6</output><input id="submitted-range" type="range" min="1" max="12" value="6"></label><label>Approved on attempt one <output id="approved-output">3</output><input id="approved-range" type="range" min="0" max="6" value="3"></label></div><div class="math-meter" aria-hidden="true"><i id="math-meter-fill" style="width:50%"></i></div></div></details>
@@ -119,37 +147,11 @@
 
     <section id="insights" class="insights section-pad" aria-labelledby="insights-title">
       <div class="shell">
-        <div class="section-index section-index-light"><span>05 / THE RESULT</span><span>Generated from the runnable dbt mart</span></div>
+        <div class="section-index section-index-light"><span>06 / THE RESULT</span><span>Generated from the runnable dbt mart</span></div>
         <div class="split-heading"><h2 id="insights-title">A small dataset.<br><em>A useful question.</em></h2><p>These are synthetic partners and titles. Choose one to see how the same governed measures can guide a real stakeholder conversation without claiming to know the cause of a delay.</p></div>
         <div class="insight-totals"><div><span>FIRST-PASS APPROVAL</span><strong id="total-first-pass">50%</strong><small>3 of 6 submitted titles</small></div><div><span>TITLES PUBLISHED</span><strong id="total-published">4 / 6</strong><small>At least one storefront event</small></div><div><span>REVIEW ATTEMPTS</span><strong id="total-attempts">9</strong><small>Across six synthetic titles</small></div></div>
         <div class="insight-layout"><div><p class="panel-eyebrow">SELECT A SYNTHETIC PARTNER</p><div id="partner-list" class="partner-list"><p>Loading model output…</p></div></div><article id="partner-detail" class="partner-detail" aria-live="polite"><p class="panel-eyebrow">MODEL OUTPUT</p><h3>Select a partner</h3><p>Partner-level measures are generated from <code>mart_partner_publishing</code>.</p></article></div>
         <p class="data-note">This chart reads <a href="assets/metrics.json">the exported dbt result</a>. No PlayStation partner, player, financial or operational data appears here.</p>
-      </div>
-    </section>
-
-    <section id="featured-game" class="game-feature" aria-labelledby="game-title">
-      <div class="shell"><div class="section-index section-index-light"><span>06 / GAME EXAMPLES</span><span>Editorial references for partner questions</span></div></div>
-      <div class="shell game-shelf" role="group" aria-label="Choose a game world">
-        <button type="button" class="game-choice is-active" data-game="wilds" aria-pressed="true"><img src="assets/monster-hunter-wilds-keyart.jpg" alt=""><span>01 / CAPCOM</span><strong>Monster Hunter Wilds</strong></button>
-        <button type="button" class="game-choice" data-game="revelation" aria-pressed="false"><img src="assets/ff7-revelation-cover.jpg" alt=""><span>02 / SQUARE ENIX</span><strong>Final Fantasy VII Revelation</strong></button>
-        <button type="button" class="game-choice" data-game="persona" aria-pressed="false"><img src="assets/persona-6-cover.jpg" alt=""><span>03 / ATLUS</span><strong>Persona 6</strong></button>
-        <button type="button" class="game-choice" data-game="veronica" aria-pressed="false"><img src="assets/resident-evil-veronica-cover.jpg" alt=""><span>04 / CAPCOM</span><strong>Resident Evil Veronica</strong></button>
-      </div>
-      <div class="shell game-feature-grid">
-        <div class="game-copy">
-          <p class="game-kicker">WHERE THE ARCHITECTURE COULD HELP</p>
-          <h2 id="game-title">Different game worlds.<br><em>The same need for trusted signals.</em></h2>
-          <p>These official game worlds make partner questions easier to picture: review progress, publication readiness and what changed after launch. The dbt example above uses fictional titles and partners. A dramatic reveal is welcome. A KPI surprise, less so.</p>
-          <div class="selected-game"><span>EDITORIAL EXAMPLE</span><strong id="selected-game-title">Monster Hunter Wilds</strong><p id="selected-game-context">I have put 750 hours into Wilds. That may help one retention curve, but it is still one player, not a dataset. The NEXUS reference contains no real game or partner records.</p><a id="selected-game-link" href="https://www.playstation.com/en-gb/games/monster-hunter-wilds/" target="_blank" rel="noopener noreferrer">Official game page ↗</a></div>
-          <div class="heritage-mark"><img src="assets/sony-computer-entertainment-reference.webp" alt="Sony Computer Entertainment heritage mark supplied by VIM"><span><strong>PlayStation heritage</strong><small>Supplied visual reference; this is an independent portfolio, not an official Sony or Capcom site.</small></span></div>
-        </div>
-        <div class="trailer-panel">
-          <div class="trailer-heading"><span>WATCH THE WORLD</span><span id="trailer-provider">OFFICIAL MONSTER HUNTER TRAILER ↗</span></div>
-          <div id="trailer-frame" class="trailer-frame">
-            <button id="trailer-play" class="trailer-play" type="button" aria-label="Play the official Monster Hunter Wilds launch trailer"><span class="play-icon" aria-hidden="true">▶</span><span>Play official launch trailer</span></button>
-          </div>
-          <p>Footage: <a id="trailer-credit-link" href="https://www.youtube.com/watch?v=a_wNFT4j6qI" target="_blank" rel="noopener noreferrer">Monster Hunter’s official launch trailer</a>. Video loads when you press play.</p>
-        </div>
       </div>
     </section>
 

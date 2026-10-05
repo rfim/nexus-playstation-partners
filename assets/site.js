@@ -110,9 +110,28 @@ function setupSignalLab(totals) {
       button.classList.toggle('is-active', active);
       button.setAttribute('aria-pressed', String(active));
     });
+    replayRoute();
   }
   buttons.forEach((button) => button.addEventListener('click', () => select(button.dataset.signal)));
   select('approval');
+}
+
+function replayRoute() {
+  const route = $('#route-console');
+  const stages = $('.map-stages');
+  route.classList.remove('is-replaying');
+  stages.classList.remove('is-replaying');
+  void route.offsetWidth;
+  route.classList.add('is-replaying');
+  stages.classList.add('is-replaying');
+}
+
+function setupRoute() {
+  $('#route-replay').addEventListener('click', replayRoute);
+  $('.map-accordion').addEventListener('toggle', (event) => {
+    if (event.currentTarget.open) replayRoute();
+  });
+  replayRoute();
 }
 
 function setupMathExplorer(totals) {
@@ -198,14 +217,14 @@ async function setupCodeInspector() {
 function setupTrailer() {
   const games = {
     wilds: {
-      title: 'Monster Hunter Wilds',
-      context: 'I have put 750 hours into Wilds. That may help one retention curve, but it is still one player, not a dataset. The NEXUS reference contains no real game or partner records.',
-      page: 'https://www.playstation.com/en-gb/games/monster-hunter-wilds/',
-      poster: 'assets/monster-hunter-wilds-keyart.jpg',
-      video: 'a_wNFT4j6qI',
-      provider: 'OFFICIAL MONSTER HUNTER TRAILER ↗',
-      credit: 'Monster Hunter’s official launch trailer',
-      videoTitle: 'Monster Hunter Wilds official launch trailer'
+      title: 'Monster Hunter Wilds: Ascendance',
+      context: 'After 750 hours in Wilds, Ascendance is a useful reminder that one player’s enthusiasm is not a retention metric. The NEXUS reference contains no real game or partner records.',
+      page: 'https://blog.playstation.com/2026/09/03/monster-hunter-wilds-ascendance-reveals-new-monsters-story-details-and-gameplay',
+      poster: 'assets/monster-hunter-ascendance-art.png',
+      video: 'SodbU0PEVH4',
+      provider: 'OFFICIAL ASCENDANCE TRAILER ↗',
+      credit: 'PlayStation’s official Ascendance trailer',
+      videoTitle: 'Monster Hunter Wilds: Ascendance official trailer'
     },
     revelation: {
       title: 'Final Fantasy VII Revelation',
@@ -272,6 +291,7 @@ function setupTrailer() {
 }
 
 setupTrailer();
+setupRoute();
 setupFanoutExplorer();
 setupMetrics().catch(() => {
   $('#partner-list').textContent = 'Model output could not load. Open the repository for the synthetic data.';

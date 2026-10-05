@@ -53,7 +53,7 @@
 .heritage-mark small{max-width:330px;margin-top:.3rem;color:#a9b5bb;font-size:.67rem;line-height:1.45}
 .trailer-panel{border:1px solid #55616a;background:#0f1822;box-shadow:0 22px 60px rgba(0,0,0,.42)}
 .trailer-heading{display:flex;justify-content:space-between;gap:1rem;padding:.75rem 1rem;color:#f2d28b;font-size:.61rem;font-weight:900;letter-spacing:.12em}
-.trailer-frame{position:relative;aspect-ratio:16/9;background:#15212a url("monster-hunter-wilds-keyart.jpg") center/cover}
+.trailer-frame{position:relative;aspect-ratio:16/9;background:#15212a url("monster-hunter-ascendance-art.png") center/cover}
 .trailer-frame::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,10,16,.28),rgba(3,10,16,.14));pointer-events:none}
 .trailer-frame:has(iframe)::before{display:none}
 .trailer-play{position:absolute;z-index:1;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;width:100%;border:0;background:transparent;color:#fff;cursor:pointer;text-shadow:0 3px 10px #000;font-size:.79rem;font-weight:900;letter-spacing:.03em}
@@ -140,3 +140,56 @@
 @keyframes rowReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:650px){.math-explorer,.fanout-explorer{margin-inline:.5rem;padding:1rem}.math-explorer-head{align-items:start;flex-direction:column}.math-sliders,.fanout-explorer{grid-template-columns:1fr}.fanout-rows{grid-column:auto}.fanout-controls{flex-wrap:wrap}.math-body .formula{white-space:normal;overflow-wrap:anywhere}}
 .game-feature .section-index{margin-bottom:2rem}
+
+/* Persona 6 cues: original high-contrast circular glyphs and sharp route lighting. */
+.visual-node svg{width:35px;height:35px;margin-bottom:.3rem;padding:6px;border:2px solid #f5f6fb;border-radius:50%;background:#040c19;color:#f5f6fb;filter:drop-shadow(0 0 7px rgba(114,191,255,.4))}
+.visual-line .traveller-two{animation-delay:-2s;background:#79c7ff;box-shadow:0 0 17px 5px rgba(100,181,255,.65)}
+.visual-node{transition:transform .25s,border-color .25s}.visual-node:hover{transform:translateY(-5px);border-color:#fff}
+.map-accordion{position:relative;isolation:isolate}
+.map-art-cycle{position:absolute;z-index:0;inset:0 0 auto;height:245px;overflow:hidden;pointer-events:none}
+.map-art-cycle img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 35%;opacity:0;filter:saturate(.9) contrast(1.08);animation:worldCrossfade 28s linear infinite}
+.map-art-cycle img:nth-child(2){animation-delay:7s}.map-art-cycle img:nth-child(3){animation-delay:14s}.map-art-cycle img:nth-child(4){animation-delay:21s}
+.map-art-cycle::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,22,44,.97),rgba(8,22,44,.72) 42%,rgba(8,22,44,.38)),linear-gradient(0deg,#112444,transparent 42%)}
+@keyframes worldCrossfade{0%{opacity:.8}20%{opacity:.8}25%{opacity:0}95%{opacity:0}100%{opacity:.8}}
+.map-accordion>summary,.map-accordion>.map-body{position:relative;z-index:1}
+.map-accordion>summary{min-height:145px;background:transparent}
+.map-body{background:rgba(10,27,51,.62)}
+.map-caption a{color:#a8d7ff;text-decoration:underline;text-underline-offset:2px}
+.route-console{margin:.9rem .2rem 1rem;padding:.55rem .7rem .65rem;border:1px solid rgba(117,165,211,.45);border-radius:9px;background:rgba(8,24,47,.76)}
+.route-label{display:flex;align-items:center;justify-content:space-between;gap:1rem;color:#a5d4ff;font-size:.59rem;font-weight:900;letter-spacing:.12em}
+.route-label b{color:#f3d88f}
+.route-label button{padding:.24rem .55rem;border:1px solid #769dc4;border-radius:5px;background:#1f436a;color:#fff;cursor:pointer;font-size:.58rem;font-weight:800;letter-spacing:.03em}
+.route-label button:hover{background:#32689d}
+.route-track{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;height:55px;margin-top:.25rem}
+.route-track::before{content:"";position:absolute;left:10%;right:10%;top:50%;height:3px;background:linear-gradient(90deg,#6295cc,#8ab8db,#e7c675);transform:translateY(-50%);box-shadow:0 0 11px rgba(105,190,255,.55)}
+.route-station{position:relative;z-index:1;display:grid;place-items:center;justify-self:center;width:32px;height:32px;border:2px solid #8cbbdf;border-radius:50%;background:#0c2544;color:#cfe9ff;font-size:.59rem;font-weight:900;box-shadow:0 0 0 4px rgba(8,30,57,.85)}
+.route-packet{position:absolute;z-index:2;left:10%;top:50%;width:18px;height:18px;border:2px solid #fff;border-radius:50%;background:#f5d081;box-shadow:0 0 15px 7px rgba(239,203,117,.8);transform:translate(-50%,-50%)}
+.route-console.is-replaying .route-packet{animation:routeTravel 4.5s ease-in-out both}
+.route-console.is-replaying .route-station{animation:stationFlash .72s ease both;animation-delay:calc(var(--station)*.9s)}
+@keyframes routeTravel{from{left:10%}to{left:90%}}
+@keyframes stationFlash{0%,100%{border-color:#8cbbdf;background:#0c2544;box-shadow:0 0 0 4px rgba(8,30,57,.85)}45%{border-color:#ffe1a1;background:#2e5376;box-shadow:0 0 20px 9px rgba(241,199,111,.42)}}
+.map-stage:nth-child(1){--stage:0}.map-stage:nth-child(2){--stage:1}.map-stage:nth-child(3){--stage:2}.map-stage:nth-child(4){--stage:3}.map-stage:nth-child(5){--stage:4}
+.map-stages.is-replaying .map-stage{animation:stageTrace .9s ease both;animation-delay:calc(var(--stage)*.9s)}
+@keyframes stageTrace{0%,100%{border-color:#3a5a7f;box-shadow:none}45%{border-color:#f4d488;box-shadow:0 0 24px rgba(245,203,104,.25)}}
+.map-stage{background:rgba(20,43,78,.91);backdrop-filter:blur(5px)}
+.stage-title{position:relative;padding-right:52px}
+.stage-badge{position:absolute;right:.3rem;top:.3rem;display:grid;place-items:center;width:42px;height:42px;border:2px solid #f5f8ff;border-radius:50%;background:#030a16;color:#fff;box-shadow:0 0 0 3px rgba(95,148,200,.3)}
+.stage-badge::after{content:"";position:absolute;right:-5px;top:3px;width:11px;height:3px;transform:rotate(-35deg);background:#f5f8ff}
+.stage-badge svg{width:24px;height:24px}
+.map-stage button{position:relative;padding-right:2.4rem;background:rgba(29,60,100,.92)}
+.block-icon{position:absolute;right:.6rem;top:.63rem;width:25px;height:25px;padding:4px;border:1px solid #d7ecff;border-radius:50%;background:#07182f;color:#fff;transition:transform .2s,background .2s}
+.map-stage button:hover .block-icon,.map-stage button:focus-visible .block-icon{transform:rotate(-11deg) scale(1.1);background:#296294}
+.map-proof-strip{display:grid;grid-template-columns:minmax(210px,.33fr) minmax(0,.67fr);gap:1rem;align-items:center;margin:.9rem .2rem 1.2rem;padding:.9rem 1.1rem;border:1px solid #cbd9ea;border-radius:10px;background:rgba(249,251,255,.96);color:#16233e;box-shadow:0 14px 35px rgba(0,0,0,.14)}
+.map-proof-lead img{width:170px;max-height:45px;object-fit:contain;object-position:left center}
+.map-proof-lead>span,.map-proof-lead>strong,.map-proof-lead>a{display:block}
+.map-proof-lead>span{margin-top:.2rem;color:#1565bc;font-size:.52rem;font-weight:900;letter-spacing:.13em}
+.map-proof-lead>strong{font-size:.87rem;line-height:1.18}
+.map-proof-lead>a{margin-top:.25rem;color:#1768bf;font-size:.55rem;font-weight:850}
+.map-proof-numbers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.4rem}
+.map-proof-numbers>div{min-width:0;padding:.48rem .56rem;border-left:1px solid #d0ddec}
+.map-proof-numbers strong,.map-proof-numbers small{display:block}
+.map-proof-numbers strong{font-size:clamp(.83rem,1.35vw,1.25rem);line-height:1.1;letter-spacing:-.04em;white-space:nowrap}
+.map-proof-numbers small{margin-top:.25rem;color:#64758d;font-size:.53rem;line-height:1.25}
+@media(max-width:950px){.map-proof-strip{grid-template-columns:1fr}.map-proof-numbers{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:650px){.map-art-cycle{height:195px}.map-accordion>summary{min-height:150px}.route-label{font-size:.48rem}.route-track{height:46px}.route-station{width:26px;height:26px;font-size:.49rem}.route-packet{width:14px;height:14px}.map-proof-numbers{grid-template-columns:repeat(2,minmax(0,1fr))}.map-proof-numbers strong{font-size:1rem}.map-proof-strip{padding:.85rem}.stage-badge{width:38px;height:38px}.stage-badge svg{width:21px;height:21px}}
+@media(prefers-reduced-motion:reduce){.map-art-cycle img{animation:none!important;opacity:0}.map-art-cycle img:first-child{opacity:.8}.route-console.is-replaying .route-packet,.route-console.is-replaying .route-station,.map-stages.is-replaying .map-stage{animation:none!important}}
