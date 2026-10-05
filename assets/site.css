@@ -193,3 +193,29 @@
 @media(max-width:950px){.map-proof-strip{grid-template-columns:1fr}.map-proof-numbers{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:650px){.map-art-cycle{height:195px}.map-accordion>summary{min-height:150px}.route-label{font-size:.48rem}.route-track{height:46px}.route-station{width:26px;height:26px;font-size:.49rem}.route-packet{width:14px;height:14px}.map-proof-numbers{grid-template-columns:repeat(2,minmax(0,1fr))}.map-proof-numbers strong{font-size:1rem}.map-proof-strip{padding:.85rem}.stage-badge{width:38px;height:38px}.stage-badge svg{width:21px;height:21px}}
 @media(prefers-reduced-motion:reduce){.map-art-cycle img{animation:none!important;opacity:0}.map-art-cycle img:first-child{opacity:.8}.route-console.is-replaying .route-packet,.route-console.is-replaying .route-station,.map-stages.is-replaying .map-stage{animation:none!important}}
+
+/* Original flowing light and floating controller symbols, inspired by the PS5 visual mood. */
+.hero-presented{display:flex;align-items:center;gap:.9rem;max-width:535px;margin-top:1.35rem;padding:.65rem .8rem;border:1px solid rgba(142,189,245,.38);border-left:3px solid #9ed4ff;border-radius:9px;background:rgba(16,42,78,.75);box-shadow:0 15px 45px rgba(0,0,0,.16)}
+.hero::before{content:"";position:absolute;inset:-20%;pointer-events:none;background:radial-gradient(ellipse at 65% 28%,rgba(93,158,255,.26),transparent 26%),radial-gradient(ellipse at 35% 69%,rgba(51,104,225,.19),transparent 28%);filter:blur(26px);animation:heroAurora 16s ease-in-out infinite alternate}
+.hero-presented img{flex:0 0 auto;width:62px;height:90px;object-fit:cover;border:1px solid rgba(255,255,255,.45);border-radius:4px;background:#f2f3f6}
+.hero-presented small,.hero-presented strong,.hero-presented em{display:block;line-height:1.2}
+.hero-presented small{color:#9dcfff;font-size:.55rem;font-weight:850;letter-spacing:.12em}
+.hero-presented strong{margin:.22rem 0;color:#fff;font-size:1.1rem;letter-spacing:-.025em}
+.hero-presented em{color:#bfd1e8;font-size:.65rem;font-style:normal}
+.hero-visual{isolation:isolate;overflow:hidden}
+.hero-visual>.visual-top,.hero-visual>.visual-pipeline,.hero-visual>.visual-answer,.hero-visual>.visual-footer{position:relative;z-index:1}
+.ps5-atmosphere{position:absolute;z-index:0;inset:0;overflow:hidden;border-radius:inherit;pointer-events:none;background:radial-gradient(circle at 72% 8%,rgba(126,176,255,.19),transparent 31%),radial-gradient(circle at 24% 72%,rgba(56,126,244,.16),transparent 38%);background-size:140% 140%;animation:psAura 17s ease-in-out infinite alternate}
+.ps5-atmosphere::before{content:"";position:absolute;inset:-15% -25%;background:linear-gradient(112deg,transparent 32%,rgba(135,193,255,.03) 45%,rgba(183,226,255,.16) 50%,rgba(87,151,248,.04) 55%,transparent 68%);transform:translateX(-38%) rotate(-10deg);animation:psSweep 13s ease-in-out infinite}
+.ps-ribbon{position:absolute;display:block;width:145%;height:260px;left:-22%;border:1px solid rgba(167,210,255,.28);border-radius:50%;box-shadow:0 0 24px rgba(108,177,251,.14),inset 0 0 24px rgba(105,173,255,.1);transform:rotate(-15deg);animation:psRibbon 18s ease-in-out infinite alternate}
+.ps-ribbon-one{top:7%}.ps-ribbon-two{top:48%;left:3%;border-color:rgba(115,170,255,.2);animation-delay:-7s;animation-duration:22s}
+.ps-glyph{position:absolute;color:rgba(202,232,255,.3);font-size:clamp(2rem,5vw,4.7rem);font-weight:250;line-height:1;text-shadow:0 0 24px rgba(129,192,255,.38);animation:psFloat 15s ease-in-out infinite alternate}
+.ps-glyph-one{top:13%;left:15%}.ps-glyph-two{top:52%;left:74%;animation-delay:-4s}.ps-glyph-three{top:73%;left:25%;animation-delay:-8s}.ps-glyph-four{top:26%;left:82%;animation-delay:-11s}
+.map-accordion>.ps5-atmosphere{background-color:transparent;opacity:.7}
+.map-accordion>.ps5-atmosphere .ps-ribbon{height:320px;border-color:rgba(174,208,255,.19)}
+@keyframes psAura{from{background-position:0 0}to{background-position:100% 100%}}
+@keyframes heroAurora{from{transform:translate3d(-5%,3%,0) scale(.95)}to{transform:translate3d(7%,-6%,0) scale(1.07)}}
+@keyframes psSweep{0%,10%{transform:translateX(-45%) rotate(-10deg);opacity:.2}50%{opacity:.8}90%,100%{transform:translateX(43%) rotate(-10deg);opacity:.15}}
+@keyframes psRibbon{from{transform:translate3d(-2%,5%,0) rotate(-19deg) scale(1)}to{transform:translate3d(8%,-7%,0) rotate(-8deg) scale(1.08)}}
+@keyframes psFloat{from{transform:translate3d(0,12px,0) rotate(-16deg);opacity:.15}to{transform:translate3d(26px,-26px,0) rotate(12deg);opacity:.5}}
+@media(max-width:560px){.hero-presented{gap:.7rem}.hero-presented img{width:50px;height:73px}.hero-presented strong{font-size:.95rem}.hero-presented small{font-size:.48rem}.hero-presented em{font-size:.57rem}.ps-glyph{font-size:2.6rem}.ps-ribbon{height:180px}.map-accordion>.ps5-atmosphere .ps-ribbon{height:230px}}
+@media(prefers-reduced-motion:reduce){.hero::before,.ps5-atmosphere,.ps5-atmosphere::before,.ps-ribbon,.ps-glyph{animation:none!important}}
