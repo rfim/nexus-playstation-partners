@@ -11,7 +11,7 @@ OUTPUT = ROOT / "assets" / "snippets.json"
 BASE = "https://github.com/rfim/nexus-playstation-partners/blob/main/"
 
 ITEMS = {
-    "source": ("Source contract", "models/staging/sources.yml", "yaml", "Synthetic partner, title, review and publication sources with key and relationship tests."),
+    "source": ("Source definitions and tests", "models/staging/sources.yml", "yaml", "Synthetic partner, title, review and publication sources with key and relationship tests."),
     "stage": ("Typed staging model", "models/staging/stg_submissions.sql", "sql", "One named place to cast times and standardise review status."),
     "snapshot": ("Partner tier snapshot", "snapshots/partner_tier_history.sql", "sql", "Timestamp strategy preserves partner-tier changes as history."),
     "lifecycle": ("Submission lifecycle", "models/intermediate/int_submission_lifecycle.sql", "sql", "Window ordering identifies each title's first attempt; the macro calculates review hours."),

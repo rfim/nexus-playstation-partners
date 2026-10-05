@@ -1,6 +1,6 @@
 {
   "source": {
-    "title": "Source contract",
+    "title": "Source definitions and tests",
     "filename": "models/staging/sources.yml",
     "language": "yaml",
     "description": "Synthetic partner, title, review and publication sources with key and relationship tests.",
