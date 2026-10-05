@@ -1,0 +1,49 @@
+{
+  "scope": "Synthetic portfolio data; no PlayStation or Lifepal records",
+  "metric_version": 1,
+  "totals": {
+    "titles_submitted": 6,
+    "first_pass_approved_titles": 3,
+    "titles_published": 4,
+    "submission_attempts": 9,
+    "first_pass_approval_pct": 50.0
+  },
+  "partners": [
+    {
+      "partner_id": "P01",
+      "partner_name": "Atlas Vale Studios",
+      "region": "UK",
+      "titles_submitted": 2,
+      "first_pass_approved_titles": 1,
+      "titles_published": 2,
+      "submission_attempts": 3,
+      "first_pass_approval_pct": 50.0,
+      "avg_review_hours": 25.0,
+      "avg_publication_lead_days": 5.0
+    },
+    {
+      "partner_id": "P02",
+      "partner_name": "Harbor Pixel",
+      "region": "US",
+      "titles_submitted": 2,
+      "first_pass_approved_titles": 0,
+      "titles_published": 1,
+      "submission_attempts": 4,
+      "first_pass_approval_pct": 0.0,
+      "avg_review_hours": 31.0,
+      "avg_publication_lead_days": 4.0
+    },
+    {
+      "partner_id": "P03",
+      "partner_name": "Signal Forge",
+      "region": "JP",
+      "titles_submitted": 2,
+      "first_pass_approved_titles": 2,
+      "titles_published": 1,
+      "submission_attempts": 2,
+      "first_pass_approval_pct": 100.0,
+      "avg_review_hours": 24.5,
+      "avg_publication_lead_days": 3.0
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+name: Verify NEXUS partner analytics
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  dbt-reference:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dbt and DuckDB adapter
+        run: python -m pip install -r requirements.txt
+      - name: Build and test synthetic data product
+        run: dbt build --profiles-dir .
+      - name: Verify site evidence matches working code
+        run: |
+          python scripts/export_metrics.py --check
+          python scripts/build_snippets.py --check

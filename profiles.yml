@@ -1,0 +1,8 @@
+nexus_partner_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: target/nexus_partner_analytics.duckdb
+      schema: main
+      threads: 4

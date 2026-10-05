@@ -1,0 +1,48 @@
+version: 2
+
+sources:
+  - name: partner_platform
+    description: Synthetic partner publishing inputs seeded for this portfolio reference.
+    schema: main
+    tables:
+      - name: raw_partners
+        description: One current row per synthetic partner.
+        columns:
+          - name: partner_id
+            data_tests: [unique, not_null]
+      - name: raw_titles
+        description: One current row per synthetic title.
+        columns:
+          - name: title_id
+            data_tests: [unique, not_null]
+          - name: partner_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('partner_platform', 'raw_partners')
+                    field: partner_id
+      - name: raw_submissions
+        description: One row per review attempt; a title may have several.
+        columns:
+          - name: submission_id
+            data_tests: [unique, not_null]
+          - name: title_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('partner_platform', 'raw_titles')
+                    field: title_id
+      - name: raw_publications
+        description: One storefront publication event per row.
+        columns:
+          - name: publication_id
+            data_tests: [unique, not_null]
+          - name: title_id
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('partner_platform', 'raw_titles')
+                    field: title_id

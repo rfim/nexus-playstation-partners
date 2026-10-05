@@ -1,0 +1,98 @@
+{
+  "source": {
+    "title": "Source contract",
+    "filename": "models/staging/sources.yml",
+    "language": "yaml",
+    "description": "Synthetic partner, title, review and publication sources with key and relationship tests.",
+    "code": "version: 2\n\nsources:\n  - name: partner_platform\n    description: Synthetic partner publishing inputs seeded for this portfolio reference.\n    schema: main\n    tables:\n      - name: raw_partners\n        description: One current row per synthetic partner.\n        columns:\n          - name: partner_id\n            data_tests: [unique, not_null]\n      - name: raw_titles\n        description: One current row per synthetic title.\n        columns:\n          - name: title_id\n            data_tests: [unique, not_null]\n          - name: partner_id\n            data_tests:\n              - not_null\n              - relationships:\n                  arguments:\n                    to: source('partner_platform', 'raw_partners')\n                    field: partner_id\n      - name: raw_submissions\n        description: One row per review attempt; a title may have several.\n        columns:\n          - name: submission_id\n            data_tests: [unique, not_null]\n          - name: title_id\n            data_tests:\n              - not_null\n              - relationships:\n                  arguments:\n                    to: source('partner_platform', 'raw_titles')\n                    field: title_id\n      - name: raw_publications\n        description: One storefront publication event per row.\n        columns:\n          - name: publication_id\n            data_tests: [unique, not_null]\n          - name: title_id\n            data_tests:\n              - not_null\n              - relationships:\n                  arguments:\n                    to: source('partner_platform', 'raw_titles')\n                    field: title_id\n",
+    "link": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/sources.yml"
+  },
+  "stage": {
+    "title": "Typed staging model",
+    "filename": "models/staging/stg_submissions.sql",
+    "language": "sql",
+    "description": "One named place to cast times and standardise review status.",
+    "code": "select\n    cast(submission_id as varchar) as submission_id,\n    cast(title_id as varchar) as title_id,\n    cast(submitted_at as timestamp) as submitted_at,\n    cast(reviewed_at as timestamp) as reviewed_at,\n    lower(trim(status)) as status,\n    cast(build_version as integer) as build_version\nfrom {{ source('partner_platform', 'raw_submissions') }}\n",
+    "link": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/stg_submissions.sql"
+  },
+  "snapshot": {
+    "title": "Partner tier snapshot",
+    "filename": "snapshots/partner_tier_history.sql",
+    "language": "sql",
+    "description": "Timestamp strategy preserves partner-tier changes as history.",
+    "code": "{% snapshot partner_tier_history %}\n{{ config(target_schema='main', unique_key='partner_id', strategy='timestamp', updated_at='updated_at') }}\nselect partner_id, partner_tier, updated_at\nfrom {{ source('partner_platform', 'raw_partners') }}\n{% endsnapshot %}\n",
+    "link": "https://github.com/rfim/nexus-playstation-partners/blob/main/snapshots/partner_tier_history.sql"
+  },
+  "lifecycle": {
+    "title": "Submission lifecycle",
+    "filename": "models/intermediate/int_submission_lifecycle.sql",
+    "language": "sql",
+    "description": "Window ordering identifies each title's first attempt; the macro calculates review hours.",
+    "code": "select\n    s.submission_id,\n    s.title_id,\n    t.partner_id,\n    s.submitted_at,\n    s.reviewed_at,\n    s.status,\n    s.build_version,\n    row_number() over (\n        partition by s.title_id\n        order by s.submitted_at, s.submission_id\n    ) as attempt_number,\n    {{ review_hours('s.submitted_at', 's.reviewed_at') }} as review_hours\nfrom {{ ref('stg_submissions') }} s\njoin {{ ref('stg_titles') }} t on s.title_id = t.title_id\n",
+    "link": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_submission_lifecycle.sql"
+  },
+  "title": {
+    "title": "One row per title",
+    "filename": "models/intermediate/int_title_outcomes.sql",
+    "language": "sql",
+    "description": "Submission and publication streams aggregate separately before joining, preventing fanout.",
+    "code": "with submissions as (\n    select\n        title_id,\n        count(*) as submission_attempts,\n        sum(case when reviewed_at is not null then 1 else 0 end) as reviewed_attempts,\n        sum(coalesce(review_hours, 0)) as review_hours_total,\n        min(submitted_at) as first_submitted_at,\n        max(case when attempt_number = 1 and status = 'approved' then 1 else 0 end)\n            as first_pass_approved,\n        max(case when status = 'approved' then 1 else 0 end) as ever_approved\n    from {{ ref('int_submission_lifecycle') }}\n    group by title_id\n), publications as (\n    select\n        title_id,\n        count(distinct storefront_region) as published_regions,\n        min(published_at) as first_published_at\n    from {{ ref('stg_publications') }}\n    group by title_id\n)\nselect\n    t.title_id,\n    t.partner_id,\n    t.planned_release_at,\n    coalesce(s.submission_attempts, 0) as submission_attempts,\n    coalesce(s.reviewed_attempts, 0) as reviewed_attempts,\n    coalesce(s.review_hours_total, 0) as review_hours_total,\n    coalesce(s.first_pass_approved, 0) as first_pass_approved,\n    coalesce(s.ever_approved, 0) as ever_approved,\n    coalesce(p.published_regions, 0) as published_regions,\n    s.first_submitted_at,\n    p.first_published_at,\n    case when p.first_published_at is not null and s.first_submitted_at is not null\n        then date_diff('day', s.first_submitted_at, p.first_published_at)\n    end as publication_lead_days\nfrom {{ ref('stg_titles') }} t\nleft join submissions s on t.title_id = s.title_id\nleft join publications p on t.title_id = p.title_id\n",
+    "link": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_title_outcomes.sql"
+  },
+  "fact": {
+    "title": "Submission fact",
+    "filename": "models/marts/fct_submission.sql",
+    "language": "sql",
+    "description": "A review-attempt grain for flexible downstream analysis.",
+    "code": "select\n    submission_id,\n    title_id,\n    partner_id,\n    submitted_at,\n    reviewed_at,\n    status,\n    build_version,\n    attempt_number,\n    review_hours\nfrom {{ ref('int_submission_lifecycle') }}\n",
+    "link": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/fct_submission.sql"
+  },
+  "dimension": {
+    "title": "Partner dimension",
+    "filename": "models/marts/dim_partner.sql",
+    "language": "sql",
+    "description": "A partner key with business-friendly attributes.",
+    "code": "select partner_id, partner_name, region, partner_tier\nfrom {{ ref('stg_partners') }}\n",
+    "link": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/dim_partner.sql"
+  },
+  "mart": {
+    "title": "Partner publishing mart",
+    "filename": "models/marts/mart_partner_publishing.sql",
+    "language": "sql",
+    "description": "Curated partner-level measures, with explicit denominators.",
+    "code": "select\n    p.partner_id,\n    p.partner_name,\n    p.region,\n    sum(case when o.submission_attempts > 0 then 1 else 0 end) as titles_submitted,\n    sum(o.first_pass_approved) as first_pass_approved_titles,\n    sum(case when o.published_regions > 0 then 1 else 0 end) as titles_published,\n    sum(o.published_regions) as published_storefront_regions,\n    sum(o.submission_attempts) as submission_attempts,\n    sum(o.reviewed_attempts) as reviewed_attempts,\n    sum(o.review_hours_total) as review_hours_total,\n    round(100.0 * sum(o.first_pass_approved)\n        / nullif(sum(case when o.submission_attempts > 0 then 1 else 0 end), 0), 1)\n        as first_pass_approval_pct,\n    round(sum(o.review_hours_total) / nullif(sum(o.reviewed_attempts), 0), 1)\n        as avg_review_hours,\n    round(avg(o.publication_lead_days), 1) as avg_publication_lead_days\nfrom {{ ref('dim_partner') }} p\njoin {{ ref('int_title_outcomes') }} o on p.partner_id = o.partner_id\ngroup by p.partner_id, p.partner_name, p.region\n",
+    "link": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_partner_publishing.sql"
+  },
+  "semantic": {
+    "title": "Metric contract",
+    "filename": "semantic/partner_metrics.yml",
+    "language": "yaml",
+    "description": "Versioned definitions and evidence requirements; a portfolio contract, not a deployed service.",
+    "code": "# Portfolio metric contract. This file documents business meaning; it is not\n# presented as a deployed dbt Semantic Layer service.\nversion: 1\ndomain: synthetic_partner_publishing\nowner: partner_analytics_portfolio\ngrain: partner_id\nsource_model: mart_partner_publishing\nmetrics:\n  first_pass_approval_rate:\n    label: First-pass approval rate\n    expression: first_pass_approved_titles / titles_submitted\n    display: percentage\n    meaning: Share of submitted titles approved on their first review attempt.\n    exclusions: Titles with no submission.\n  average_review_hours:\n    label: Average review hours\n    expression: sum(review_hours_total) / sum(reviewed_attempts)\n    display: hours\n    meaning: Mean elapsed hours per reviewed submission attempt.\n  published_titles:\n    label: Published titles\n    expression: titles_published\n    display: count\n    meaning: Distinct titles with at least one publication event.\npolicy:\n  partner_scope: Bind row access to the caller's authorised partner IDs before querying.\nevidence:\n  - metric_version\n  - source_freshness\n  - dbt_test_status\n  - source_to_mart_lineage\n",
+    "link": "https://github.com/rfim/nexus-playstation-partners/blob/main/semantic/partner_metrics.yml"
+  },
+  "tests": {
+    "title": "Fanout assertion",
+    "filename": "tests/assert_no_title_fanout.sql",
+    "language": "sql",
+    "description": "A singular dbt test fails if the one-row-per-title model changes its grain.",
+    "code": "select\n    (select count(*) from {{ ref('stg_titles') }}) as source_titles,\n    (select count(*) from {{ ref('int_title_outcomes') }}) as outcome_titles\nwhere source_titles <> outcome_titles\n",
+    "link": "https://github.com/rfim/nexus-playstation-partners/blob/main/tests/assert_no_title_fanout.sql"
+  },
+  "exposure": {
+    "title": "Dashboard exposure",
+    "filename": "models/marts/properties.yml",
+    "language": "yaml",
+    "description": "The dbt exposure links a proposed partner dashboard to its upstream mart.",
+    "code": "version: 2\n\nmodels:\n  - name: dim_partner\n    description: One row per partner; a synthetic current-state dimension.\n    columns:\n      - name: partner_id\n        data_tests: [unique, not_null]\n  - name: dim_title\n    description: One row per game or content title.\n    columns:\n      - name: title_id\n        data_tests: [unique, not_null]\n      - name: partner_id\n        data_tests:\n          - not_null\n          - relationships:\n              arguments:\n                to: ref('dim_partner')\n                field: partner_id\n  - name: fct_submission\n    description: One row per publishing review attempt.\n    columns:\n      - name: submission_id\n        data_tests: [unique, not_null]\n      - name: title_id\n        data_tests:\n          - not_null\n          - relationships:\n              arguments:\n                to: ref('dim_title')\n                field: title_id\n      - name: status\n        data_tests:\n          - accepted_values:\n              arguments:\n                values: ['approved', 'rejected', 'pending']\n  - name: mart_partner_publishing\n    description: Partner-level publishing health. All title outcomes are combined at title grain before this aggregation.\n    columns:\n      - name: partner_id\n        data_tests: [unique, not_null]\n      - name: first_pass_approval_pct\n        description: Approved on attempt one divided by titles with at least one submission, multiplied by 100.\n      - name: avg_review_hours\n        description: Total review hours divided by reviewed attempts.\n      - name: avg_publication_lead_days\n        description: Average days from first submission to first publication among published titles.\n\nexposures:\n  - name: partner_release_health\n    label: Partner release health (synthetic portfolio example)\n    type: dashboard\n    maturity: low\n    description: A possible partner operations dashboard using the governed publishing mart; no PlayStation dashboard has been deployed.\n    depends_on:\n      - ref('mart_partner_publishing')\n    owner:\n      name: VIM portfolio example\n      email: portfolio@example.invalid\n",
+    "link": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/properties.yml"
+  },
+  "ci": {
+    "title": "Build on every change",
+    "filename": ".github/workflows/ci.yml",
+    "language": "yaml",
+    "description": "GitHub Actions runs dbt build and checks generated site evidence.",
+    "code": "name: Verify NEXUS partner analytics\n\non:\n  push:\n  pull_request:\n\njobs:\n  dbt-reference:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: actions/setup-python@v5\n        with:\n          python-version: '3.12'\n      - name: Install dbt and DuckDB adapter\n        run: python -m pip install -r requirements.txt\n      - name: Build and test synthetic data product\n        run: dbt build --profiles-dir .\n      - name: Verify site evidence matches working code\n        run: |\n          python scripts/export_metrics.py --check\n          python scripts/build_snippets.py --check\n",
+    "link": "https://github.com/rfim/nexus-playstation-partners/blob/main/.github/workflows/ci.yml"
+  }
+}

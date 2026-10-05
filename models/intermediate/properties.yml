@@ -1,0 +1,19 @@
+version: 2
+
+models:
+  - name: int_submission_lifecycle
+    description: Review attempts ordered within each title. One row per submission.
+    columns:
+      - name: submission_id
+        data_tests: [unique, not_null]
+      - name: review_hours
+        data_tests:
+          - non_negative
+  - name: int_title_outcomes
+    description: One row per title; submission and publication streams are aggregated separately before joining to prevent fanout.
+    columns:
+      - name: title_id
+        data_tests: [unique, not_null]
+      - name: publication_lead_days
+        data_tests:
+          - non_negative

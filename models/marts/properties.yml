@@ -1,0 +1,60 @@
+version: 2
+
+models:
+  - name: dim_partner
+    description: One row per partner; a synthetic current-state dimension.
+    columns:
+      - name: partner_id
+        data_tests: [unique, not_null]
+  - name: dim_title
+    description: One row per game or content title.
+    columns:
+      - name: title_id
+        data_tests: [unique, not_null]
+      - name: partner_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_partner')
+                field: partner_id
+  - name: fct_submission
+    description: One row per publishing review attempt.
+    columns:
+      - name: submission_id
+        data_tests: [unique, not_null]
+      - name: title_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_title')
+                field: title_id
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['approved', 'rejected', 'pending']
+  - name: mart_partner_publishing
+    description: Partner-level publishing health. All title outcomes are combined at title grain before this aggregation.
+    columns:
+      - name: partner_id
+        data_tests: [unique, not_null]
+      - name: first_pass_approval_pct
+        description: Approved on attempt one divided by titles with at least one submission, multiplied by 100.
+      - name: avg_review_hours
+        description: Total review hours divided by reviewed attempts.
+      - name: avg_publication_lead_days
+        description: Average days from first submission to first publication among published titles.
+
+exposures:
+  - name: partner_release_health
+    label: Partner release health (synthetic portfolio example)
+    type: dashboard
+    maturity: low
+    description: A possible partner operations dashboard using the governed publishing mart; no PlayStation dashboard has been deployed.
+    depends_on:
+      - ref('mart_partner_publishing')
+    owner:
+      name: VIM portfolio example
+      email: portfolio@example.invalid

@@ -1,0 +1,31 @@
+# Portfolio metric contract. This file documents business meaning; it is not
+# presented as a deployed dbt Semantic Layer service.
+version: 1
+domain: synthetic_partner_publishing
+owner: partner_analytics_portfolio
+grain: partner_id
+source_model: mart_partner_publishing
+metrics:
+  first_pass_approval_rate:
+    label: First-pass approval rate
+    expression: first_pass_approved_titles / titles_submitted
+    display: percentage
+    meaning: Share of submitted titles approved on their first review attempt.
+    exclusions: Titles with no submission.
+  average_review_hours:
+    label: Average review hours
+    expression: sum(review_hours_total) / sum(reviewed_attempts)
+    display: hours
+    meaning: Mean elapsed hours per reviewed submission attempt.
+  published_titles:
+    label: Published titles
+    expression: titles_published
+    display: count
+    meaning: Distinct titles with at least one publication event.
+policy:
+  partner_scope: Bind row access to the caller's authorised partner IDs before querying.
+evidence:
+  - metric_version
+  - source_freshness
+  - dbt_test_status
+  - source_to_mart_lineage

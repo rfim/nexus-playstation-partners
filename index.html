@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b101b">
+  <meta name="description" content="NEXUS by VIM: an independent Senior Analytics Engineer portfolio case study for PlayStation Partners Platform. Explore dbt models, tests, metrics and runnable synthetic code.">
+  <title>NEXUS for PlayStation Partners | VIM · Senior Analytics Engineer</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/site.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#story">Skip to the case study</a>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="NEXUS, back to top"><span class="brand-mark">N<span>·</span></span><span><strong>NEXUS</strong><small>by VIM</small></span></a>
+    <nav aria-label="Primary navigation">
+      <a href="#story">The story</a><a href="#architecture">Architecture</a><a href="#math">The math</a><a href="#insights">Insights</a><a href="#proof">Code</a>
+    </nav>
+    <a class="header-cta" href="#contact">Let's talk <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="shell hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="live-dot"></span> Independent portfolio · PlayStation Partners Platform · London</p>
+          <h1 id="hero-title">NEXUS<span>.</span><small>for partner publishing</small></h1>
+          <p class="hero-lede">When a release slows down, the answer should be <em>traceable.</em></p>
+          <p class="hero-sub">I’m Firman Insan Muhammad. You can call me <strong>VIM.</strong> This is how the data platform I built at Lifepal can inform a trusted analytics layer for PlayStation’s partner publishing workflow.</p>
+          <div class="hero-actions"><a class="button button-primary" href="#architecture">Explore the architecture <span aria-hidden="true">↘</span></a><a class="button button-secondary" href="#proof">Inspect working dbt code <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <div class="hero-visual" aria-label="Monster Hunter Wilds editorial example">
+          <div class="visual-top"><span>FEATURED WORLD / MONSTER HUNTER WILDS</span><span class="visual-status"><i></i> EDITORIAL REFERENCE</span></div>
+          <img class="hero-game-logo" src="assets/monster-hunter-wilds-logo.png" alt="Monster Hunter Wilds logo">
+          <div class="visual-answer"><span>THE PARTNER QUESTION</span><strong>Where is a release getting stuck?</strong><p>A game launch can be cinematic. Its publishing metrics still need unglamorous, dependable definitions.</p></div>
+          <div class="visual-footer"><span>◯ <i>△</i> □ ×</span><small>Official game art · synthetic analytics below</small></div>
+        </div>
+      </div>
+      <div class="shell scope-ribbon"><span>Built at Lifepal <b>→</b> production platform patterns</span><span>Shown here <b>→</b> synthetic partner publishing reference</span></div>
+    </section>
+
+    <section id="featured-game" class="game-feature" aria-labelledby="game-title">
+      <div class="shell game-feature-grid">
+        <div class="game-copy">
+          <p class="game-kicker">A GAME WORLD / A DATA QUESTION</p>
+          <h2 id="game-title">The spectacle is on screen.<br><em>The release signal is underneath.</em></h2>
+          <p>Monster Hunter Wilds is a real Capcom title on PlayStation. It gives this portfolio a visual setting for the partner publishing question. The partner names, title records and results in the NEXUS reference are entirely fictional.</p>
+          <div class="heritage-mark"><img src="assets/sony-computer-entertainment-reference.webp" alt="Sony Computer Entertainment heritage mark supplied by VIM"><span><strong>PlayStation heritage</strong><small>Supplied visual reference; this is an independent portfolio, not an official Sony or Capcom site.</small></span></div>
+        </div>
+        <div class="trailer-panel">
+          <div class="trailer-heading"><span>WATCH THE WORLD</span><span>OFFICIAL CAPCOM TRAILER ↗</span></div>
+          <div id="trailer-frame" class="trailer-frame">
+            <button id="trailer-play" class="trailer-play" type="button" aria-label="Play the official Monster Hunter Wilds launch trailer"><span class="play-icon" aria-hidden="true">▶</span><span>Play official launch trailer</span></button>
+          </div>
+          <p>Footage: <a href="https://www.youtube.com/watch?v=a_wNFT4j6qI" target="_blank" rel="noopener noreferrer">Capcom’s official Monster Hunter Wilds launch trailer</a>. Video loads when you press play.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="story" class="story section-pad" aria-labelledby="story-title">
+      <div class="shell story-grid">
+        <div>
+          <div class="section-index"><span>01 / THE JOURNEY</span><span>From data entropy to business meaning</span></div>
+          <p class="section-kicker">NEXUS · built at Lifepal</p>
+          <h2 id="story-title">The dashboard is the easy part.<br><em>Agreeing on the number takes work.</em></h2>
+          <p class="large-copy">At Lifepal, I led NEXUS: a governed lakehouse with PostgreSQL CDC, Azure Databricks, Delta, dbt models and quality gates. It turned changing source data into trusted datasets for business teams.</p>
+          <p>For PlayStation Partners Platform, the relevant question is how a partner submission becomes a decision-ready measure: which titles cleared review first time, which need another attempt, and which are approved but not yet published? The synthetic example below follows that path. A duplicated event should not get a second vote.</p>
+          <div class="text-actions"><a href="#insights">See the synthetic result <span aria-hidden="true">↗</span></a><a href="#proof">Run the reference <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <aside class="evidence-card" aria-label="Lifepal platform evidence">
+          <div class="evidence-head"><span>PRODUCTION EXPERIENCE</span><span>↗</span></div>
+          <div class="lifepal-mark"><img src="assets/roojai-lifepal-transparent.png" alt="Roojai and Lifepal"></div>
+          <h3>A platform built for speed <em>and</em> trust.</h3>
+          <p>Metadata-driven ingestion, replay-safe CDC, dimensional Gold models, reconciliation and reviewed changes before publication.</p>
+          <div class="evidence-metrics"><div><strong>24h <span>→</span> &lt;5m</strong><small>reported delay</small></div><div><strong>500+</strong><small>quality checks</small></div><div><strong>6h <span>→</span> 90m</strong><small>nightly batch</small></div><div><strong>−60%</strong><small>data-trust escalations</small></div></div>
+          <small class="evidence-note">Lifepal outcomes are from my CV; the partner data on this site is synthetic.</small>
+        </aside>
+      </div>
+    </section>
+
+    <section class="role-fit section-pad" aria-labelledby="fit-title">
+      <div class="shell">
+        <div class="section-index"><span>02 / ROLE FIT</span><span>Analytics engineering for partner operations</span></div>
+        <div class="split-heading"><h2 id="fit-title">A platform team needs more than <em>a pretty chart.</em></h2><p>PlayStation’s role calls for greenfield dbt standards, dimensional modelling, quality, observability and close work with business teams. NEXUS gives me the foundation; this reference shows the analytics product I would build on top.</p></div>
+        <div class="fit-cards">
+          <article><span class="card-number">01 / DEFINE</span><h3>One meaning for each measure</h3><p>Partner, title and submission grains are explicit. “First-pass approval” has a numerator, denominator and owner, so teams can discuss the result rather than the SQL.</p><div class="tech-tags"><span>dbt</span><span>Dimensional models</span><span>Metric contract</span></div></article>
+          <article><span class="card-number">02 / PROTECT</span><h3>Tests before trust</h3><p>Source keys, relationships, accepted statuses, no negative review time and no title fanout are checked in the runnable dbt build.</p><div class="tech-tags"><span>Generic tests</span><span>Singular tests</span><span>CI</span></div></article>
+          <article><span class="card-number">03 / ENABLE</span><h3>Answer a partner question</h3><p>A partner-facing mart and dbt exposure connect the model to a possible dashboard. The synthetic comparison highlights where teams should investigate review or publication delays.</p><div class="tech-tags"><span>SQL</span><span>Exposure</span><span>Self-service</span></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="architecture section-pad" aria-labelledby="architecture-title">
+      <div class="shell">
+        <div class="section-index section-index-light"><span>03 / ARCHITECTURE</span><span>Every block opens its source</span></div>
+        <div class="split-heading"><h2 id="architecture-title">From partner event<br><em>to trusted decision.</em></h2><p>The role-specific route uses synthetic publishing data. It carries NEXUS patterns into dbt: source contracts, typed staging, one-row-per-title aggregation, dimensional marts and tests before consumption.</p></div>
+        <details class="map-accordion" open>
+          <summary><span><small>INTERACTIVE SYSTEM MAP</small><strong>Follow the publishing signal</strong><em>Click any block to inspect its working code or contract.</em></span><span class="map-toggle"><span class="open-word">Hide map</span><span class="closed-word">Show map</span><b aria-hidden="true">⌄</b></span></summary>
+          <div class="map-body">
+            <div class="map-pulse" aria-hidden="true"><span></span></div>
+            <div class="map-stages">
+              <article class="map-stage"><div class="stage-title"><span>01 / CAPTURE</span><h3>Know the input</h3><p>Partner, title, review and publication events.</p></div><button type="button" data-snippet="source"><small>SOURCE CONTRACT</small><strong>dbt sources</strong><span>Keys and relationships checked at the door.</span><b>Inspect YAML ↗</b></button><button type="button" data-snippet="snapshot"><small>HISTORY</small><strong>Partner snapshot</strong><span>Tier changes stay traceable.</span><b>Inspect SQL ↗</b></button></article>
+              <article class="map-stage"><div class="stage-title"><span>02 / STANDARDISE</span><h3>Give events shape</h3><p>Types and status values have one home.</p></div><button type="button" data-snippet="stage"><small>STAGING</small><strong>Typed submissions</strong><span>Dates and review status made consistent.</span><b>Inspect SQL ↗</b></button><button type="button" data-snippet="lifecycle"><small>WINDOW LOGIC</small><strong>Attempt lifecycle</strong><span>First attempt is defined by event time.</span><b>Inspect SQL ↗</b></button></article>
+              <article class="map-stage"><div class="stage-title"><span>03 / MODEL</span><h3>Protect the grain</h3><p>Separate streams before joining them.</p></div><button type="button" data-snippet="title"><small>ONE ROW PER TITLE</small><strong>Title outcomes</strong><span>Review and publication counts without fanout.</span><b>Inspect SQL ↗</b></button><button type="button" data-snippet="fact"><small>DIMENSIONAL</small><strong>Submission fact</strong><span>One row per review attempt.</span><b>Inspect SQL ↗</b></button><button type="button" data-snippet="dimension"><small>DIMENSIONAL</small><strong>Partner dimension</strong><span>Keys and business attributes.</span><b>Inspect SQL ↗</b></button></article>
+              <article class="map-stage"><div class="stage-title"><span>04 / EXPLAIN</span><h3>Share one meaning</h3><p>Measures fit the business question.</p></div><button type="button" data-snippet="mart"><small>BUSINESS MART</small><strong>Partner publishing</strong><span>Approval, review and publication measures.</span><b>Inspect SQL ↗</b></button><button type="button" data-snippet="semantic"><small>VERSIONED MEANING</small><strong>Metric contract</strong><span>Definition, denominator and evidence.</span><b>Inspect YAML ↗</b></button></article>
+              <article class="map-stage"><div class="stage-title"><span>05 / RELEASE</span><h3>Earn trust</h3><p>Tests and consumers stay connected.</p></div><button type="button" data-snippet="tests"><small>QUALITY GATE</small><strong>No title fanout</strong><span>A grain change fails the build.</span><b>Inspect test ↗</b></button><button type="button" data-snippet="exposure"><small>CONSUMPTION</small><strong>Dashboard exposure</strong><span>Proposed use, linked to the mart.</span><b>Inspect YAML ↗</b></button><button type="button" data-snippet="ci"><small>DEVELOPER FLOW</small><strong>GitHub CI</strong><span>Build and check evidence on each change.</span><b>Inspect workflow ↗</b></button></article>
+            </div>
+            <p class="map-caption">Local reference: dbt Core + DuckDB. The production warehouse and BI tool for PlayStation would be chosen with the team; this portfolio does not connect to SIE systems.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="math" class="math section-pad" aria-labelledby="math-title">
+      <div class="shell">
+        <div class="section-index"><span>04 / THE MATH</span><span>Business definitions that can be checked</span></div>
+        <div class="split-heading"><h2 id="math-title">The equations behind <em>the answer.</em></h2><p>These are the rules for the synthetic partner data product. Each one connects a business phrase to a model grain or a release check.</p></div>
+        <div class="math-list">
+          <details name="partner-math" open><summary><span>01</span><strong>First-pass approval<small>What portion cleared review on attempt one?</small></strong><i aria-hidden="true">+</i></summary><div class="math-body"><p class="formula">FPA = approved on attempt 1 / submitted titles</p><p>Count each title once. The denominator excludes titles that have not been submitted. The synthetic result is <strong>3 / 6 = 50%</strong>.</p></div></details>
+          <details name="partner-math"><summary><span>02</span><strong>Review time<small>A measure with a clear clock</small></strong><i aria-hidden="true">+</i></summary><div class="math-body"><p class="formula">mean review hours = Σ(reviewed − submitted) / N<sub>reviewed</sub></p><p>Use reviewed attempts as the denominator. Keep pending attempts out until their clock stops.</p></div></details>
+          <details name="partner-math"><summary><span>03</span><strong>Join fanout<small>The quiet way a KPI doubles</small></strong><i aria-hidden="true">+</i></summary><div class="math-body"><p class="formula">|title outcomes| = |titles|</p><p>Aggregate submissions and storefront publications separately, then join at title grain. A singular dbt test enforces the row count.</p></div></details>
+          <details name="partner-math"><summary><span>04</span><strong>Decision freshness<small>What a consumer can actually see</small></strong><i aria-hidden="true">+</i></summary><div class="math-body"><p class="formula">freshness = now − max(published event time)</p><p>A job finishing is not the same as a fresh answer. In production, this would be measured at the serving boundary, with agreed thresholds.</p></div></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="insights" class="insights section-pad" aria-labelledby="insights-title">
+      <div class="shell">
+        <div class="section-index section-index-light"><span>05 / THE RESULT</span><span>Generated from the runnable dbt mart</span></div>
+        <div class="split-heading"><h2 id="insights-title">A small dataset.<br><em>A useful question.</em></h2><p>These are synthetic partners and titles. Choose one to see how the same governed measures can guide a real stakeholder conversation without claiming to know the cause of a delay.</p></div>
+        <div class="insight-totals"><div><span>FIRST-PASS APPROVAL</span><strong id="total-first-pass">50%</strong><small>3 of 6 submitted titles</small></div><div><span>TITLES PUBLISHED</span><strong id="total-published">4 / 6</strong><small>At least one storefront event</small></div><div><span>REVIEW ATTEMPTS</span><strong id="total-attempts">9</strong><small>Across six synthetic titles</small></div></div>
+        <div class="insight-layout"><div><p class="panel-eyebrow">SELECT A SYNTHETIC PARTNER</p><div id="partner-list" class="partner-list"><p>Loading model output…</p></div></div><article id="partner-detail" class="partner-detail" aria-live="polite"><p class="panel-eyebrow">MODEL OUTPUT</p><h3>Select a partner</h3><p>Partner-level measures are generated from <code>mart_partner_publishing</code>.</p></article></div>
+        <p class="data-note">This chart reads <a href="assets/metrics.json">the exported dbt result</a>. No PlayStation partner, player, financial or operational data appears here.</p>
+      </div>
+    </section>
+
+    <section id="proof" class="proof section-pad" aria-labelledby="proof-title">
+      <div class="shell">
+        <div class="section-index"><span>06 / WORKING CODE</span><span>Run it, inspect it, change it</span></div>
+        <div class="split-heading"><h2 id="proof-title">The code is part of <em>the story.</em></h2><p>This public repository includes synthetic seeds, dbt sources, staging, a snapshot, macros, facts and dimensions, a partner mart, generic and singular tests, and an exposure. The code window reads repository source; the metric contract is a separate, versioned design reference.</p></div>
+        <div class="proof-grid"><div class="run-card"><span class="panel-eyebrow">LOCAL REFERENCE</span><h3>One command builds the answer.</h3><pre><code>python -m pip install -r requirements.txt
+dbt build --profiles-dir .</code></pre><p>dbt runs the seeds, models, snapshot and tests against DuckDB. GitHub Actions repeats the build and checks that this site's examples match the source.</p><a class="button button-primary" href="https://github.com/rfim/nexus-playstation-partners" target="_blank" rel="noopener noreferrer">Open the repository ↗</a><small>Requires Python 3.12. DuckDB is local; no PlayStation account is needed.</small></div><div class="code-window"><div class="code-window-top"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span id="proof-file">models/marts/mart_partner_publishing.sql</span><span id="proof-lang">SQL</span></div><div class="code-tabs" role="tablist" aria-label="Code examples"><button type="button" role="tab" class="is-active" aria-selected="true" data-proof="mart">Business mart</button><button type="button" role="tab" aria-selected="false" data-proof="title">No fanout</button><button type="button" role="tab" aria-selected="false" data-proof="tests">Test</button><button type="button" role="tab" aria-selected="false" data-proof="semantic">Metric contract</button></div><pre class="proof-code"><code id="proof-code">Loading source code…</code></pre><div class="code-footer"><span id="proof-description">Curated partner-level measures.</span><a id="proof-link" href="https://github.com/rfim/nexus-playstation-partners" target="_blank" rel="noopener noreferrer">Open full source ↗</a></div></div></div>
+      </div>
+    </section>
+
+    <section id="conversation" class="conversation section-pad" aria-labelledby="conversation-title"><div class="shell"><div class="section-index"><span>07 / PULL UP A CHAIR</span><span>The decisions behind the model</span></div><div class="split-heading"><h2 id="conversation-title">What would we discuss <em>first?</em></h2><p>The most useful metric is the one a partner team trusts and acts on. I would start with definitions and workflow, then choose the warehouse and dashboard details with the people who use them.</p></div><div class="conversation-grid"><article><span>01 / GRAIN</span><h3>What counts as a title?</h3><p>A title, submission attempt and storefront publication are different things. Keeping those grains separate prevents a second review or region from quietly inflating a KPI.</p></article><article><span>02 / MEANING</span><h3>When is “approved” final?</h3><p>Agree with partner operations on status semantics, late corrections and calendar cutoffs before a dashboard becomes a source of truth.</p></article><article><span>03 / OWNERSHIP</span><h3>Who acts on a failed test?</h3><p>Tests, exposures and documentation matter when someone owns the follow-up. The synthetic workflow shows the checks; production would need thresholds and response paths agreed with the team.</p></article></div></div></section>
+
+    <section id="contact" class="contact section-pad" aria-labelledby="contact-title"><div class="shell contact-grid"><div><p class="section-kicker">A conversation worth having</p><h2 id="contact-title">Let’s make partner data<br><em>easier to trust.</em></h2><p>VIM · Senior Data Engineer · London. I would welcome a conversation about the Senior Analytics Engineer role and the decisions behind this reference.</p></div><div class="contact-actions"><a class="button button-primary" href="mailto:firman.insan.m@gmail.com?subject=NEXUS%20%7C%20PlayStation%20Partners%20Platform">Email VIM ↗</a><a href="https://www.linkedin.com/in/firmaninsan/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a><a href="https://github.com/rfim/nexus-playstation-partners" target="_blank" rel="noopener noreferrer">Inspect the repo ↗</a></div></div></section>
+  </main>
+
+  <dialog id="code-dialog" class="code-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description"><div class="dialog-heading"><div><small>SOURCE INSPECTOR</small><h2 id="dialog-title">Working source</h2></div><button type="button" id="dialog-close" aria-label="Close code inspector">×</button></div><p id="dialog-description"></p><div class="dialog-file"><span id="dialog-file"></span><span id="dialog-language"></span></div><pre><code id="dialog-code"></code></pre><a id="dialog-link" href="https://github.com/rfim/nexus-playstation-partners" target="_blank" rel="noopener noreferrer">Open full file on GitHub ↗</a></dialog>
+
+  <footer class="site-footer"><div class="shell"><span>NEXUS by VIM · independent application case study</span><span>Wilds art and logo: <a href="https://www.playstation.com/en-gb/games/monster-hunter-wilds/" target="_blank" rel="noopener noreferrer">PlayStation game page</a> · Footage: <a href="https://www.youtube.com/watch?v=a_wNFT4j6qI" target="_blank" rel="noopener noreferrer">Capcom</a>. Not affiliated with Sony or Capcom.</span><a href="#top">Back to top ↑</a></div></footer>
+</body>
+</html>
