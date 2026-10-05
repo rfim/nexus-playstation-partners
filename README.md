@@ -2,7 +2,7 @@
 
 An independent Senior Analytics Engineer portfolio by Firman Insan Muhammad (VIM). The page leads with the NEXUS data path and its inspectable dbt source, then uses PlayStation game worlds as editorial examples of partner publishing questions. It demonstrates how the production NEXUS patterns I built at Lifepal can support clear, tested measures.
 
-The hero labels this independent application **“Presented to PlayStation”** and shows the Sony Computer Entertainment heritage image supplied by VIM. The blue flowing light and floating controller symbols in the hero and architecture accordion are original CSS animation inspired by the PS5 visual mood, not official console footage or UI.
+The hero labels this independent application **“Presented to PlayStation”** and shows the Sony Computer Entertainment heritage image supplied by VIM. Its full-page moving backdrop uses original broken circles, graphic cuts and green light inspired by Persona 6's visual mood. Blue flowing light and floating controller symbols in the architecture preview and accordion are original CSS animation inspired by the PS5 visual mood. These are not official console footage or UI.
 
 **Live site:** https://rfim.github.io/nexus-playstation-partners/
 

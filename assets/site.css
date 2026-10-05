@@ -219,3 +219,23 @@
 @keyframes psFloat{from{transform:translate3d(0,12px,0) rotate(-16deg);opacity:.15}to{transform:translate3d(26px,-26px,0) rotate(12deg);opacity:.5}}
 @media(max-width:560px){.hero-presented{gap:.7rem}.hero-presented img{width:50px;height:73px}.hero-presented strong{font-size:.95rem}.hero-presented small{font-size:.48rem}.hero-presented em{font-size:.57rem}.ps-glyph{font-size:2.6rem}.ps-ribbon{height:180px}.map-accordion>.ps5-atmosphere .ps-ribbon{height:230px}}
 @media(prefers-reduced-motion:reduce){.hero::before,.ps5-atmosphere,.ps5-atmosphere::before,.ps-ribbon,.ps-glyph{animation:none!important}}
+
+/* Persona-inspired hero backdrop: original broken circles, graphic cuts, and green ink light. */
+.persona-hero-bg{position:absolute;z-index:0;inset:0;overflow:hidden;pointer-events:none;background:radial-gradient(circle at 4% 47%,rgba(48,153,99,.18),transparent 28%),radial-gradient(circle at 96% 25%,rgba(75,178,119,.16),transparent 25%)}
+.persona-ring{position:absolute;display:block;width:min(43vw,670px);aspect-ratio:1;border:15px solid rgba(235,255,241,.17);border-left-color:transparent;border-bottom-color:rgba(235,255,241,.045);border-radius:50%;box-shadow:0 0 0 1px rgba(175,236,191,.08),0 0 75px rgba(65,181,117,.14),inset 0 0 55px rgba(65,181,117,.1);animation:personaTurn 26s linear infinite}
+.persona-ring::before,.persona-ring::after{content:"";position:absolute;border-radius:50%}
+.persona-ring::before{inset:9%;border:2px dashed rgba(221,255,232,.24)}
+.persona-ring::after{inset:30%;border:7px solid rgba(235,255,241,.09);border-right-color:transparent;box-shadow:0 0 24px rgba(120,228,155,.13)}
+.persona-ring-left{left:-12%;top:-31%;transform:rotate(-30deg)}
+.persona-ring-right{right:-13%;bottom:-38%;animation-direction:reverse;animation-duration:31s}
+.persona-slice{position:absolute;display:block;width:27%;height:140%;top:-20%;background:linear-gradient(90deg,transparent,rgba(234,255,241,.1),rgba(84,184,116,.12),transparent);clip-path:polygon(36% 0,64% 0,43% 100%,14% 100%);transform:translateX(0) rotate(9deg);animation:personaCut 14s ease-in-out infinite alternate}
+.persona-slice-one{left:4%}.persona-slice-two{right:3%;animation-delay:-7s;animation-duration:18s;opacity:.74;transform:rotate(-10deg)}
+.persona-scan{position:absolute;inset:-10% auto -10% -40%;width:28%;background:linear-gradient(90deg,transparent,rgba(200,255,222,.02) 35%,rgba(235,255,244,.13) 50%,rgba(200,255,222,.02) 65%,transparent);transform:skewX(-15deg);animation:personaScan 12s ease-in-out infinite}
+.persona-mark{position:absolute;color:rgba(223,255,230,.14);font-size:clamp(6rem,13vw,13rem);font-weight:800;line-height:1;text-shadow:0 0 38px rgba(92,212,133,.18);animation:personaMark 17s ease-in-out infinite alternate}
+.persona-mark-one{left:2%;bottom:4%}.persona-mark-two{right:2%;top:0;animation-delay:-8s}
+@keyframes personaTurn{from{rotate:0deg}to{rotate:360deg}}
+@keyframes personaCut{from{translate:-10% 0;opacity:.2}to{translate:15% 0;opacity:.74}}
+@keyframes personaScan{0%,15%{left:-40%;opacity:0}35%{opacity:1}70%,100%{left:110%;opacity:0}}
+@keyframes personaMark{from{transform:translate3d(0,10px,0) rotate(-8deg);opacity:.12}to{transform:translate3d(32px,-28px,0) rotate(8deg);opacity:.3}}
+@media(max-width:800px){.persona-ring{width:360px;border-width:11px}.persona-ring-left{left:-215px;top:-100px}.persona-ring-right{right:-225px;bottom:-90px}.persona-slice{opacity:.35}.persona-mark{font-size:6rem}}
+@media(prefers-reduced-motion:reduce){.persona-ring,.persona-slice,.persona-scan,.persona-mark{animation:none!important}.persona-scan{opacity:0}}
