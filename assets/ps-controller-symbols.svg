@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <symbol id="triangle" viewBox="0 0 32 32"><path d="M16 3.5 29 27H3Z" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linejoin="round"/></symbol>
+  <symbol id="circle" viewBox="0 0 32 32"><circle cx="16" cy="16" r="12.1" fill="none" stroke="currentColor" stroke-width="3.1"/></symbol>
+  <symbol id="cross" viewBox="0 0 32 32"><path d="M6 6 26 26M26 6 6 26" fill="none" stroke="currentColor" stroke-width="3.1" stroke-linecap="round"/></symbol>
+  <symbol id="square" viewBox="0 0 32 32"><rect x="4.2" y="4.2" width="23.6" height="23.6" rx=".4" fill="none" stroke="currentColor" stroke-width="3.1"/></symbol>
+</svg>

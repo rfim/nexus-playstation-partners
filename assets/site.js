@@ -79,6 +79,40 @@ async function setupMetrics() {
   if (data.partners.length) renderPartner(data.partners[0]);
   setupSignalLab(data.totals);
   setupMathExplorer(data.totals);
+  setupCharts(data);
+}
+
+function setupCharts(data) {
+  const partners = data.partners;
+  const totals = data.totals;
+  const safe = (value) => String(value).replace(/[&<>"']/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
+  const percent = (part, whole) => whole ? Math.min(100, Math.max(0, part / whole * 100)) : 0;
+  const barRows = partners.map((partner) => `<div class="chart-bar-row"><span>${safe(partner.partner_name)}</span><div class="chart-bar-track" aria-hidden="true"><i style="--bar-width:${percent(partner.first_pass_approved_titles, partner.titles_submitted)}%"></i></div><strong>${formatPercent(partner.first_pass_approval_pct)}</strong></div>`).join('');
+  const firstAttempts = totals.titles_submitted;
+  const repeatAttempts = totals.submission_attempts - firstAttempts;
+  const publishedShare = percent(totals.titles_published, totals.titles_submitted);
+  const maxReview = Math.max(...partners.map((partner) => Number(partner.avg_review_hours)), 1);
+  const reviewRows = partners.map((partner) => `<div class="chart-dot-row"><span>${safe(partner.partner_name)}</span><div class="chart-dot-track" aria-hidden="true"><i style="--dot-width:${percent(partner.avg_review_hours, maxReview)}%"></i></div><strong>${safe(partner.avg_review_hours)}h</strong></div>`).join('');
+  const maxLead = Math.max(...partners.map((partner) => Number(partner.avg_publication_lead_days)), 1);
+  const leadColumns = partners.map((partner) => `<div class="chart-column"><strong>${safe(partner.avg_publication_lead_days)}d</strong><div class="chart-column-track" aria-hidden="true"><i style="--column-height:${percent(partner.avg_publication_lead_days, maxLead)}%"></i></div><span>${safe(partner.partner_name)}</span></div>`).join('');
+  $('#partner-charts').innerHTML = `
+    <article class="chart-card"><span class="chart-number">01 / QUALITY</span><h4>First-pass approval</h4><p>Where a title clears review without a second attempt.</p><div class="chart-bars">${barRows}</div><small>Approved on attempt one ÷ submitted titles</small></article>
+    <article class="chart-card"><span class="chart-number">02 / RETRIES</span><h4>Review effort</h4><p>Repeat attempts are visible, rather than hidden in a total.</p><div class="chart-mix"><div class="chart-mix-total"><strong>${totals.submission_attempts}</strong><span>review attempts</span></div><div class="chart-mix-track" aria-hidden="true"><i class="chart-mix-first" style="--mix-width:${percent(firstAttempts, totals.submission_attempts)}%"></i><i class="chart-mix-repeat" style="--mix-width:${percent(repeatAttempts, totals.submission_attempts)}%"></i></div><div class="chart-mix-key"><span><b></b>${firstAttempts} first attempts</span><span><b></b>${repeatAttempts} repeats</span></div></div><small>One first attempt per submitted title</small></article>
+    <article class="chart-card"><span class="chart-number">03 / PUBLICATION</span><h4>Storefront coverage</h4><p>Publication is a separate event from approval.</p><div class="chart-ring-wrap"><svg class="chart-ring" viewBox="0 0 160 160" aria-hidden="true"><circle class="chart-ring-track" cx="80" cy="80" r="60" pathLength="100"/><circle class="chart-ring-fill" cx="80" cy="80" r="60" pathLength="100" style="--ring-end:${100 - publishedShare}"/></svg><div class="chart-ring-label"><strong>${totals.titles_published} / ${totals.titles_submitted}</strong><span>titles published</span></div></div><small>Published titles ÷ submitted titles</small></article>
+    <article class="chart-card"><span class="chart-number">04 / SPEED</span><h4>Review time</h4><p>Mean hours from submission to review, by partner.</p><div class="chart-dots">${reviewRows}</div><small>Hours; compare the span, then inspect status history</small></article>
+    <article class="chart-card chart-card-wide"><span class="chart-number">05 / HANDOFF</span><h4>Publication lead time</h4><p>Mean days from approved review to storefront publication.</p><div class="chart-columns">${leadColumns}</div><small>Only published titles contribute to each partner mean</small></article>`;
+  const suite = $('#chart-suite');
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        suite.classList.add('is-visible');
+        observer.disconnect();
+      }
+    }, {threshold: 0.12});
+    observer.observe(suite);
+  } else {
+    suite.classList.add('is-visible');
+  }
 }
 
 function setupSignalLab(totals) {
