@@ -77,6 +77,83 @@ async function setupMetrics() {
     list.append(button);
   });
   if (data.partners.length) renderPartner(data.partners[0]);
+  setupSignalLab(data.totals);
+  setupMathExplorer(data.totals);
+}
+
+function setupSignalLab(totals) {
+  const signals = {
+    approval: {
+      value: formatPercent(totals.first_pass_approval_pct),
+      explanation: `${totals.first_pass_approved_titles} of ${totals.titles_submitted} submitted titles cleared review on attempt one.`,
+      share: totals.first_pass_approved_titles / totals.titles_submitted
+    },
+    published: {
+      value: `${totals.titles_published} / ${totals.titles_submitted}`,
+      explanation: `${totals.titles_published} submitted titles have at least one storefront publication event.`,
+      share: totals.titles_published / totals.titles_submitted
+    },
+    attempts: {
+      value: `${totals.submission_attempts - totals.titles_submitted} repeats`,
+      explanation: `${totals.submission_attempts - totals.titles_submitted} of ${totals.submission_attempts} review attempts came after a title's first attempt.`,
+      share: (totals.submission_attempts - totals.titles_submitted) / totals.submission_attempts
+    }
+  };
+  const buttons = document.querySelectorAll('[data-signal]');
+  function select(key) {
+    const signal = signals[key];
+    $('#signal-value').textContent = signal.value;
+    $('#signal-explanation').textContent = signal.explanation;
+    $('#signal-meter-fill').style.width = `${signal.share * 100}%`;
+    buttons.forEach((button) => {
+      const active = button.dataset.signal === key;
+      button.classList.toggle('is-active', active);
+      button.setAttribute('aria-pressed', String(active));
+    });
+  }
+  buttons.forEach((button) => button.addEventListener('click', () => select(button.dataset.signal)));
+  select('approval');
+}
+
+function setupMathExplorer(totals) {
+  const submitted = $('#submitted-range');
+  const approved = $('#approved-range');
+  submitted.max = String(Math.max(12, totals.titles_submitted * 2));
+  submitted.value = String(totals.titles_submitted);
+  approved.value = String(totals.first_pass_approved_titles);
+  function render() {
+    const denominator = Number(submitted.value);
+    approved.max = String(denominator);
+    if (Number(approved.value) > denominator) approved.value = String(denominator);
+    const numerator = Number(approved.value);
+    const share = numerator / denominator;
+    $('#submitted-output').textContent = denominator;
+    $('#approved-output').textContent = numerator;
+    $('#math-result').textContent = `${numerator} / ${denominator} = ${formatPercent(share * 100)}`;
+    $('#math-meter-fill').style.width = `${share * 100}%`;
+  }
+  $('#math-baseline').textContent = `${totals.first_pass_approved_titles} / ${totals.titles_submitted} = ${formatPercent(totals.first_pass_approval_pct)}`;
+  submitted.addEventListener('input', render);
+  approved.addEventListener('input', render);
+  render();
+}
+
+function setupFanoutExplorer() {
+  const buttons = document.querySelectorAll('[data-fanout]');
+  const rows = $('#fanout-rows');
+  buttons.forEach((button) => button.addEventListener('click', () => {
+    const raw = button.dataset.fanout === 'raw';
+    $('#fanout-caption').textContent = raw
+      ? 'Raw join: 2 review rows × 2 storefront rows = 4 rows for one title. A KPI can quietly double.'
+      : 'Aggregate each stream first: one title outcome row.';
+    rows.replaceChildren(...Array.from({length: raw ? 4 : 1}, () => document.createElement('i')));
+    rows.classList.toggle('is-raw', raw);
+    buttons.forEach((item) => {
+      const active = item === button;
+      item.classList.toggle('is-active', active);
+      item.setAttribute('aria-pressed', String(active));
+    });
+  }));
 }
 
 function setProof(snippet, key) {
@@ -122,7 +199,7 @@ function setupTrailer() {
   const games = {
     wilds: {
       title: 'Monster Hunter Wilds',
-      context: 'I have put 750 hours into Wilds. That may help one retention curve, but it is still one player, not a dataset. The NEXUS records below represent no real title or partner.',
+      context: 'I have put 750 hours into Wilds. That may help one retention curve, but it is still one player, not a dataset. The NEXUS reference contains no real game or partner records.',
       page: 'https://www.playstation.com/en-gb/games/monster-hunter-wilds/',
       poster: 'assets/monster-hunter-wilds-keyart.jpg',
       video: 'a_wNFT4j6qI',
@@ -132,7 +209,7 @@ function setupTrailer() {
     },
     revelation: {
       title: 'Final Fantasy VII Revelation',
-      context: 'An announced chapter makes release readiness especially visible. Here it is an editorial example; the dbt records below remain fictional.',
+      context: 'An announced chapter makes release readiness especially visible. Here it is an editorial example; the dbt records remain fictional.',
       page: 'https://www.playstation.com/en-us/games/final-fantasy-vii-revelation/',
       poster: 'assets/ff7-revelation-hero.jpg',
       video: '8JszLth0_Gc',
@@ -195,6 +272,7 @@ function setupTrailer() {
 }
 
 setupTrailer();
+setupFanoutExplorer();
 setupMetrics().catch(() => {
   $('#partner-list').textContent = 'Model output could not load. Open the repository for the synthetic data.';
 });

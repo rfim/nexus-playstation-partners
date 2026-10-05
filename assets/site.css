@@ -16,24 +16,27 @@
 @media(max-width:560px){.site-header{padding:.65rem 1.1rem}.site-header nav{gap:.75rem}.site-header nav a{font-size:.66rem}.header-cta{margin-left:auto}.hero h1{font-size:clamp(4.5rem,20vw,7rem)}.hero h1 small{font-size:1.2rem}.hero-visual{min-height:400px;padding:1rem}.visual-pipeline{height:190px}.visual-node{padding:.8rem .1rem}.visual-node strong{font-size:.91rem}.visual-node small{font-size:.55rem}.visual-answer strong{font-size:1.05rem}.visual-footer small{font-size:.5rem}.section-pad{padding:4.5rem 0}.section-index{font-size:.6rem}.section-index span:last-child{display:none}h2{font-size:clamp(2.45rem,11vw,4rem)}.evidence-card{padding:1.1rem}.fit-cards article{padding:1.2rem}.map-accordion summary{padding:1rem}.map-accordion summary strong{font-size:1.2rem}.map-accordion summary em{font-size:.65rem}.map-toggle .open-word,.map-toggle .closed-word{display:none!important}.map-stages{grid-template-columns:1fr}.stage-title{min-height:0}.map-pulse{display:none}.map-stage{padding:.85rem}.map-stage button{padding:.85rem}.math-list summary{grid-template-columns:27px minmax(0,1fr) 29px;gap:.6rem;padding:.9rem .5rem}.math-list summary strong{font-size:1rem}.math-body{padding:0 .5rem 1rem}.math-body .formula{font-size:1.1rem}.insight-totals{grid-template-columns:1fr;gap:.5rem}.insight-totals>div{padding:1rem}.insight-totals strong{font-size:2.3rem}.partner-stats{grid-template-columns:1fr}.proof-code{height:330px}.site-footer .shell{align-items:start;flex-direction:column}.code-dialog pre{font-size:.63rem}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 
-/* Cinematic game editorial layer. The analytics sections retain their own clear hierarchy. */
-.hero{background:#08101b url("monster-hunter-wilds-hero.jpg") center 38%/cover no-repeat}
-.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,10,19,.97) 0%,rgba(5,10,19,.91) 37%,rgba(5,10,19,.57) 70%,rgba(5,10,19,.7) 100%)}
-.hero-glow{opacity:.1;mask-image:linear-gradient(to right,#000,transparent 80%)}
+/* PlayStation mood, with the NEXUS data path leading the story. */
+.hero{background:radial-gradient(circle at 75% 25%,rgba(93,156,226,.3),transparent 34%),radial-gradient(circle at 85% 75%,rgba(238,184,91,.16),transparent 31%),linear-gradient(130deg,#050d1b,#0d213d 58%,#071426)}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 54%,rgba(99,150,210,.07) 54.2%,transparent 70%)}
+.hero-glow{opacity:.22;mask-image:linear-gradient(to right,transparent 15%,#000 85%)}
 .hero-grid{min-height:705px}
 .hero h1>span,.hero-lede em{color:#f6ce78}
 .hero h1 small{color:#e4c891}
 .hero .button-primary{background:#f4ca72;color:#181506}
 .hero .button-primary:hover{background:#fff0cb}
-.hero-visual{display:flex;flex-direction:column;justify-content:space-between;min-height:475px;background:linear-gradient(180deg,rgba(4,10,20,.55),rgba(4,10,20,.18) 38%,rgba(4,10,20,.95)),url("monster-hunter-wilds-keyart.jpg") center/cover;border:1px solid rgba(247,211,139,.62);border-radius:3px;box-shadow:0 35px 90px rgba(0,0,0,.57)}
-.hero-game-logo{width:min(94%,480px);max-height:230px;object-fit:contain;align-self:center;margin:2rem auto 0;filter:drop-shadow(0 8px 13px rgba(0,0,0,.88))}
-.hero-visual .visual-top{color:#f5d99a;text-shadow:0 2px 8px #000}
+.hero-visual{display:flex;flex-direction:column;justify-content:space-between;min-height:475px;background:radial-gradient(circle at 80% 10%,rgba(68,128,213,.19),transparent 35%),linear-gradient(155deg,#142e52,#091b34);border:1px solid rgba(247,211,139,.6);border-radius:14px;box-shadow:0 35px 90px rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.08)}
+.hero-visual .visual-top{color:#f5d99a}
 .hero-visual .visual-status{color:#ffe2a1}
 .hero-visual .visual-status i{background:#efc779;box-shadow:0 0 12px #edbd60}
-.hero-visual .visual-answer{margin-top:auto;border-color:rgba(245,205,122,.52);border-left:3px solid #e5ba5e;background:rgba(6,16,29,.89);backdrop-filter:blur(9px)}
+.hero-visual .visual-node{border-color:#8caed0;background:#173b65}
+.hero-visual .visual-node:nth-of-type(3){background:#1b466f}
+.hero-visual .visual-line{background:linear-gradient(90deg,#5588ba,#efce85)}
+.hero-visual .traveller{background:#ffe3a3;box-shadow:0 0 19px 6px rgba(247,195,111,.66)}
+.hero-visual .visual-answer{margin-top:auto;border-color:rgba(245,205,122,.52);border-left:3px solid #e5ba5e;background:rgba(6,21,41,.8)}
 .hero-visual .visual-answer>span{color:#f3cf83}
 .hero-visual .visual-answer p{color:#d6d8dc}
-.hero-visual .visual-footer{color:#e5d4ae;text-shadow:0 2px 8px #000}
+.hero-visual .visual-footer{color:#e5d4ae}
 .scope-ribbon{border-color:rgba(249,214,143,.36);color:#d7d4ca}
 .scope-ribbon b{color:#f4ce7a}
 .game-feature{position:relative;overflow:hidden;padding:clamp(4rem,7vw,7rem) 0;color:#f7f5ee;background:radial-gradient(circle at 18% 30%,#1c2f3a 0%,transparent 38%),#080e15}
@@ -95,3 +98,45 @@
 .stack-snowflake img{width:min(100%,250px);height:56px}
 @media(max-width:800px){.experience-stack{grid-template-columns:1fr}.stack-logos{max-width:700px}}
 @media(max-width:560px){.experience-stack{padding:1.1rem}.stack-logos{grid-template-columns:repeat(2,minmax(0,1fr))}.stack-logos>div{min-height:95px}.stack-logos .stack-snowflake{grid-column:1/-1}}
+
+/* The architecture readout uses the exported dbt mart, while the map opens source. */
+.signal-lab{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(170px,.65fr) minmax(210px,.8fr);gap:1.2rem;align-items:stretch;margin:0 0 1.1rem;padding:1.25rem;border:1px solid #5f83aa;border-radius:14px;background:radial-gradient(circle at 82% 10%,rgba(94,160,226,.18),transparent 42%),#183252;box-shadow:0 20px 55px rgba(0,0,0,.14)}
+.signal-intro>span,.signal-readout>small{color:#9bcfff;font-size:.57rem;font-weight:900;letter-spacing:.13em}
+.signal-intro h3{margin:.3rem 0 .55rem;color:#fff;font-size:clamp(1.35rem,2.2vw,2rem);line-height:1.13;letter-spacing:-.04em}
+.signal-intro p{max-width:470px;margin:0;color:#b8cce1;font-size:.72rem;line-height:1.6}
+.signal-controls{display:grid;gap:.4rem}
+.signal-controls button{padding:.5rem .7rem;border:1px solid #54759b;border-radius:6px;background:#193c62;color:#bdd5ec;text-align:left;cursor:pointer;font-size:.66rem;font-weight:850;transition:background .2s,border-color .2s,transform .2s}
+.signal-controls button:hover,.signal-controls button.is-active{transform:translateX(3px);border-color:#f3d08b;background:#2e5377;color:#fff}
+.signal-readout{display:flex;flex-direction:column;justify-content:center;padding:.65rem 1rem;border-left:1px solid #6286ad}
+.signal-readout>span{color:#f6d68f;font-size:clamp(2rem,4vw,3.5rem);font-weight:850;line-height:1;letter-spacing:-.07em}
+.signal-readout p{min-height:2.6em;margin:.55rem 0;color:#d6e4f3;font-size:.67rem;line-height:1.45}
+.signal-meter,.math-meter{position:relative;overflow:hidden;height:9px;border:1px solid #779fc3;border-radius:20px;background:#0c2544}
+.signal-meter i,.math-meter i{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,#6cb8ff,#f3cf7b);box-shadow:0 0 16px #8ac9f0;transition:width .5s ease}
+.signal-meter::after{content:"";position:absolute;inset:0 auto 0 -25%;width:25%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.52),transparent);animation:signalSweep 3s linear infinite}
+.signal-readout>small{margin-top:.65rem;font-size:.5rem;letter-spacing:.05em}
+@keyframes signalSweep{to{left:110%}}
+@media(max-width:1000px){.signal-lab{grid-template-columns:1fr 1fr}.signal-intro{grid-column:1/-1}}
+@media(max-width:650px){.signal-lab{grid-template-columns:1fr}.signal-intro{grid-column:auto}.signal-readout{border-left:0;border-top:1px solid #6286ad;padding:1rem .2rem .2rem}.signal-readout p{min-height:0}}
+
+/* Equations are interactive examples, not alternate source data. */
+.math-explorer,.fanout-explorer{margin:0 1.3rem 1.3rem;padding:1.2rem 1.35rem;border:1px solid #bbd2e9;border-radius:10px;background:linear-gradient(130deg,#e9f3ff,#f8fbff)}
+.math-explorer-head{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.math-explorer-head>span,.fanout-explorer>div:first-child>span{color:#1764b8;font-size:.57rem;font-weight:900;letter-spacing:.13em}
+.math-explorer-head strong{color:#0d3970;font-size:clamp(1.35rem,2.4vw,2rem);letter-spacing:-.05em}
+.math-explorer>p,.fanout-explorer p{margin:.15rem 0 1rem;color:#5b6f83;font-size:.67rem;line-height:1.5}
+.math-sliders{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1.2rem 0}
+.math-sliders label{display:grid;grid-template-columns:1fr auto;gap:.6rem;align-items:center;color:#294b73;font-size:.69rem;font-weight:800}
+.math-sliders output{color:#0a59ad;font-size:1rem;font-weight:900}
+.math-sliders input{grid-column:1/-1;width:100%;accent-color:#176bc5;cursor:pointer}
+.math-meter{height:12px;border-color:#91b6db;background:#d3e6f8}
+.fanout-explorer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.8rem 1rem;align-items:center}
+.fanout-explorer p{margin:.3rem 0 0}
+.fanout-controls{display:flex;gap:.35rem}
+.fanout-controls button{padding:.5rem .65rem;border:1px solid #a4c4e2;border-radius:5px;background:#fff;color:#2b5d8d;cursor:pointer;font-size:.63rem;font-weight:800}
+.fanout-controls button.is-active{border-color:#1a66b8;background:#155fb3;color:#fff}
+.fanout-rows{display:flex;gap:.5rem;grid-column:1/-1;min-height:36px;align-items:center}
+.fanout-rows i{display:block;width:45px;height:27px;border:1px solid #4b93d5;border-radius:5px;background:linear-gradient(135deg,#74b6ef,#c6e2fa);box-shadow:0 3px 7px rgba(25,89,153,.17);animation:rowReveal .28s ease both}
+.fanout-rows.is-raw i{border-color:#de9a62;background:linear-gradient(135deg,#f0bb89,#f7ddc2)}
+@keyframes rowReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:650px){.math-explorer,.fanout-explorer{margin-inline:.5rem;padding:1rem}.math-explorer-head{align-items:start;flex-direction:column}.math-sliders,.fanout-explorer{grid-template-columns:1fr}.fanout-rows{grid-column:auto}.fanout-controls{flex-wrap:wrap}.math-body .formula{white-space:normal;overflow-wrap:anywhere}}
+.game-feature .section-index{margin-bottom:2rem}

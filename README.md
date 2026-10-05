@@ -1,6 +1,6 @@
 # NEXUS for PlayStation Partners
 
-An independent Senior Analytics Engineer portfolio by Firman Insan Muhammad (VIM). This site is tailored to the PlayStation Partners Platform role and demonstrates how the production NEXUS patterns I built at Lifepal can support clear, tested partner publishing measures.
+An independent Senior Analytics Engineer portfolio by Firman Insan Muhammad (VIM). The page leads with the NEXUS data path and its inspectable dbt source, then uses PlayStation game worlds as editorial examples of partner publishing questions. It demonstrates how the production NEXUS patterns I built at Lifepal can support clear, tested measures.
 
 **Live site:** https://rfim.github.io/nexus-playstation-partners/
 
@@ -8,6 +8,7 @@ An independent Senior Analytics Engineer portfolio by Firman Insan Muhammad (VIM
 
 - **Production experience:** The dbt-first NEXUS architecture and outcomes described in the Lifepal section come from my Sony CV and prior work. My Deloitte experience includes Snowflake and dbt warehouses on AWS; AWS S3, Lambda and ECS are listed separately in my CV. The site keeps those contexts separate. This repository does not contain Lifepal or Deloitte data or production code.
 - **Runnable portfolio reference:** The dbt project here uses six fictional titles, three fictional partners and synthetic submission/publication events. It does not use PlayStation or Capcom data. The dashboard values are exported from the built `mart_partner_publishing` model.
+- **Interactive architecture and math:** The architecture signal picker reads the exported mart. The first-pass approval sliders start at the built result and clearly switch to a hypothetical scenario when moved. The join fanout comparison illustrates why the real dbt model aggregates streams before joining.
 - **Game media:** The showcase uses art and branding from official [Monster Hunter Wilds](https://www.playstation.com/en-gb/games/monster-hunter-wilds/), [Final Fantasy VII Revelation](https://www.playstation.com/en-us/games/final-fantasy-vii-revelation/), [Persona 6](https://store.playstation.com/en-us/concept/10009619/) and [Resident Evil Veronica](https://www.playstation.com/en-us/games/resident-evil-veronica/) pages. Its on-click videos embed official trailers from [Monster Hunter](https://www.youtube.com/watch?v=a_wNFT4j6qI), [PlayStation (Final Fantasy)](https://www.youtube.com/watch?v=8JszLth0_Gc), [ATLUS West](https://www.youtube.com/watch?v=CL-q0HgfMOY) and [PlayStation (Resident Evil)](https://www.youtube.com/watch?v=S4msqGQxSAg). The Sony Computer Entertainment heritage image was supplied by VIM as a visual reference. All marks and media belong to their respective owners. This is not affiliated with or endorsed by Sony Interactive Entertainment, PlayStation, Capcom, Square Enix, ATLUS or SEGA.
 - **Stack logos:** AWS architecture icons come from the [official AWS architecture icon package](https://aws.amazon.com/architecture/icons/). The Snowflake logo comes from [Snowflake press resources](https://www.snowflake.com/en/news/). They indicate experience from the CV, not the runtime of this local dbt reference.
 
