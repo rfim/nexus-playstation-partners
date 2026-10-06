@@ -31,6 +31,16 @@ def build() -> dict:
             where review_hours is not null
             order by submitted_at, submission_id
         """).fetchall()
+        publication_rows = con.execute("""
+            select title_id, partner_id,
+                   strftime(approved_at, '%Y-%m-%dT%H:%M:%S') as approved_at,
+                   approval_attempt_number, prior_partner_published_titles,
+                   prior_partner_avg_handoff_hours,
+                   strftime(first_published_at, '%Y-%m-%dT%H:%M:%S') as first_published_at,
+                   published_regions, observed_handoff_hours
+            from main.int_title_publication_features
+            order by approved_at, title_id
+        """).fetchall()
     partners = [
         dict(zip(("partner_id", "partner_name", "region", "titles_submitted",
                   "first_pass_approved_titles", "titles_published", "submission_attempts",
@@ -46,9 +56,15 @@ def build() -> dict:
                   "prior_partner_review_count", "prior_partner_avg_review_hours"), row))
         for row in review_rows
     ]
+    publication_events = [
+        dict(zip(("title_id", "partner_id", "approved_at", "approval_attempt_number",
+                  "prior_partner_published_titles", "prior_partner_avg_handoff_hours",
+                  "first_published_at", "published_regions", "observed_handoff_hours"), row))
+        for row in publication_rows
+    ]
     return {
         "scope": "Synthetic portfolio data; no PlayStation or Lifepal records",
-        "metric_version": 2,
+        "metric_version": 3,
         "totals": {
             "titles_submitted": submitted,
             "first_pass_approved_titles": first_pass,
@@ -58,6 +74,7 @@ def build() -> dict:
         },
         "partners": partners,
         "review_events": review_events,
+        "publication_events": publication_events,
     }
 
 
