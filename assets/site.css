@@ -52,6 +52,8 @@
 .heritage-mark strong{color:#f4d49b;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase}
 .heritage-mark small{max-width:330px;margin-top:.3rem;color:#a9b5bb;font-size:.67rem;line-height:1.45}
 .trailer-panel{border:1px solid #55616a;background:#0f1822;box-shadow:0 22px 60px rgba(0,0,0,.42)}
+.trailer-row{position:relative;display:flex;justify-content:flex-end;margin-top:clamp(2rem,4vw,3.5rem)}
+.trailer-row .trailer-panel{width:min(100%,720px)}
 .trailer-heading{display:flex;justify-content:space-between;gap:1rem;padding:.75rem 1rem;color:#f2d28b;font-size:.61rem;font-weight:900;letter-spacing:.12em}
 .trailer-frame{position:relative;aspect-ratio:16/9;background:#15212a url("monster-hunter-ascendance-art.png") center/cover}
 .trailer-frame::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,10,16,.28),rgba(3,10,16,.14));pointer-events:none}
@@ -324,6 +326,8 @@
 
 /* The selected editorial question owns a live synthetic dashboard. */
 .featured-dashboard{margin-top:clamp(2rem,4vw,3.5rem);padding:clamp(1.1rem,2vw,1.75rem);border:1px solid color-mix(in srgb,var(--world-accent),transparent 25%);border-radius:14px;background:radial-gradient(circle at 90% 0%,color-mix(in srgb,var(--world-accent),transparent 88%),transparent 44%),#0d2037;box-shadow:0 24px 60px rgba(0,0,0,.22)}
+.game-feature-grid .featured-dashboard{min-width:0;margin-top:0;align-self:start}
+.game-feature-grid .featured-dashboard-intro,.game-feature-grid .publication-layout,.game-feature-grid .review-layout{grid-template-columns:1fr}
 .featured-dashboard-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.65fr);gap:1.5rem;align-items:end;margin-bottom:1.25rem}
 .featured-dashboard-intro span{color:var(--world-accent);font-size:.6rem;font-weight:900;letter-spacing:.14em}
 .featured-dashboard-intro h3{margin:.35rem 0 0;color:#fff;font-size:clamp(1.55rem,3vw,2.7rem);line-height:1.08;letter-spacing:-.05em}
