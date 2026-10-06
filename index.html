@@ -7,8 +7,9 @@
   <meta name="description" content="NEXUS by VIM: an independent Senior Analytics Engineer portfolio case study for PlayStation Partners Platform. Explore dbt models, tests, metrics and runnable synthetic code.">
   <title>NEXUS for PlayStation Partners | VIM · Senior Analytics Engineer</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="stylesheet" href="assets/site.css">
-  <script src="assets/site.js" defer></script>
+  <link rel="stylesheet" href="assets/site.css?v=5">
+  <script src="assets/vendor/d3.v7.min.js" defer></script>
+  <script src="assets/site.js?v=5" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#architecture">Skip to the architecture</a>
@@ -72,7 +73,7 @@
       </div>
     </section>
 
-    <section id="featured-game" class="game-feature" aria-labelledby="game-title">
+    <section id="featured-game" class="game-feature" data-world="wilds" aria-labelledby="game-title">
       <div class="shell"><div class="section-index section-index-light"><span>02 / GAME EXAMPLES</span><span>Editorial references for partner questions</span></div></div>
       <div class="shell game-shelf" role="group" aria-label="Choose a game world">
         <button type="button" class="game-choice is-active" data-game="wilds" aria-pressed="true"><img src="assets/monster-hunter-ascendance-art.png" alt=""><span>01 / CAPCOM</span><strong>Monster Hunter Wilds: Ascendance</strong></button>
@@ -84,7 +85,7 @@
         <div class="game-copy">
           <p class="game-kicker">WHERE THE ARCHITECTURE COULD HELP</p>
           <h2 id="game-title">Different game worlds.<br><em>The same need for trusted signals.</em></h2>
-          <p>These official game worlds make partner questions easier to picture: review progress, publication readiness and what changed after launch. The dbt example above uses fictional titles and partners. A dramatic reveal is welcome. A KPI surprise, less so.</p>
+          <p>A game world makes the stakes easy to picture. The useful question is what a partner team can trust before it acts. Choose a world, follow its question into the synthetic NEXUS data, then inspect the measure. A dramatic reveal is welcome. A KPI surprise, less so.</p>
           <div class="selected-game"><span>EDITORIAL EXAMPLE</span><strong id="selected-game-title">Monster Hunter Wilds: Ascendance</strong><p id="selected-game-context">After 750 hours in Wilds, Ascendance is a useful reminder that one player's enthusiasm is not a retention metric. The NEXUS reference contains no real game or partner records.</p><a id="selected-game-link" href="https://blog.playstation.com/2026/09/03/monster-hunter-wilds-ascendance-reveals-new-monsters-story-details-and-gameplay" target="_blank" rel="noopener noreferrer">Official source ↗</a></div>
         </div>
         <div class="trailer-panel">
@@ -95,8 +96,17 @@
           <p>Footage: <a id="trailer-credit-link" href="https://www.youtube.com/watch?v=SodbU0PEVH4" target="_blank" rel="noopener noreferrer">PlayStation’s official Ascendance trailer</a>. Video loads when you press play.</p>
         </div>
       </div>
+      <div class="shell story-bridge" id="story-bridge" aria-live="polite">
+        <div class="story-bridge-title"><span>THE STORY BEHIND THE SIGNAL</span><strong id="story-world">Monster Hunter Wilds: Ascendance</strong><small>Editorial game reference · fictional data below</small></div>
+        <div class="story-bridge-steps">
+          <article class="story-step"><span>01 / ASK</span><h3 id="story-question">Could a review delay change a partner's plan?</h3><p id="story-question-detail">Start with the decision, not the dashboard.</p></article>
+          <article class="story-step"><span>02 / MEASURE</span><h3 id="story-measure">Review time</h3><p id="story-measure-detail">Follow the synthetic submission events and their completed reviews.</p><strong id="story-value">9 fictional review events</strong></article>
+          <article class="story-step"><span>03 / ACT</span><h3 id="story-decision">Plan follow-up sooner.</h3><p id="story-decision-detail">Prior completed reviews could become point-in-time features for a future turnaround estimate.</p></article>
+        </div>
+        <p class="story-bridge-note">The game is an editorial prompt. Every number and partner below comes from the runnable synthetic dbt reference.</p>
+      </div>
       <div class="shell chart-suite" id="chart-suite" aria-labelledby="chart-suite-title">
-        <div class="chart-suite-heading"><div><span>FIVE WAYS TO READ THE SIGNAL</span><h3 id="chart-suite-title">Publishing data, made visible.</h3></div><p>Animated examples from the runnable synthetic dbt mart. The names and values below are fictional portfolio data, not PlayStation game or partner results.</p></div>
+        <div class="chart-suite-heading"><div><span>THE EVIDENCE, OPEN TO INSPECTION</span><h3 id="chart-suite-title">Follow the signal to a decision.</h3></div><p id="chart-story-caption">The highlighted chart answers the selected world’s question. All five visuals use fictional titles and partners from the runnable dbt reference, never PlayStation results.</p></div>
         <div id="partner-charts" class="chart-grid" aria-live="polite"><p class="chart-loading">Loading synthetic chart data…</p></div>
       </div>
     </section>

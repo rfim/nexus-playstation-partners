@@ -9,6 +9,14 @@ models:
       - name: review_hours
         data_tests:
           - non_negative
+  - name: int_partner_review_features
+    description: One row per submission with partner review history available at submission time. The current review duration remains the observed label.
+    columns:
+      - name: submission_id
+        data_tests: [unique, not_null]
+      - name: prior_partner_review_count
+        data_tests:
+          - non_negative
   - name: int_title_outcomes
     description: One row per title; submission and publication streams are aggregated separately before joining to prevent fanout.
     columns:

@@ -22,6 +22,15 @@ def build() -> dict:
                    avg_review_hours, avg_publication_lead_days
             from main.mart_partner_publishing order by partner_id
         """).fetchall()
+        review_rows = con.execute("""
+            select submission_id, title_id, partner_id,
+                   strftime(submitted_at, '%Y-%m-%dT%H:%M:%S') as submitted_at,
+                   status, attempt_number, review_hours,
+                   prior_partner_review_count, prior_partner_avg_review_hours
+            from main.int_partner_review_features
+            where review_hours is not null
+            order by submitted_at, submission_id
+        """).fetchall()
     partners = [
         dict(zip(("partner_id", "partner_name", "region", "titles_submitted",
                   "first_pass_approved_titles", "titles_published", "submission_attempts",
@@ -31,9 +40,15 @@ def build() -> dict:
     ]
     submitted = sum(row["titles_submitted"] for row in partners)
     first_pass = sum(row["first_pass_approved_titles"] for row in partners)
+    review_events = [
+        dict(zip(("submission_id", "title_id", "partner_id", "submitted_at",
+                  "status", "attempt_number", "review_hours",
+                  "prior_partner_review_count", "prior_partner_avg_review_hours"), row))
+        for row in review_rows
+    ]
     return {
         "scope": "Synthetic portfolio data; no PlayStation or Lifepal records",
-        "metric_version": 1,
+        "metric_version": 2,
         "totals": {
             "titles_submitted": submitted,
             "first_pass_approved_titles": first_pass,
@@ -42,6 +57,7 @@ def build() -> dict:
             "first_pass_approval_pct": round(100 * first_pass / submitted, 1),
         },
         "partners": partners,
+        "review_events": review_events,
     }
 
 

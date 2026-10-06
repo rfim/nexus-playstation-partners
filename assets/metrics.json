@@ -1,6 +1,6 @@
 {
   "scope": "Synthetic portfolio data; no PlayStation or Lifepal records",
-  "metric_version": 1,
+  "metric_version": 2,
   "totals": {
     "titles_submitted": 6,
     "first_pass_approved_titles": 3,
@@ -44,6 +44,107 @@
       "first_pass_approval_pct": 100.0,
       "avg_review_hours": 24.5,
       "avg_publication_lead_days": 3.0
+    }
+  ],
+  "review_events": [
+    {
+      "submission_id": "S001",
+      "title_id": "T101",
+      "partner_id": "P01",
+      "submitted_at": "2026-09-01T09:00:00",
+      "status": "rejected",
+      "attempt_number": 1,
+      "review_hours": 25,
+      "prior_partner_review_count": 0,
+      "prior_partner_avg_review_hours": null
+    },
+    {
+      "submission_id": "S007",
+      "title_id": "T301",
+      "partner_id": "P03",
+      "submitted_at": "2026-09-01T09:00:00",
+      "status": "approved",
+      "attempt_number": 1,
+      "review_hours": 24,
+      "prior_partner_review_count": 0,
+      "prior_partner_avg_review_hours": null
+    },
+    {
+      "submission_id": "S004",
+      "title_id": "T201",
+      "partner_id": "P02",
+      "submitted_at": "2026-09-02T09:00:00",
+      "status": "rejected",
+      "attempt_number": 1,
+      "review_hours": 27,
+      "prior_partner_review_count": 0,
+      "prior_partner_avg_review_hours": null
+    },
+    {
+      "submission_id": "S002",
+      "title_id": "T101",
+      "partner_id": "P01",
+      "submitted_at": "2026-09-04T09:00:00",
+      "status": "approved",
+      "attempt_number": 2,
+      "review_hours": 26,
+      "prior_partner_review_count": 1,
+      "prior_partner_avg_review_hours": 25.0
+    },
+    {
+      "submission_id": "S009",
+      "title_id": "T201",
+      "partner_id": "P02",
+      "submitted_at": "2026-09-04T09:00:00",
+      "status": "approved",
+      "attempt_number": 2,
+      "review_hours": 24,
+      "prior_partner_review_count": 1,
+      "prior_partner_avg_review_hours": 27.0
+    },
+    {
+      "submission_id": "S003",
+      "title_id": "T102",
+      "partner_id": "P01",
+      "submitted_at": "2026-09-10T09:00:00",
+      "status": "approved",
+      "attempt_number": 1,
+      "review_hours": 24,
+      "prior_partner_review_count": 2,
+      "prior_partner_avg_review_hours": 25.5
+    },
+    {
+      "submission_id": "S005",
+      "title_id": "T202",
+      "partner_id": "P02",
+      "submitted_at": "2026-09-12T09:00:00",
+      "status": "rejected",
+      "attempt_number": 1,
+      "review_hours": 48,
+      "prior_partner_review_count": 2,
+      "prior_partner_avg_review_hours": 25.5
+    },
+    {
+      "submission_id": "S006",
+      "title_id": "T202",
+      "partner_id": "P02",
+      "submitted_at": "2026-09-17T09:00:00",
+      "status": "approved",
+      "attempt_number": 2,
+      "review_hours": 25,
+      "prior_partner_review_count": 3,
+      "prior_partner_avg_review_hours": 33.0
+    },
+    {
+      "submission_id": "S008",
+      "title_id": "T302",
+      "partner_id": "P03",
+      "submitted_at": "2026-09-21T09:00:00",
+      "status": "approved",
+      "attempt_number": 1,
+      "review_hours": 25,
+      "prior_partner_review_count": 1,
+      "prior_partner_avg_review_hours": 24.0
     }
   ]
 }
