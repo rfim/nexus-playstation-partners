@@ -273,7 +273,19 @@
 .chart-suite-heading span{display:block;color:#f2cf83;font-size:.62rem;font-weight:900;letter-spacing:.16em}
 .chart-suite-heading h3{margin:.4rem 0 0;font-size:clamp(2rem,3.6vw,3.6rem);line-height:1.05;letter-spacing:-.055em}
 .chart-suite-heading p{max-width:470px;margin:0;color:#b6c5d1;font-size:.84rem;line-height:1.65}
-.chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+.chart-slide-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin:0 0 1rem}
+.chart-slide-controls[hidden]{display:none}
+.chart-slide-tabs,.chart-slide-navigation{display:flex;align-items:center;flex-wrap:wrap;gap:.5rem}
+.chart-slide-tabs button,.chart-slide-navigation button{min-height:38px;padding:.55rem .8rem;border:1px solid #55799d;border-radius:6px;background:#112b47;color:#cce3f6;font-family:inherit;font-size:.66rem;font-weight:800;line-height:1.2;cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+.chart-slide-tabs button:hover,.chart-slide-navigation button:hover:not(:disabled){transform:translateY(-2px);border-color:#f0cc85;background:#234769;color:#fff}
+.chart-slide-tabs button[aria-pressed="true"]{border-color:#f0cc85;background:#e9c577;color:#11233b;box-shadow:0 0 18px rgba(240,204,133,.18)}
+.chart-slide-tabs button:focus-visible,.chart-slide-navigation button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.chart-slide-navigation button:disabled{opacity:.45;cursor:not-allowed}
+.chart-slide-navigation #chart-slide-status{min-width:4.5rem;margin-right:.3rem;color:#b8cfe4;font-size:.66rem;font-weight:800;text-align:right}
+.chart-grid{display:grid;grid-template-columns:minmax(0,1fr)}
+.chart-grid>.chart-card[hidden]{display:none}
+.chart-grid>.chart-card.is-active-slide{animation:chart-slide-in .45s cubic-bezier(.2,.7,.2,1) both}
+@keyframes chart-slide-in{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
 .chart-card{min-width:0;min-height:310px;padding:1.35rem 1.45rem;border:1px solid #4a6482;border-radius:12px;background:linear-gradient(145deg,rgba(22,45,73,.96),rgba(12,27,48,.96));box-shadow:0 17px 40px rgba(0,0,0,.18)}
 .chart-card-wide{grid-column:1/-1;min-height:320px}
 .chart-number{color:#8ac8ff;font-size:.58rem;font-weight:900;letter-spacing:.13em}
@@ -296,6 +308,8 @@
 @keyframes review-draw{to{stroke-dashoffset:0}}@keyframes review-fill{to{opacity:1}}@keyframes review-pop{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}@keyframes review-scan{to{transform:translateX(120%)}}
 .chart-loading{color:#c5d9e9}
 @media(max-width:800px){.chart-suite-heading{grid-template-columns:1fr;gap:.8rem}.chart-grid{grid-template-columns:1fr}.chart-card-wide{grid-column:auto}}
+@media(max-width:560px){.chart-slide-controls{align-items:stretch;flex-direction:column}.chart-slide-tabs button{flex:1 1 auto}.chart-slide-navigation{justify-content:space-between}.chart-slide-navigation button span{display:none}}
+@media(prefers-reduced-motion:reduce){.chart-grid>.chart-card.is-active-slide{animation:none}.chart-slide-tabs button,.chart-slide-navigation button{transition:none}}
 @media(max-width:500px){.chart-card{padding:1.1rem}.chart-bar-row{grid-template-columns:minmax(78px,1fr) minmax(75px,1fr) 2.6rem;gap:.4rem;font-size:.6rem}}
 @media(prefers-reduced-motion:reduce){.chart-bar-track i{transition:none!important}}
 @media(max-width:900px){.review-layout{grid-template-columns:1fr}.review-feature-panel{min-height:0}}

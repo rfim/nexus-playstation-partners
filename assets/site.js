@@ -4,6 +4,14 @@ let chartMetrics = null;
 let replayPublicationChart = () => {};
 let replayReviewChart = () => {};
 let replayLeadChart = () => {};
+let activeSupportingChart = 'publication';
+
+const chartSlideLabels = {
+  quality: '01 · First-pass',
+  publication: '02 · Publication',
+  speed: '03 · Review time',
+  handoff: '04 · Lead time'
+};
 
 const gameStories = {
   wilds: {
@@ -60,6 +68,59 @@ const gameStories = {
   }
 };
 
+function showChartSlide(key) {
+  const cards = [...$('#partner-charts').querySelectorAll('.chart-card')];
+  const index = cards.findIndex((card) => card.dataset.chart === key);
+  if (index < 0) return;
+  activeSupportingChart = key;
+  cards.forEach((card) => {
+    const active = card.dataset.chart === key;
+    card.hidden = !active;
+    card.classList.toggle('is-active-slide', active);
+  });
+  $('#chart-slide-tabs').querySelectorAll('button').forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.chart === key));
+  });
+  $('#chart-slide-status').textContent = `${index + 1} of ${cards.length}`;
+  $('#chart-slide-prev').disabled = index === 0;
+  $('#chart-slide-next').disabled = index === cards.length - 1;
+  if ($('#chart-suite').classList.contains('is-visible')) {
+    if (key === 'publication') replayPublicationChart();
+    if (key === 'speed') replayReviewChart();
+    if (key === 'handoff') replayLeadChart();
+  }
+}
+
+function renderChartSlideControls() {
+  const cards = [...$('#partner-charts').querySelectorAll('.chart-card')];
+  if (!cards.length) return;
+  const tabs = $('#chart-slide-tabs');
+  tabs.replaceChildren();
+  cards.forEach((card) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.chart = card.dataset.chart;
+    button.textContent = chartSlideLabels[card.dataset.chart];
+    button.setAttribute('aria-controls', 'partner-charts');
+    button.addEventListener('click', () => showChartSlide(card.dataset.chart));
+    tabs.append(button);
+  });
+  $('#chart-slide-controls').hidden = false;
+  if (!cards.some((card) => card.dataset.chart === activeSupportingChart)) activeSupportingChart = cards[0].dataset.chart;
+  showChartSlide(activeSupportingChart);
+}
+
+function setupChartSlides() {
+  function move(direction) {
+    const cards = [...$('#partner-charts').querySelectorAll('.chart-card')];
+    const index = cards.findIndex((card) => card.dataset.chart === activeSupportingChart);
+    const next = cards[index + direction];
+    if (next) showChartSlide(next.dataset.chart);
+  }
+  $('#chart-slide-prev').addEventListener('click', () => move(-1));
+  $('#chart-slide-next').addEventListener('click', () => move(1));
+}
+
 function renderGameStory() {
   const story = gameStories[activeGameKey];
   const bridge = $('#story-bridge');
@@ -81,12 +142,17 @@ function renderGameStory() {
     const current = slot.querySelector('.chart-card');
     if (current) grid.append(current);
     const selected = grid.querySelector(`[data-chart="${story.featureChart}"]`);
-    if (selected) slot.replaceChildren(selected);
+    if (selected) {
+      selected.hidden = false;
+      selected.classList.remove('is-active-slide');
+      slot.replaceChildren(selected);
+    }
     [...grid.querySelectorAll('.chart-card')].sort((a, b) => Number(a.dataset.chartOrder) - Number(b.dataset.chartOrder)).forEach((card) => grid.append(card));
+    renderChartSlideControls();
     if (story.featureChart === 'publication' && $('#featured-dashboard').classList.contains('is-visible')) replayPublicationChart();
     if (story.featureChart === 'speed' && $('#featured-dashboard').classList.contains('is-visible')) replayReviewChart();
   }
-  document.querySelectorAll('[data-chart]').forEach((card) => card.classList.toggle('is-story-focus', story.charts.includes(card.dataset.chart)));
+  document.querySelectorAll('.chart-card[data-chart]').forEach((card) => card.classList.toggle('is-story-focus', story.charts.includes(card.dataset.chart)));
   bridge.classList.remove('is-entering');
   void bridge.offsetWidth;
   bridge.classList.add('is-entering');
@@ -582,6 +648,7 @@ function setupGameSelection() {
   renderGameStory();
 }
 
+setupChartSlides();
 setupGameSelection();
 setupRoute();
 setupFanoutExplorer();
