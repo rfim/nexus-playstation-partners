@@ -51,21 +51,8 @@
 .heritage-mark strong,.heritage-mark small{display:block}
 .heritage-mark strong{color:#f4d49b;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase}
 .heritage-mark small{max-width:330px;margin-top:.3rem;color:#a9b5bb;font-size:.67rem;line-height:1.45}
-.trailer-panel{border:1px solid #55616a;background:#0f1822;box-shadow:0 22px 60px rgba(0,0,0,.42)}
-.trailer-row{position:relative;display:flex;justify-content:flex-end;margin-top:clamp(2rem,4vw,3.5rem)}
-.trailer-row .trailer-panel{width:min(100%,720px)}
-.trailer-heading{display:flex;justify-content:space-between;gap:1rem;padding:.75rem 1rem;color:#f2d28b;font-size:.61rem;font-weight:900;letter-spacing:.12em}
-.trailer-frame{position:relative;aspect-ratio:16/9;background:#15212a url("monster-hunter-ascendance-art.png") center/cover}
-.trailer-frame::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,10,16,.28),rgba(3,10,16,.14));pointer-events:none}
-.trailer-frame:has(iframe)::before{display:none}
-.trailer-play{position:absolute;z-index:1;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;width:100%;border:0;background:transparent;color:#fff;cursor:pointer;text-shadow:0 3px 10px #000;font-size:.79rem;font-weight:900;letter-spacing:.03em}
-.trailer-play .play-icon{display:grid;place-items:center;width:78px;height:78px;padding-left:4px;border:2px solid #fff;border-radius:50%;background:rgba(4,14,25,.7);color:#fff;font-size:1.55rem;box-shadow:0 0 0 10px rgba(255,255,255,.12);transition:transform .25s,background .25s}
-.trailer-play:hover .play-icon{transform:scale(1.1);background:#ba832e}
-.trailer-frame iframe{display:block;width:100%;height:100%;border:0}
-.trailer-panel>p{margin:0;padding:.7rem 1rem;color:#9eabb7;font-size:.64rem}
-.trailer-panel>p a{color:#ecd08f;text-decoration:underline;text-underline-offset:3px}
 @media(max-width:800px){.hero{background-position:58% center}.hero::before{background:linear-gradient(90deg,rgba(5,10,19,.95),rgba(5,10,19,.72))}.game-feature-grid{grid-template-columns:1fr}.game-copy>p:not(.game-kicker){max-width:700px}}
-@media(max-width:560px){.hero-grid{padding-block:3.6rem 2.5rem}.hero-visual{min-height:440px}.hero-game-logo{max-height:185px}.game-feature{padding-block:4rem}.trailer-heading{font-size:.52rem}.heritage-mark img{width:54px;height:75px}}
+@media(max-width:560px){.hero-grid{padding-block:3.6rem 2.5rem}.hero-visual{min-height:440px}.hero-game-logo{max-height:185px}.game-feature{padding-block:4rem}.heritage-mark img{width:54px;height:75px}}
 .game-shelf{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem;margin-bottom:clamp(2.5rem,5vw,4.5rem)}
 .game-choice{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;overflow:hidden;min-width:0;min-height:210px;padding:1rem;border:1px solid #697483;border-radius:2px;background:#101923;color:#fff;text-align:left;cursor:pointer;box-shadow:0 12px 35px rgba(0,0,0,.23);transition:transform .22s,border-color .22s,box-shadow .22s}
 .game-choice::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(0,0,0,.02) 24%,rgba(3,9,17,.88) 100%)}

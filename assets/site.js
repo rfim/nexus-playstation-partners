@@ -568,52 +568,30 @@ async function setupCodeInspector() {
   });
 }
 
-function setupTrailer() {
+function setupGameSelection() {
   const games = {
     wilds: {
       title: 'Monster Hunter Wilds: Ascendance',
       context: 'After 750 hours in Wilds, Ascendance is a useful reminder that one player’s enthusiasm is not a retention metric. The NEXUS reference contains no real game or partner records.',
       page: 'https://blog.playstation.com/2026/09/03/monster-hunter-wilds-ascendance-reveals-new-monsters-story-details-and-gameplay',
-      poster: 'assets/monster-hunter-ascendance-art.png',
-      video: 'SodbU0PEVH4',
-      provider: 'OFFICIAL ASCENDANCE TRAILER ↗',
-      credit: 'PlayStation’s official Ascendance trailer',
-      videoTitle: 'Monster Hunter Wilds: Ascendance official trailer'
     },
     revelation: {
       title: 'Final Fantasy VII Revelation',
       context: 'An announced chapter makes release readiness especially visible. Here it is an editorial example; the dbt records remain fictional.',
       page: 'https://www.playstation.com/en-us/games/final-fantasy-vii-revelation/',
-      poster: 'assets/ff7-revelation-hero.jpg',
-      video: '8JszLth0_Gc',
-      provider: 'OFFICIAL PLAYSTATION TRAILER ↗',
-      credit: 'PlayStation’s official announcement trailer',
-      videoTitle: 'Final Fantasy VII Revelation official announcement trailer'
     },
     persona: {
       title: 'Persona 6',
       context: 'An announced title with a release date still to be determined. A partner data product should make that uncertainty explicit, never quietly fill a blank.',
       page: 'https://store.playstation.com/en-us/concept/10009619/',
-      poster: 'assets/persona-6-hero.jpg',
-      video: 'CL-q0HgfMOY',
-      provider: 'OFFICIAL ATLUS TRAILER ↗',
-      credit: 'ATLUS West’s official teaser trailer',
-      videoTitle: 'Persona 6 official teaser trailer'
     },
     veronica: {
       title: 'Resident Evil Veronica',
       context: 'A 2027 game announcement offers a very different visual tone. The publishing questions beneath it still need the same careful grains and status definitions.',
       page: 'https://www.playstation.com/en-us/games/resident-evil-veronica/',
-      poster: 'assets/resident-evil-veronica-cover.jpg',
-      video: 'S4msqGQxSAg',
-      provider: 'OFFICIAL PLAYSTATION TRAILER ↗',
-      credit: 'PlayStation’s official announcement trailer',
-      videoTitle: 'Resident Evil Veronica official announcement trailer'
     }
   };
   let selected = games.wilds;
-  const frame = $('#trailer-frame');
-  const play = $('#trailer-play');
   document.querySelectorAll('[data-game]').forEach((button) => {
     button.addEventListener('click', () => {
       selected = games[button.dataset.game];
@@ -626,28 +604,13 @@ function setupTrailer() {
       $('#selected-game-title').textContent = selected.title;
       $('#selected-game-context').textContent = selected.context;
       $('#selected-game-link').href = selected.page;
-      $('#trailer-provider').textContent = selected.provider;
-      $('#trailer-credit-link').textContent = selected.credit;
-      $('#trailer-credit-link').href = `https://www.youtube.com/watch?v=${selected.video}`;
-      play.setAttribute('aria-label', `Play ${selected.videoTitle}`);
-      play.querySelector('span:last-child').textContent = 'Play official trailer';
-      frame.style.backgroundImage = `linear-gradient(90deg,rgba(3,10,16,.28),rgba(3,10,16,.14)),url("${selected.poster}")`;
-      frame.replaceChildren(play);
       renderGameStory();
     });
-  });
-  play.addEventListener('click', () => {
-    const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube-nocookie.com/embed/${selected.video}?autoplay=1&rel=0`;
-    iframe.title = selected.videoTitle;
-    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-    iframe.allowFullscreen = true;
-    frame.replaceChildren(iframe);
   });
   renderGameStory();
 }
 
-setupTrailer();
+setupGameSelection();
 setupRoute();
 setupFanoutExplorer();
 setupMetrics().catch(() => {
