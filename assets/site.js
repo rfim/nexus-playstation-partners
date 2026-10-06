@@ -2,6 +2,8 @@ const $ = (selector) => document.querySelector(selector);
 let activeGameKey = 'wilds';
 let chartMetrics = null;
 let replayPublicationChart = () => {};
+let replayReviewChart = () => {};
+let replayLeadChart = () => {};
 
 const gameStories = {
   wilds: {
@@ -46,14 +48,14 @@ const gameStories = {
   veronica: {
     question: 'Where does a review loop repeat?',
     questionDetail: 'A total of review attempts hides whether a title cleared first time or needed another pass.',
-    measure: 'First-pass quality + retries',
-    measureDetail: 'Keep first attempts and repeat attempts separate at title grain.',
+    measure: 'Review events and attempt order',
+    measureDetail: 'Select a submission to see its attempt number, review status and completed duration.',
     decision: 'Investigate friction, not blame.',
     decisionDetail: 'A repeated attempt is a useful prompt to inspect status history before claiming a cause.',
-    charts: ['quality', 'retries'],
-    featureChart: 'retries',
+    charts: ['speed', 'quality'],
+    featureChart: 'speed',
     featureTitle: 'Where did the review loop repeat?',
-    featureContext: 'Start with the split between first attempts and repeats. Then inspect each status change before turning a repeat into a story about its cause.',
+    featureContext: 'Follow individual review events and their attempt numbers. The point-in-time view separates what was known at submission from the review outcome.',
     value: (data) => `${data.totals.submission_attempts - data.totals.titles_submitted} repeats in ${data.totals.submission_attempts} fictional attempts`
   }
 };
@@ -71,7 +73,7 @@ function renderGameStory() {
   $('#story-decision-detail').textContent = story.decisionDetail;
   $('#story-value').textContent = chartMetrics ? story.value(chartMetrics) : 'Loading the synthetic dbt result…';
   $('#selected-game-question').textContent = story.question;
-  $('#featured-dashboard-kicker').textContent = `THE FIRST SIGNAL · ${story.featureChart === 'quality' ? '01 / QUALITY' : story.featureChart === 'retries' ? '02 / RETRIES' : '03 / PUBLICATION'}`;
+  $('#featured-dashboard-kicker').textContent = `THE FIRST SIGNAL · ${story.featureChart === 'quality' ? '01 / QUALITY' : story.featureChart === 'speed' ? '03 / SPEED' : '02 / PUBLICATION'}`;
   $('#featured-dashboard-title').textContent = story.featureTitle;
   $('#featured-dashboard-context').textContent = story.featureContext;
   const slot = $('#featured-dashboard-slot');
@@ -83,6 +85,7 @@ function renderGameStory() {
     if (selected) slot.replaceChildren(selected);
     [...grid.querySelectorAll('.chart-card')].sort((a, b) => Number(a.dataset.chartOrder) - Number(b.dataset.chartOrder)).forEach((card) => grid.append(card));
     if (story.featureChart === 'publication' && $('#featured-dashboard').classList.contains('is-visible')) replayPublicationChart();
+    if (story.featureChart === 'speed' && $('#featured-dashboard').classList.contains('is-visible')) replayReviewChart();
   }
   document.querySelectorAll('[data-chart]').forEach((card) => card.classList.toggle('is-story-focus', story.charts.includes(card.dataset.chart)));
   bridge.classList.remove('is-entering');
@@ -178,8 +181,6 @@ function setupCharts(data) {
   const safe = (value) => String(value).replace(/[&<>"']/g, (character) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
   const percent = (part, whole) => whole ? Math.min(100, Math.max(0, part / whole * 100)) : 0;
   const barRows = partners.map((partner) => `<div class="chart-bar-row"><span>${safe(partner.partner_name)}</span><div class="chart-bar-track" aria-hidden="true"><i style="--bar-width:${percent(partner.first_pass_approved_titles, partner.titles_submitted)}%"></i></div><strong>${formatPercent(partner.first_pass_approval_pct)}</strong></div>`).join('');
-  const firstAttempts = totals.titles_submitted;
-  const repeatAttempts = totals.submission_attempts - firstAttempts;
   const reviewEvents = data.review_events || [];
   const publicationEvents = data.publication_events || [];
   const d3lib = window.d3;
@@ -198,19 +199,14 @@ function setupCharts(data) {
     ? d3lib.area().x((event, index) => reviewX(index)).y0(reviewY(0)).y1((event) => reviewY(Number(event.review_hours))).curve(reviewCurve)(reviewEvents)
     : reviewPlot.length ? `${reviewLine} L ${reviewPlot.at(-1).x.toFixed(1)} 151 L ${reviewPlot[0].x.toFixed(1)} 151 Z` : '';
   const reviewPoints = reviewPlot.map((point, index) => `<button type="button" class="review-point${index === 6 ? ' is-selected' : ''}" data-review-index="${index}" data-status="${safe(point.event.status)}" style="--point-left:${(point.x / 600 * 100).toFixed(2)}%;--point-top:${(point.y / 180 * 100).toFixed(2)}%;--point-delay:${(index * 105 + 250)}ms" aria-label="${safe(point.event.submission_id)}: ${safe(point.event.review_hours)} hours, ${safe(point.event.status)}" aria-pressed="${index === 6}"></button>`).join('');
-  const maxLead = Math.max(...partners.map((partner) => Number(partner.avg_publication_lead_days)), 1);
-  const leadColumns = partners.map((partner) => `<div class="chart-column"><strong>${safe(partner.avg_publication_lead_days)}d</strong><div class="chart-column-track" aria-hidden="true"><i style="--column-height:${percent(partner.avg_publication_lead_days, maxLead)}%"></i></div><span>${safe(partner.partner_name)}</span></div>`).join('');
   $('#partner-charts').innerHTML = `
     <article class="chart-card" data-chart="quality"><span class="chart-number">01 / QUALITY</span><h4>First-pass approval</h4><p>Where a title clears review without a second attempt.</p><div class="chart-bars">${barRows}</div><small>Approved on attempt one ÷ submitted titles</small></article>
-    <article class="chart-card" data-chart="retries"><span class="chart-number">02 / RETRIES</span><h4>Review effort</h4><p>Repeat attempts are visible, rather than hidden in a total.</p><div class="chart-mix"><div class="chart-mix-total"><strong>${totals.submission_attempts}</strong><span>review attempts</span></div><div class="chart-mix-track" aria-hidden="true"><i class="chart-mix-first" style="--mix-width:${percent(firstAttempts, totals.submission_attempts)}%"></i><i class="chart-mix-repeat" style="--mix-width:${percent(repeatAttempts, totals.submission_attempts)}%"></i></div><div class="chart-mix-key"><span><b></b>${firstAttempts} first attempts</span><span><b></b>${repeatAttempts} repeats</span></div></div><small>One first attempt per submitted title</small></article>
-    <article class="chart-card chart-card-wide publication-card" data-chart="publication"><div class="review-heading"><div><span class="chart-number">03 / PUBLICATION → FEATURES</span><h4>From approval to storefront.</h4><p>Each line starts when a fictional title was approved and ends at its first observed publication. Select a title to inspect what was known at approval.</p></div><span class="review-count">${totals.titles_published} of ${totals.titles_submitted} observed</span></div><div class="publication-layout"><div><div class="publication-graph"><svg id="publication-svg" viewBox="0 0 680 300" role="img" aria-label="Hours from title approval to first observed storefront publication"></svg></div><div class="publication-legend"><span><i></i>Observed publication</span><span><i></i>No publication event observed is unknown, not zero</span></div><div id="publication-selectors" class="publication-selectors" role="group" aria-label="Inspect a fictional title"></div></div><div class="review-feature-panel publication-feature-panel" aria-live="polite"><span class="review-panel-kicker">POINT-IN-TIME PUBLICATION VIEW</span><div class="review-panel-title"><strong id="publication-selected-name"></strong><span id="publication-selected-status"></span></div><small id="publication-selected-meta"></small><div class="review-feature-grid"><div><span>Prior partner publications</span><strong id="publication-prior-count"></strong></div><div><span>Prior mean handoff</span><strong id="publication-prior-mean"></strong></div><div><span>Approval attempt</span><strong id="publication-attempt"></strong></div><div class="review-observed"><span>Observed later · outcome</span><strong id="publication-observed"></strong></div></div><div class="review-use"><span>POTENTIAL USE</span><strong>Use past handoffs to plan a follow-up window after approval.</strong></div><p>History is restricted to publications before this approval. The selected title’s later storefront event is an outcome, never an input feature. No prediction model was trained.</p><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_title_publication_features.sql" target="_blank" rel="noopener noreferrer">Inspect point-in-time SQL ↗</a></div></div><small>Synthetic title events · elapsed hours only for observed publications · no PlayStation records.</small></article>
-    <article class="chart-card chart-card-wide review-card" data-chart="speed"><div class="review-heading"><div><span class="chart-number">04 / SPEED → FEATURES</span><h4>Review time, event by event.</h4><p>Completed review hours in submission order. Select a signal to see what was knowable when it arrived.</p></div><span class="review-count">${reviewEvents.length} synthetic events</span></div><div class="review-layout"><div><div class="review-graph" role="group" aria-label="Review duration by submission order"><svg viewBox="0 0 600 180" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="review-area-gradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0c878" stop-opacity=".38"/><stop offset="100%" stop-color="#78b9f5" stop-opacity="0"/></linearGradient><linearGradient id="review-line-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#77b9f5"/><stop offset="55%" stop-color="#b3d9ff"/><stop offset="100%" stop-color="#f1cb7c"/></linearGradient></defs><path class="review-gridline" d="M 52 31 H 558 M 52 91 H 558 M 52 151 H 558"/><text x="5" y="35">50h</text><text x="5" y="95">25h</text><text x="12" y="155">0h</text><path class="review-area" d="${reviewArea}"/><path class="review-trace" d="${reviewLine}" pathLength="100"/></svg>${reviewPoints}</div><div class="review-axis"><span>Earlier submissions</span><span>Later submissions →</span></div><div class="review-legend"><span><i class="review-legend-approved"></i>Approved</span><span><i class="review-legend-rejected"></i>Rejected</span><span>Point height = observed review hours</span></div></div><div class="review-feature-panel" aria-live="polite"><span class="review-panel-kicker">POINT-IN-TIME FEATURE VIEW</span><div class="review-panel-title"><strong id="review-selected-name"></strong><span id="review-selected-status"></span></div><small id="review-selected-meta"></small><div class="review-feature-grid"><div><span>Prior completed reviews</span><strong id="review-prior-count"></strong></div><div><span>Prior mean review time</span><strong id="review-prior-mean"></strong></div><div><span>Current attempt</span><strong id="review-attempt"></strong></div><div class="review-observed"><span>Observed later · label</span><strong id="review-observed"></strong></div></div><div class="review-use"><span>POTENTIAL USE</span><strong>Estimate review turnaround earlier so partner teams can plan follow-up.</strong></div><p>Prior history could become features; current review duration is the later label, never an input at submission.</p><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_partner_review_features.sql" target="_blank" rel="noopener noreferrer">Inspect point-in-time SQL ↗</a></div></div><small>Synthetic portfolio example · no model was trained and no PlayStation records are used.</small></article>
-    <article class="chart-card chart-card-wide" data-chart="handoff"><span class="chart-number">05 / HANDOFF</span><h4>Publication lead time</h4><p>Mean days from first submission to storefront publication.</p><div class="chart-columns">${leadColumns}</div><small>Only published titles contribute to each partner mean</small></article>`;
+    <article class="chart-card chart-card-wide publication-card" data-chart="publication"><div class="review-heading"><div><span class="chart-number">02 / PUBLICATION → FEATURES</span><h4>From approval to storefront.</h4><p>Each line starts when a fictional title was approved and ends at its first observed publication. Select a title to inspect what was known at approval.</p></div><span class="review-count">${totals.titles_published} of ${totals.titles_submitted} observed</span></div><div class="publication-layout"><div><div class="publication-graph"><svg id="publication-svg" viewBox="0 0 680 300" role="img" aria-label="Hours from title approval to first observed storefront publication"></svg></div><div class="publication-legend"><span><i></i>Observed publication</span><span><i></i>No publication event observed is unknown, not zero</span></div><div id="publication-selectors" class="publication-selectors" role="group" aria-label="Inspect a fictional title"></div></div><div class="review-feature-panel publication-feature-panel" aria-live="polite"><span class="review-panel-kicker">POINT-IN-TIME PUBLICATION VIEW</span><div class="review-panel-title"><strong id="publication-selected-name"></strong><span id="publication-selected-status"></span></div><small id="publication-selected-meta"></small><div class="review-feature-grid"><div><span>Prior partner publications</span><strong id="publication-prior-count"></strong></div><div><span>Prior mean handoff</span><strong id="publication-prior-mean"></strong></div><div><span>Approval attempt</span><strong id="publication-attempt"></strong></div><div class="review-observed"><span>Observed later · outcome</span><strong id="publication-observed"></strong></div></div><div class="review-use"><span>POTENTIAL USE</span><strong>Use past handoffs to plan a follow-up window after approval.</strong></div><p>History is restricted to publications before this approval. The selected title’s later storefront event is an outcome, never an input feature. No prediction model was trained.</p><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_title_publication_features.sql" target="_blank" rel="noopener noreferrer">Inspect point-in-time SQL ↗</a></div></div><small>Synthetic title events · elapsed hours only for observed publications · no PlayStation records.</small></article>
+    <article class="chart-card chart-card-wide review-card" data-chart="speed"><div class="review-heading"><div><span class="chart-number">03 / SPEED → FEATURES</span><h4>Review time, event by event.</h4><p>Completed review hours in submission order. Select a signal to see what was knowable when it arrived.</p></div><span class="review-count">${reviewEvents.length} synthetic events</span></div><div class="review-layout"><div><div class="review-graph" role="group" aria-label="Review duration by submission order"><svg viewBox="0 0 600 180" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="review-area-gradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0c878" stop-opacity=".38"/><stop offset="100%" stop-color="#78b9f5" stop-opacity="0"/></linearGradient><linearGradient id="review-line-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#77b9f5"/><stop offset="55%" stop-color="#b3d9ff"/><stop offset="100%" stop-color="#f1cb7c"/></linearGradient></defs><path class="review-gridline" d="M 52 31 H 558 M 52 91 H 558 M 52 151 H 558"/><text x="5" y="35">50h</text><text x="5" y="95">25h</text><text x="12" y="155">0h</text><path class="review-area" d="${reviewArea}"/><path class="review-trace" d="${reviewLine}" pathLength="100"/></svg>${reviewPoints}</div><div class="review-axis"><span>Earlier submissions</span><span>Later submissions →</span></div><div class="review-legend"><span><i class="review-legend-approved"></i>Approved</span><span><i class="review-legend-rejected"></i>Rejected</span><span>Point height = observed review hours</span></div></div><div class="review-feature-panel" aria-live="polite"><span class="review-panel-kicker">POINT-IN-TIME FEATURE VIEW</span><div class="review-panel-title"><strong id="review-selected-name"></strong><span id="review-selected-status"></span></div><small id="review-selected-meta"></small><div class="review-feature-grid"><div><span>Prior completed reviews</span><strong id="review-prior-count"></strong></div><div><span>Prior mean review time</span><strong id="review-prior-mean"></strong></div><div><span>Current attempt</span><strong id="review-attempt"></strong></div><div class="review-observed"><span>Observed later · label</span><strong id="review-observed"></strong></div></div><div class="review-use"><span>POTENTIAL USE</span><strong>Estimate review turnaround earlier so partner teams can plan follow-up.</strong></div><p>Prior history could become features; current review duration is the later label, never an input at submission.</p><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_partner_review_features.sql" target="_blank" rel="noopener noreferrer">Inspect point-in-time SQL ↗</a></div></div><small>Synthetic portfolio example · no model was trained and no PlayStation records are used.</small></article>
+    <article class="chart-card chart-card-wide lead-card" data-chart="handoff"><div class="review-heading"><div><span class="chart-number">04 / LEAD TIME → FEATURES</span><h4>From first submission to storefront.</h4><p>Each dot is one fictional title with an observed publication. The diamond is its partner mean. Select a title to see what was known when it was first submitted.</p></div><span class="review-count">${totals.titles_published} observed · ${totals.titles_submitted - totals.titles_published} not observed</span></div><div class="lead-layout"><div><div class="lead-graph"><svg id="lead-svg" viewBox="0 0 680 300" role="img" aria-label="Publication lead days by partner and fictional title"></svg></div><div class="lead-legend"><span><i class="lead-legend-dot"></i>Published title</span><span><i class="lead-legend-mean"></i>Partner mean</span><span>Titles without an observed publication are excluded from the mean.</span></div><div id="lead-selectors" class="lead-selectors" role="group" aria-label="Inspect a fictional title's lead time"></div></div><div class="review-feature-panel lead-feature-panel" aria-live="polite"><span class="review-panel-kicker">POINT-IN-TIME LEAD VIEW</span><div class="review-panel-title"><strong id="lead-selected-name"></strong><span id="lead-selected-status"></span></div><small id="lead-selected-meta"></small><div class="review-feature-grid"><div><span>Earlier partner publications</span><strong id="lead-prior-count"></strong></div><div><span>Earlier mean lead time</span><strong id="lead-prior-mean"></strong></div><div><span>Planned release</span><strong id="lead-planned-date"></strong></div><div class="review-observed"><span>Observed later · outcome</span><strong id="lead-observed"></strong></div></div><div class="review-use"><span>POTENTIAL USE</span><strong>Compare delivery variation before agreeing a follow-up window.</strong></div><p>Prior history ends before the selected title's first submission. Its own storefront lead time is shown as a later outcome, never an input feature.</p><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_title_publication_features.sql" target="_blank" rel="noopener noreferrer">Inspect point-in-time SQL ↗</a></div></div><small>First submission → first observed publication · only published titles enter each partner mean · synthetic data.</small></article>`;
   $('#partner-charts').querySelectorAll('.chart-card').forEach((card, index) => { card.dataset.chartOrder = String(index); });
   const chartSources = {
-    quality: ['Inspect first-pass SQL ↗', 'models/marts/mart_partner_publishing.sql'],
-    retries: ['Inspect attempt SQL ↗', 'models/intermediate/int_submission_lifecycle.sql'],
-    handoff: ['Inspect lead-time SQL ↗', 'models/intermediate/int_title_outcomes.sql']
+    quality: ['Inspect first-pass SQL ↗', 'models/marts/mart_partner_publishing.sql']
   };
   Object.entries(chartSources).forEach(([key, [label, path]]) => {
     const card = document.querySelector(`[data-chart="${key}"]`);
@@ -291,6 +287,81 @@ function setupCharts(data) {
   replayPublicationChart = () => drawPublicationGraph(true);
   drawPublicationGraph(false);
   selectPublication(selectedPublication);
+  const leadSvg = $('#lead-svg');
+  const leadSelectors = $('#lead-selectors');
+  let selectedLead = Math.max(0, publicationEvents.findIndex((event) => event.prior_partner_published_at_submission > 0));
+  publicationEvents.forEach((event, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.leadIndex = String(index);
+    button.textContent = `${event.title_id} · ${event.title_name}`;
+    button.addEventListener('click', () => selectLead(index));
+    leadSelectors.append(button);
+  });
+  function selectLead(index) {
+    const event = publicationEvents[index];
+    if (!event) return;
+    selectedLead = index;
+    leadSelectors.querySelectorAll('button').forEach((button) => {
+      const selected = Number(button.dataset.leadIndex) === index;
+      button.classList.toggle('is-selected', selected);
+      button.setAttribute('aria-pressed', String(selected));
+    });
+    leadSvg.querySelectorAll('.lead-event').forEach((point) => point.classList.toggle('is-selected', point.dataset.titleId === event.title_id));
+    $('#lead-selected-name').textContent = event.title_name;
+    $('#lead-selected-status').textContent = event.first_published_at ? 'Published' : 'Not observed';
+    $('#lead-selected-status').dataset.status = event.first_published_at ? 'published' : 'unknown';
+    $('#lead-selected-meta').textContent = `${event.title_id} · ${publicationPartnerNames.get(event.partner_id) || event.partner_id} · submitted ${event.first_submitted_at.slice(0, 10)}`;
+    $('#lead-prior-count').textContent = event.prior_partner_published_at_submission;
+    $('#lead-prior-mean').textContent = event.prior_partner_avg_lead_days_at_submission == null ? 'No history' : `${event.prior_partner_avg_lead_days_at_submission}d`;
+    $('#lead-planned-date').textContent = event.planned_release_at;
+    $('#lead-observed').textContent = event.first_published_at ? `${event.publication_lead_days}d to first publication` : 'No event observed';
+  }
+  function drawLeadGraph(animate = false) {
+    if (!d3lib || !publicationEvents.length) {
+      leadSvg.innerHTML = '<text x="20" y="50">Inspect the title buttons for publication lead time.</text>';
+      return;
+    }
+    const svg = d3lib.select(leadSvg);
+    svg.selectAll('*').remove();
+    const maxDays = Math.max(7, Math.ceil(d3lib.max(publicationEvents, (event) => Number(event.publication_lead_days || 0))));
+    const x = d3lib.scaleLinear().domain([0, maxDays]).range([185, 510]);
+    const y = (index) => 73 + index * 71;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    svg.append('text').attr('class', 'lead-axis-title').attr('x', 185).attr('y', 22).text('DAYS FROM FIRST SUBMISSION');
+    svg.selectAll('.lead-tick').data(d3lib.range(0, maxDays + 1)).join('g').attr('class', 'lead-tick').each(function (tick) {
+      const group = d3lib.select(this);
+      group.append('line').attr('x1', x(tick)).attr('x2', x(tick)).attr('y1', 42).attr('y2', 249);
+      group.append('text').attr('x', x(tick)).attr('y', 278).attr('text-anchor', 'middle').text(`${tick}d`);
+    });
+    const rows = svg.selectAll('.lead-row').data(partners).join('g')
+      .attr('class', 'lead-row').attr('transform', (partner, index) => `translate(0,${y(index)})`);
+    rows.each(function (partner) {
+      const group = d3lib.select(this);
+      const titles = publicationEvents.filter((event) => event.partner_id === partner.partner_id);
+      const published = titles.filter((event) => event.publication_lead_days != null);
+      const days = published.map((event) => Number(event.publication_lead_days));
+      const mean = Number(partner.avg_publication_lead_days);
+      group.append('text').attr('class', 'lead-partner-name').attr('x', 16).attr('y', -13).text(partner.partner_name);
+      group.append('text').attr('class', 'lead-partner-count').attr('x', 16).attr('y', 9).text(`${published.length}/${titles.length} observed`);
+      group.append('line').attr('class', 'lead-track').attr('x1', x(0)).attr('x2', x(maxDays)).attr('y1', 0).attr('y2', 0);
+      if (published.length > 1) group.append('line').attr('class', 'lead-range').attr('x1', x(d3lib.min(days))).attr('x2', animate && !reducedMotion ? x(d3lib.min(days)) : x(d3lib.max(days))).attr('y1', 0).attr('y2', 0)
+        .call((line) => { if (animate && !reducedMotion) line.transition().duration(900).ease(d3lib.easeCubicOut).attr('x2', x(d3lib.max(days))); });
+      const points = group.selectAll('.lead-event').data(published).join('g')
+        .attr('class', (event) => `lead-event${event.title_id === publicationEvents[selectedLead]?.title_id ? ' is-selected' : ''}`)
+        .attr('data-title-id', (event) => event.title_id);
+      const circles = points.append('circle').attr('class', 'lead-title-dot').attr('cy', 0).attr('r', 7)
+        .attr('cx', animate && !reducedMotion ? x(0) : (event) => x(event.publication_lead_days));
+      if (animate && !reducedMotion) circles.transition().duration(950).ease(d3lib.easeCubicOut).attr('cx', (event) => x(event.publication_lead_days));
+      const diamonds = group.append('path').attr('class', 'lead-mean-marker').attr('d', 'M0,-7 L7,0 L0,7 L-7,0 Z')
+        .attr('transform', `translate(${animate && !reducedMotion ? x(0) : x(mean)},20)`);
+      if (animate && !reducedMotion) diamonds.transition().delay(180).duration(950).ease(d3lib.easeCubicOut).attr('transform', `translate(${x(mean)},20)`);
+      group.append('text').attr('class', 'lead-mean-label').attr('x', 535).attr('y', 5).text(`${mean}d mean`);
+    });
+  }
+  replayLeadChart = () => drawLeadGraph(true);
+  drawLeadGraph(false);
+  selectLead(selectedLead);
   const reviewCard = $('.review-card');
   const partnerNames = new Map(partners.map((partner) => [partner.partner_id, partner.partner_name]));
   function selectReview(index) {
@@ -315,6 +386,7 @@ function setupCharts(data) {
     button.addEventListener('focus', () => selectReview(Number(button.dataset.reviewIndex)));
   });
   selectReview(Math.min(6, reviewEvents.length - 1));
+  replayReviewChart = animateReviewGraph;
   chartMetrics = data;
   renderGameStory();
   function animateReviewGraph() {
@@ -339,6 +411,7 @@ function setupCharts(data) {
       if (entries.some((entry) => entry.isIntersecting)) {
         dashboard.classList.add('is-visible');
         if (dashboard.querySelector('.publication-card')) replayPublicationChart();
+        if (dashboard.querySelector('.review-card')) replayReviewChart();
         dashboardObserver.disconnect();
       }
     }, {threshold: 0.1});
@@ -346,8 +419,9 @@ function setupCharts(data) {
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) {
         suite.classList.add('is-visible');
-        animateReviewGraph();
+        if (suite.querySelector('.review-card')) replayReviewChart();
         if (suite.querySelector('.publication-card')) replayPublicationChart();
+        if (suite.querySelector('.lead-card')) replayLeadChart();
         observer.disconnect();
       }
     }, {threshold: 0.12});
@@ -355,8 +429,9 @@ function setupCharts(data) {
   } else {
     dashboard.classList.add('is-visible');
     suite.classList.add('is-visible');
-    animateReviewGraph();
+    replayReviewChart();
     replayPublicationChart();
+    replayLeadChart();
   }
 }
 

@@ -1,6 +1,6 @@
 {
   "scope": "Synthetic portfolio data; no PlayStation or Lifepal records",
-  "metric_version": 3,
+  "metric_version": 4,
   "totals": {
     "titles_submitted": 6,
     "first_pass_approved_titles": 3,
@@ -151,68 +151,104 @@
     {
       "title_id": "T301",
       "partner_id": "P03",
+      "title_name": "Small Orbit",
+      "first_submitted_at": "2026-09-01T09:00:00",
+      "planned_release_at": "2026-10-05",
       "approved_at": "2026-09-02T09:00:00",
       "approval_attempt_number": 1,
       "prior_partner_published_titles": 0,
       "prior_partner_avg_handoff_hours": null,
+      "prior_partner_published_at_submission": 0,
+      "prior_partner_avg_lead_days_at_submission": null,
       "first_published_at": "2026-09-04T12:00:00",
       "published_regions": 1,
-      "observed_handoff_hours": 51
+      "observed_handoff_hours": 51,
+      "publication_lead_days": 3
     },
     {
       "title_id": "T201",
       "partner_id": "P02",
+      "title_name": "Neon Current",
+      "first_submitted_at": "2026-09-02T09:00:00",
+      "planned_release_at": "2026-10-10",
       "approved_at": "2026-09-05T09:00:00",
       "approval_attempt_number": 2,
       "prior_partner_published_titles": 0,
       "prior_partner_avg_handoff_hours": null,
+      "prior_partner_published_at_submission": 0,
+      "prior_partner_avg_lead_days_at_submission": null,
       "first_published_at": "2026-09-06T11:00:00",
       "published_regions": 1,
-      "observed_handoff_hours": 26
+      "observed_handoff_hours": 26,
+      "publication_lead_days": 4
     },
     {
       "title_id": "T101",
       "partner_id": "P01",
+      "title_name": "Horizon Echo",
+      "first_submitted_at": "2026-09-01T09:00:00",
+      "planned_release_at": "2026-10-15",
       "approved_at": "2026-09-05T11:00:00",
       "approval_attempt_number": 2,
       "prior_partner_published_titles": 0,
       "prior_partner_avg_handoff_hours": null,
+      "prior_partner_published_at_submission": 0,
+      "prior_partner_avg_lead_days_at_submission": null,
       "first_published_at": "2026-09-07T10:00:00",
       "published_regions": 1,
-      "observed_handoff_hours": 47
+      "observed_handoff_hours": 47,
+      "publication_lead_days": 6
     },
     {
       "title_id": "T102",
       "partner_id": "P01",
+      "title_name": "Lantern Run",
+      "first_submitted_at": "2026-09-10T09:00:00",
+      "planned_release_at": "2026-10-20",
       "approved_at": "2026-09-11T09:00:00",
       "approval_attempt_number": 1,
       "prior_partner_published_titles": 1,
       "prior_partner_avg_handoff_hours": 47.0,
+      "prior_partner_published_at_submission": 1,
+      "prior_partner_avg_lead_days_at_submission": 6.0,
       "first_published_at": "2026-09-14T12:00:00",
       "published_regions": 1,
-      "observed_handoff_hours": 75
+      "observed_handoff_hours": 75,
+      "publication_lead_days": 4
     },
     {
       "title_id": "T202",
       "partner_id": "P02",
+      "title_name": "Cloud Assembly",
+      "first_submitted_at": "2026-09-12T09:00:00",
+      "planned_release_at": "2026-10-25",
       "approved_at": "2026-09-18T10:00:00",
       "approval_attempt_number": 2,
       "prior_partner_published_titles": 1,
       "prior_partner_avg_handoff_hours": 26.0,
+      "prior_partner_published_at_submission": 1,
+      "prior_partner_avg_lead_days_at_submission": 4.0,
       "first_published_at": null,
       "published_regions": 0,
-      "observed_handoff_hours": null
+      "observed_handoff_hours": null,
+      "publication_lead_days": null
     },
     {
       "title_id": "T302",
       "partner_id": "P03",
+      "title_name": "Moontrail",
+      "first_submitted_at": "2026-09-21T09:00:00",
+      "planned_release_at": "2026-10-30",
       "approved_at": "2026-09-22T10:00:00",
       "approval_attempt_number": 1,
       "prior_partner_published_titles": 1,
       "prior_partner_avg_handoff_hours": 51.0,
+      "prior_partner_published_at_submission": 1,
+      "prior_partner_avg_lead_days_at_submission": 3.0,
       "first_published_at": null,
       "published_regions": 0,
-      "observed_handoff_hours": null
+      "observed_handoff_hours": null,
+      "publication_lead_days": null
     }
   ]
 }

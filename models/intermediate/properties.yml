@@ -26,13 +26,19 @@ models:
         data_tests:
           - non_negative
   - name: int_title_publication_features
-    description: One row per approved title. Partner history includes only titles published strictly before the current approval; publication is an observed outcome.
+    description: One row per approved title. Partner history is calculated separately at first submission and at approval, using only titles published strictly before each point. Current publication remains an observed outcome.
     columns:
       - name: title_id
         data_tests: [unique, not_null]
       - name: prior_partner_published_titles
         data_tests:
           - non_negative
+      - name: prior_partner_published_at_submission
+        data_tests:
+          - non_negative
       - name: observed_handoff_hours
+        data_tests:
+          - non_negative
+      - name: publication_lead_days
         data_tests:
           - non_negative

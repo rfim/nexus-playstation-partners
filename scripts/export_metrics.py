@@ -32,14 +32,19 @@ def build() -> dict:
             order by submitted_at, submission_id
         """).fetchall()
         publication_rows = con.execute("""
-            select title_id, partner_id,
+            select f.title_id, f.partner_id, t.title_name,
+                   strftime(f.first_submitted_at, '%Y-%m-%dT%H:%M:%S') as first_submitted_at,
+                   strftime(f.planned_release_at, '%Y-%m-%d') as planned_release_at,
                    strftime(approved_at, '%Y-%m-%dT%H:%M:%S') as approved_at,
                    approval_attempt_number, prior_partner_published_titles,
                    prior_partner_avg_handoff_hours,
+                   prior_partner_published_at_submission,
+                   prior_partner_avg_lead_days_at_submission,
                    strftime(first_published_at, '%Y-%m-%dT%H:%M:%S') as first_published_at,
-                   published_regions, observed_handoff_hours
-            from main.int_title_publication_features
-            order by approved_at, title_id
+                   published_regions, observed_handoff_hours, publication_lead_days
+            from main.int_title_publication_features f
+            join main.stg_titles t on f.title_id = t.title_id
+            order by approved_at, f.title_id
         """).fetchall()
     partners = [
         dict(zip(("partner_id", "partner_name", "region", "titles_submitted",
@@ -57,14 +62,17 @@ def build() -> dict:
         for row in review_rows
     ]
     publication_events = [
-        dict(zip(("title_id", "partner_id", "approved_at", "approval_attempt_number",
+        dict(zip(("title_id", "partner_id", "title_name", "first_submitted_at",
+                  "planned_release_at", "approved_at", "approval_attempt_number",
                   "prior_partner_published_titles", "prior_partner_avg_handoff_hours",
-                  "first_published_at", "published_regions", "observed_handoff_hours"), row))
+                  "prior_partner_published_at_submission", "prior_partner_avg_lead_days_at_submission",
+                  "first_published_at", "published_regions", "observed_handoff_hours",
+                  "publication_lead_days"), row))
         for row in publication_rows
     ]
     return {
         "scope": "Synthetic portfolio data; no PlayStation or Lifepal records",
-        "metric_version": 3,
+        "metric_version": 4,
         "totals": {
             "titles_submitted": submitted,
             "first_pass_approved_titles": first_pass,

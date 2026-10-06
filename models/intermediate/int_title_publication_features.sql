@@ -13,6 +13,9 @@ with approvals as (
         a.partner_id,
         a.approved_at,
         a.approval_attempt_number,
+        o.first_submitted_at,
+        o.planned_release_at,
+        o.publication_lead_days,
         o.first_published_at,
         o.published_regions,
         case when o.first_published_at is not null
@@ -20,7 +23,7 @@ with approvals as (
         end as observed_handoff_hours
     from approvals a
     join {{ ref('int_title_outcomes') }} o on a.title_id = o.title_id
-), prior_history as (
+), prior_approval_history as (
     select
         current_title.title_id,
         count(prior_title.title_id) as prior_partner_published_titles,
@@ -30,16 +33,32 @@ with approvals as (
         on current_title.partner_id = prior_title.partner_id
         and prior_title.first_published_at < current_title.approved_at
     group by current_title.title_id
+), prior_submission_history as (
+    select
+        current_title.title_id,
+        count(prior_title.title_id) as prior_partner_published_at_submission,
+        round(avg(prior_title.publication_lead_days), 1) as prior_partner_avg_lead_days_at_submission
+    from handoffs current_title
+    left join handoffs prior_title
+        on current_title.partner_id = prior_title.partner_id
+        and prior_title.first_published_at < current_title.first_submitted_at
+    group by current_title.title_id
 )
 select
     h.title_id,
     h.partner_id,
+    h.first_submitted_at,
+    h.planned_release_at,
     h.approved_at,
     h.approval_attempt_number,
     p.prior_partner_published_titles,
     p.prior_partner_avg_handoff_hours,
+    s.prior_partner_published_at_submission,
+    s.prior_partner_avg_lead_days_at_submission,
     h.first_published_at,
     h.published_regions,
-    h.observed_handoff_hours
+    h.observed_handoff_hours,
+    h.publication_lead_days
 from handoffs h
-join prior_history p on h.title_id = p.title_id
+join prior_approval_history p on h.title_id = p.title_id
+join prior_submission_history s on h.title_id = s.title_id
