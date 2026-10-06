@@ -64,7 +64,7 @@ function renderGameStory() {
   const story = gameStories[activeGameKey];
   const bridge = $('#story-bridge');
   $('#featured-game').dataset.world = activeGameKey;
-  $('#story-world').textContent = $('#selected-game-title').textContent;
+  $('#story-world').textContent = document.querySelector(`[data-game="${activeGameKey}"] strong`).textContent;
   $('#story-question').textContent = story.question;
   $('#story-question-detail').textContent = story.questionDetail;
   $('#story-measure').textContent = story.measure;
@@ -72,7 +72,6 @@ function renderGameStory() {
   $('#story-decision').textContent = story.decision;
   $('#story-decision-detail').textContent = story.decisionDetail;
   $('#story-value').textContent = chartMetrics ? story.value(chartMetrics) : 'Loading the synthetic dbt result…';
-  $('#selected-game-question').textContent = story.question;
   $('#featured-dashboard-kicker').textContent = `THE FIRST SIGNAL · ${story.featureChart === 'quality' ? '01 / QUALITY' : story.featureChart === 'speed' ? '03 / SPEED' : '02 / PUBLICATION'}`;
   $('#featured-dashboard-title').textContent = story.featureTitle;
   $('#featured-dashboard-context').textContent = story.featureContext;
@@ -569,41 +568,14 @@ async function setupCodeInspector() {
 }
 
 function setupGameSelection() {
-  const games = {
-    wilds: {
-      title: 'Monster Hunter Wilds: Ascendance',
-      context: 'After 750 hours in Wilds, Ascendance is a useful reminder that one player’s enthusiasm is not a retention metric. The NEXUS reference contains no real game or partner records.',
-      page: 'https://blog.playstation.com/2026/09/03/monster-hunter-wilds-ascendance-reveals-new-monsters-story-details-and-gameplay',
-    },
-    revelation: {
-      title: 'Final Fantasy VII Revelation',
-      context: 'An announced chapter makes release readiness especially visible. Here it is an editorial example; the dbt records remain fictional.',
-      page: 'https://www.playstation.com/en-us/games/final-fantasy-vii-revelation/',
-    },
-    persona: {
-      title: 'Persona 6',
-      context: 'An announced title with a release date still to be determined. A partner data product should make that uncertainty explicit, never quietly fill a blank.',
-      page: 'https://store.playstation.com/en-us/concept/10009619/',
-    },
-    veronica: {
-      title: 'Resident Evil Veronica',
-      context: 'A 2027 game announcement offers a very different visual tone. The publishing questions beneath it still need the same careful grains and status definitions.',
-      page: 'https://www.playstation.com/en-us/games/resident-evil-veronica/',
-    }
-  };
-  let selected = games.wilds;
   document.querySelectorAll('[data-game]').forEach((button) => {
     button.addEventListener('click', () => {
-      selected = games[button.dataset.game];
       activeGameKey = button.dataset.game;
       document.querySelectorAll('[data-game]').forEach((item) => {
         const active = item === button;
         item.classList.toggle('is-active', active);
         item.setAttribute('aria-pressed', String(active));
       });
-      $('#selected-game-title').textContent = selected.title;
-      $('#selected-game-context').textContent = selected.context;
-      $('#selected-game-link').href = selected.page;
       renderGameStory();
     });
   });

@@ -41,7 +41,7 @@
 .scope-ribbon b{color:#f4ce7a}
 .game-feature{position:relative;overflow:hidden;padding:clamp(4rem,7vw,7rem) 0;color:#f7f5ee;background:radial-gradient(circle at 18% 30%,#1c2f3a 0%,transparent 38%),#080e15}
 .game-feature::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(110deg,transparent 0 38px,rgba(251,212,142,.025) 39px 40px)}
-.game-feature-grid{position:relative;display:grid;grid-template-columns:minmax(280px,.86fr) minmax(0,1.14fr);gap:clamp(2rem,5vw,5.5rem);align-items:center}
+.game-feature-grid{position:relative;display:grid;grid-template-columns:minmax(280px,.86fr) minmax(0,1.14fr);gap:clamp(2rem,5vw,5.5rem);align-items:start}
 .game-kicker{margin:0 0 1.25rem;color:#e5bd72;font-size:.68rem;font-weight:900;letter-spacing:.17em}
 .game-copy h2{font-size:clamp(2.65rem,4.7vw,5.2rem);line-height:1.03}
 .game-copy h2 em{color:#f1ca80}
@@ -63,15 +63,6 @@
 .game-choice strong{margin-top:.22rem;font-size:clamp(.95rem,1.7vw,1.35rem);line-height:1.12;letter-spacing:-.04em;text-shadow:0 2px 8px #000}
 .game-choice[data-game="revelation"] img,.game-choice[data-game="persona"] img{object-position:center}
 .game-choice[data-game="veronica"] img{object-position:40% center}
-.selected-game{margin-top:1.8rem;padding:1.1rem 1.25rem;border-left:3px solid #e5bd72;background:rgba(255,255,255,.045)}
-.selected-game>span,.selected-game>strong{display:block}
-.selected-game>span{color:#edc878;font-size:.58rem;font-weight:900;letter-spacing:.15em}
-.selected-game>strong{margin:.22rem 0 .5rem;color:#fff;font-size:1.4rem;line-height:1.15;letter-spacing:-.035em}
-.selected-game p{margin:0;color:#aebec7;font-size:.73rem;line-height:1.55}
-.selected-game a{display:inline-block;margin-top:.7rem;color:#f5cf7f;border-bottom:1px solid #ae8c4b;font-size:.67rem;font-weight:900}
-.selected-game-question{display:grid;gap:.35rem;margin-top:1rem;padding-top:.8rem;border-top:1px solid rgba(224,201,154,.3)}
-.selected-game-question small{color:#efcc81;font-size:.55rem;font-weight:900;letter-spacing:.14em}
-.selected-game-question b{color:#f0f6fc;font-size:.88rem;line-height:1.35}
 .game-copy .heritage-mark{margin-top:1rem}
 @media(max-width:800px){.game-shelf{grid-template-columns:repeat(2,minmax(0,1fr))}.game-choice{min-height:190px}}
 @media(max-width:560px){.game-shelf{gap:.5rem}.game-choice{min-height:155px;padding:.7rem}.game-choice strong{font-size:.88rem}.game-choice span{font-size:.48rem}}
@@ -313,7 +304,7 @@
 
 /* The selected editorial question owns a live synthetic dashboard. */
 .featured-dashboard{margin-top:clamp(2rem,4vw,3.5rem);padding:clamp(1.1rem,2vw,1.75rem);border:1px solid color-mix(in srgb,var(--world-accent),transparent 25%);border-radius:14px;background:radial-gradient(circle at 90% 0%,color-mix(in srgb,var(--world-accent),transparent 88%),transparent 44%),#0d2037;box-shadow:0 24px 60px rgba(0,0,0,.22)}
-.game-feature-grid .featured-dashboard{min-width:0;margin-top:0;align-self:start}
+.game-feature-grid .featured-dashboard{min-width:0;margin-top:0}
 .game-feature-grid .featured-dashboard-intro,.game-feature-grid .publication-layout,.game-feature-grid .review-layout{grid-template-columns:1fr}
 .featured-dashboard-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,.65fr);gap:1.5rem;align-items:end;margin-bottom:1.25rem}
 .featured-dashboard-intro span{color:var(--world-accent);font-size:.6rem;font-weight:900;letter-spacing:.14em}
