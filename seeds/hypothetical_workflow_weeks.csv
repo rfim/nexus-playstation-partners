@@ -1,0 +1,17 @@
+cohort,week_number,first_pass_rate_pct
+treated,1,47
+treated,2,49
+treated,3,51
+treated,4,53
+treated,5,65
+treated,6,67
+treated,7,69
+treated,8,71
+comparison,1,45
+comparison,2,47
+comparison,3,49
+comparison,4,51
+comparison,5,51
+comparison,6,53
+comparison,7,55
+comparison,8,57

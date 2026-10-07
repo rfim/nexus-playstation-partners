@@ -46,6 +46,23 @@ def build() -> dict:
             join main.stg_titles t on f.title_id = t.title_id
             order by approved_at, f.title_id
         """).fetchall()
+        diagnostics_query = con.execute("""
+            select * from main.mart_partner_statistical_diagnostics order by partner_id
+        """)
+        diagnostic_columns = [column[0] for column in diagnostics_query.description]
+        diagnostic_rows = [dict(zip(diagnostic_columns, row)) for row in diagnostics_query.fetchall()]
+        did_query = con.execute("select * from main.mart_workflow_did_demo")
+        did_columns = [column[0] for column in did_query.description]
+        did_demo = dict(zip(did_columns, did_query.fetchone()))
+        cohort_query = con.execute("""
+            select week_number,
+                max(case when cohort = 'treated' then first_pass_rate_pct end) as treated_rate_pct,
+                max(case when cohort = 'comparison' then first_pass_rate_pct end) as comparison_rate_pct
+            from main.hypothetical_workflow_weeks
+            group by week_number order by week_number
+        """)
+        cohort_columns = [column[0] for column in cohort_query.description]
+        did_demo["weeks"] = [dict(zip(cohort_columns, row)) for row in cohort_query.fetchall()]
     partners = [
         dict(zip(("partner_id", "partner_name", "region", "titles_submitted",
                   "first_pass_approved_titles", "titles_published", "submission_attempts",
@@ -72,7 +89,7 @@ def build() -> dict:
     ]
     return {
         "scope": "Synthetic portfolio data; no PlayStation or Lifepal records",
-        "metric_version": 4,
+        "metric_version": 5,
         "totals": {
             "titles_submitted": submitted,
             "first_pass_approved_titles": first_pass,
@@ -83,6 +100,11 @@ def build() -> dict:
         "partners": partners,
         "review_events": review_events,
         "publication_events": publication_events,
+        "statistics": {
+            "overall": next(row for row in diagnostic_rows if row["partner_id"] == "ALL"),
+            "partners": [row for row in diagnostic_rows if row["partner_id"] != "ALL"],
+        },
+        "causal_demo": did_demo,
     }
 
 

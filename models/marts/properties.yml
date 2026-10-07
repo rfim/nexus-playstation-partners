@@ -1,6 +1,20 @@
 version: 2
 
 models:
+  - name: mart_partner_statistical_diagnostics
+    description: Descriptive partner and overall summaries; Wilson calculations are teaching examples, not intervals inferred from a random sample.
+    columns:
+      - name: partner_id
+        data_tests: [unique, not_null]
+      - name: titles_submitted
+        data_tests: [not_null]
+  - name: mart_workflow_did_demo
+    description: Difference-in-differences arithmetic over a separate, entirely invented two-cohort weekly fixture.
+    columns:
+      - name: did_pp
+        data_tests: [not_null]
+      - name: pre_period_placebo_pp
+        data_tests: [not_null]
   - name: dim_partner
     description: One row per partner; a synthetic current-state dimension.
     columns:

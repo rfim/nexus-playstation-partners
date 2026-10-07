@@ -1,6 +1,16 @@
 version: 2
 
 models:
+  - name: int_partner_tier_asof_submission
+    description: Partner tier valid at submission time; events before the first snapshot capture remain unknown.
+    columns:
+      - name: submission_id
+        data_tests: [unique, not_null]
+      - name: tier_history_available
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
   - name: int_submission_lifecycle
     description: Review attempts ordered within each title. One row per submission.
     columns:

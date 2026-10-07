@@ -1,0 +1,16 @@
+version: 2
+
+seeds:
+  - name: hypothetical_workflow_weeks
+    description: Separate invented cohort rates for teaching difference-in-differences. These are not PlayStation, Lifepal, or six-title operational data and carry no sampling uncertainty estimate.
+    columns:
+      - name: cohort
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [treated, comparison]
+      - name: week_number
+        data_tests: [not_null]
+      - name: first_pass_rate_pct
+        data_tests: [not_null]

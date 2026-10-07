@@ -290,6 +290,10 @@
 .chart-card-wide{grid-column:1/-1;min-height:320px}
 .chart-number{color:#8ac8ff;font-size:.58rem;font-weight:900;letter-spacing:.13em}
 .chart-card h4{margin:.35rem 0 .2rem;font-size:1.42rem;line-height:1.16;letter-spacing:-.035em}
+.stat-lens{display:grid;gap:.48rem;margin-top:1.15rem;padding:1rem 1.05rem;border:1px solid rgba(143,188,227,.34);border-left:3px solid #f0c878;border-radius:8px;background:rgba(3,17,34,.46);color:#c9dbee;font-size:.7rem;line-height:1.55}
+.stat-lens b{color:#f4d18e;font-size:.62rem;letter-spacing:.11em}
+.stat-lens strong{color:#f4d18e}
+.stat-lens a{width:max-content;max-width:100%;color:#a9d8ff;font-weight:800;text-decoration:underline;text-underline-offset:3px}
 .chart-card>p{margin:0;color:#aebfd1;font-size:.72rem;line-height:1.5}
 .chart-card>small{display:block;margin-top:1rem;color:#8eabc7;font-size:.62rem;line-height:1.4}
 .chart-bars,.chart-dots{display:grid;gap:.8rem;margin-top:1.45rem}

@@ -278,12 +278,24 @@ function setupCharts(data) {
     <article class="chart-card chart-card-wide causal-card" data-chart="causal">
       <div class="review-heading"><div><span class="chart-number">02 / CAUSAL DESIGN · ILLUSTRATIVE</span><h4>Did the workflow change the outcome?</h4><p>A before/after rise is only a start. Compare a treated cohort with one not exposed to the workflow, then ask whether the counterfactual is credible.</p></div><span class="review-count">Hypothetical rates</span></div>
       <div class="causal-layout"><div><div class="causal-graph"><svg id="causal-svg" viewBox="0 0 680 300" role="img" aria-label="Illustrative eight-week first-pass approval rates for treated and comparison cohorts, with a post-change counterfactual"></svg></div><div class="causal-legend"><span><i class="causal-key-treated"></i>Workflow changed</span><span><i class="causal-key-control"></i>Comparison</span><span><i class="causal-key-counterfactual"></i>Counterfactual under parallel trends</span></div></div>
-      <div class="causal-rigor"><span class="review-panel-kicker">THE ESTIMATE IS CONDITIONAL</span><strong id="causal-estimate">+12 pp</strong><p id="causal-decomposition">Treated +18 pp − comparison +6 pp</p><div class="causal-check"><b>01 · Design</b><span>Define the rollout unit, eligible population and outcome before looking at the result.</span></div><div class="causal-check"><b>02 · Diagnose</b><span>Check pre-trends, changing mix, placebo dates and simultaneous changes. Similar pre-trends do not prove the assumption. <span id="causal-placebo"></span></span></div><div class="causal-check"><b>03 · Infer</b><span>With real unit-level data, report cluster-aware uncertainty and sensitivity to trend violations. A single toy line has no valid confidence interval.</span></div><a href="#math">Inspect the equation ↓</a><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/assets/site.js" target="_blank" rel="noopener noreferrer">Inspect D3 calculation ↗</a></div></div>
+      <div class="causal-rigor"><span class="review-panel-kicker">THE ESTIMATE IS CONDITIONAL</span><strong id="causal-estimate">+12 pp</strong><p id="causal-decomposition">Treated +18 pp − comparison +6 pp</p><div class="causal-check"><b>01 · Design</b><span>Define rollout unit, eligible population and outcome before looking at the result. Check whether partner teams influence one another: spillovers break the no-interference assumption.</span></div><div class="causal-check"><b>02 · Diagnose</b><span>Check pre-trends, changing mix, placebo dates and simultaneous changes. Similar pre-trends do not prove the assumption. <span id="causal-placebo"></span></span></div><div class="causal-check"><b>03 · Sensitivity</b><span id="causal-sensitivity">A 1 pp/week untreated drift would change the illustrative estimate.</span></div><div class="causal-check"><b>04 · Infer</b><span>With real unit-level data, report cluster-aware uncertainty and sensitivity to trend violations. The weekly rates lack denominators and unit-level variation, so no standard error or valid confidence interval can be calculated.</span></div><a href="#math">Inspect the equation ↓</a><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_workflow_did_demo.sql" target="_blank" rel="noopener noreferrer">Inspect the dbt calculation ↗</a></div></div>
       <p class="causal-formula">DiD = (treated post − treated pre) − (comparison post − comparison pre)</p>
       <small>Scenario rates are invented to explain the design. No PlayStation or Lifepal causal effect was estimated; this is separate from the six-title dbt reference.</small>
     </article>`);
+  const stats = data.statistics?.overall;
+  if (stats) {
+    const diagnosticPanels = {
+      quality: `<b>STATISTICAL LENS · TITLE GRAIN</b><span>${stats.first_pass_approved_titles}/${stats.titles_submitted} = ${formatPercent(stats.first_pass_approval_pct)}. Wilson score calculation: ${stats.wilson_lower_pct}–${stats.wilson_upper_pct}% under independent Bernoulli sampling. These six fixed fictional titles are not a random sample, so this is algebra, not an inferential interval or a partner ranking.</span><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/macros/wilson_score_bound.sql" target="_blank" rel="noopener noreferrer">Inspect interval macro ↗</a>`,
+      publication: `<b>STATISTICAL LENS · OBSERVABILITY</b><span>${stats.titles_published}/${stats.titles_submitted} titles have a publication event; ${stats.titles_without_publication} do not. Unobserved is not zero. A survival analysis would need a declared observation cutoff and follow-up window before estimating time to publication.</span><span><strong>Causal check:</strong> approval and publication can share upstream causes. Their time gap alone does not measure an approval effect.</span>`,
+      speed: `<b>STATISTICAL LENS · ATTEMPT GRAIN</b><span>${stats.reviewed_attempts} completed attempts: mean ${stats.mean_review_hours}h, median ${stats.median_review_hours}h, IQR ${stats.q1_review_hours}–${stats.q3_review_hours}h, p90 ${stats.p90_review_hours}h. A single long review can move the mean; attempts also cluster within titles and partners.</span><span><strong>Causal check:</strong> compare eligible workflows at a fixed submission-time baseline; do not adjust for a later review outcome.</span>`,
+      handoff: `<b>STATISTICAL LENS · SELECTED OUTCOMES</b><span>Lead time is observed for ${stats.observed_publication_leads}/${stats.titles_submitted} titles: mean ${stats.mean_lead_days}d, median ${stats.median_lead_days}d. The published-only mean describes those observed titles, not all submissions.</span><span><strong>Causal check:</strong> conditioning on publication can select a non-comparable group. Record a censoring cutoff and compare like-for-like cohorts before attributing any shift.</span>`
+    };
+    Object.entries(diagnosticPanels).forEach(([key, markup]) => {
+      document.querySelector(`[data-chart="${key}"]`).insertAdjacentHTML('beforeend', `<div class="stat-lens">${markup}</div>`);
+    });
+  }
   $('#partner-charts').querySelectorAll('.chart-card').forEach((card) => { card.dataset.chartOrder = String(chartOrder.indexOf(card.dataset.chart)); });
-  setupCausalExample(d3lib);
+  setupCausalExample(d3lib, data.causal_demo);
   const chartSources = {
     quality: ['Inspect first-pass SQL ↗', 'models/marts/mart_partner_publishing.sql']
   };
@@ -514,18 +526,19 @@ function setupCharts(data) {
   }
 }
 
-function setupCausalExample(d3lib) {
-  // A teaching scenario, deliberately independent of metrics.json and the dbt mart.
-  const treated = [47, 49, 51, 53, 65, 67, 69, 71];
-  const comparison = [45, 47, 49, 51, 51, 53, 55, 57];
+function setupCausalExample(d3lib, demo) {
+  // Separate invented dbt seed and model. Never derived from the operational six-title mart.
+  const treated = demo.weeks.map((week) => Number(week.treated_rate_pct));
+  const comparison = demo.weeks.map((week) => Number(week.comparison_rate_pct));
   const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
   const treatedChange = mean(treated.slice(4)) - mean(treated.slice(0, 4));
   const comparisonChange = mean(comparison.slice(4)) - mean(comparison.slice(0, 4));
-  const effect = treatedChange - comparisonChange;
-  const placebo = (mean(treated.slice(2, 4)) - mean(treated.slice(0, 2))) - (mean(comparison.slice(2, 4)) - mean(comparison.slice(0, 2)));
+  const effect = Number(demo.did_pp);
+  const placebo = Number(demo.pre_period_placebo_pp);
   $('#causal-estimate').textContent = `${effect > 0 ? '+' : ''}${effect} pp`;
   $('#causal-decomposition').textContent = `Treated +${treatedChange} pp − comparison +${comparisonChange} pp`;
   $('#causal-placebo').textContent = `The invented pre-period placebo is ${placebo} pp by construction.`;
+  $('#causal-sensitivity').textContent = `Pre-period slope gap: ${demo.pretrend_slope_gap_pp_per_week} pp/week. If untreated trends diverged by 1 pp/week across the ${demo.pre_post_mean_week_gap}-week mean-period gap, the arithmetic falls to ${demo.effect_if_1pp_week_drift} pp. This is a sensitivity scenario, not an estimate.`;
 
   function draw(animate = false) {
     const target = $('#causal-svg');

@@ -1,6 +1,6 @@
 {
   "scope": "Synthetic portfolio data; no PlayStation or Lifepal records",
-  "metric_version": 4,
+  "metric_version": 5,
   "totals": {
     "titles_submitted": 6,
     "first_pass_approved_titles": 3,
@@ -250,5 +250,146 @@
       "observed_handoff_hours": null,
       "publication_lead_days": null
     }
-  ]
+  ],
+  "statistics": {
+    "overall": {
+      "partner_id": "ALL",
+      "titles_submitted": 6,
+      "first_pass_approved_titles": 3,
+      "first_pass_approval_pct": 50.0,
+      "wilson_lower_pct": 18.8,
+      "wilson_upper_pct": 81.2,
+      "titles_published": 4,
+      "titles_without_publication": 2,
+      "reviewed_attempts": 9,
+      "mean_review_hours": 27.6,
+      "q1_review_hours": 24.0,
+      "median_review_hours": 25.0,
+      "q3_review_hours": 26.0,
+      "p90_review_hours": 31.2,
+      "observed_publication_leads": 4,
+      "mean_lead_days": 4.3,
+      "median_lead_days": 4.0,
+      "submission_events": 9,
+      "tier_history_covered_events": 0
+    },
+    "partners": [
+      {
+        "partner_id": "P01",
+        "titles_submitted": 2,
+        "first_pass_approved_titles": 1,
+        "first_pass_approval_pct": 50.0,
+        "wilson_lower_pct": 9.5,
+        "wilson_upper_pct": 90.5,
+        "titles_published": 2,
+        "titles_without_publication": 0,
+        "reviewed_attempts": 3,
+        "mean_review_hours": 25.0,
+        "q1_review_hours": 24.5,
+        "median_review_hours": 25.0,
+        "q3_review_hours": 25.5,
+        "p90_review_hours": 25.8,
+        "observed_publication_leads": 2,
+        "mean_lead_days": 5.0,
+        "median_lead_days": 5.0,
+        "submission_events": 3,
+        "tier_history_covered_events": 0
+      },
+      {
+        "partner_id": "P02",
+        "titles_submitted": 2,
+        "first_pass_approved_titles": 0,
+        "first_pass_approval_pct": 0.0,
+        "wilson_lower_pct": 0.0,
+        "wilson_upper_pct": 65.8,
+        "titles_published": 1,
+        "titles_without_publication": 1,
+        "reviewed_attempts": 4,
+        "mean_review_hours": 31.0,
+        "q1_review_hours": 24.8,
+        "median_review_hours": 26.0,
+        "q3_review_hours": 32.3,
+        "p90_review_hours": 41.7,
+        "observed_publication_leads": 1,
+        "mean_lead_days": 4.0,
+        "median_lead_days": 4.0,
+        "submission_events": 4,
+        "tier_history_covered_events": 0
+      },
+      {
+        "partner_id": "P03",
+        "titles_submitted": 2,
+        "first_pass_approved_titles": 2,
+        "first_pass_approval_pct": 100.0,
+        "wilson_lower_pct": 34.2,
+        "wilson_upper_pct": 100.0,
+        "titles_published": 1,
+        "titles_without_publication": 1,
+        "reviewed_attempts": 2,
+        "mean_review_hours": 24.5,
+        "q1_review_hours": 24.3,
+        "median_review_hours": 24.5,
+        "q3_review_hours": 24.8,
+        "p90_review_hours": 24.9,
+        "observed_publication_leads": 1,
+        "mean_lead_days": 3.0,
+        "median_lead_days": 3.0,
+        "submission_events": 2,
+        "tier_history_covered_events": 0
+      }
+    ]
+  },
+  "causal_demo": {
+    "treated_pre_pct": 50.0,
+    "treated_post_pct": 68.0,
+    "comparison_pre_pct": 48.0,
+    "comparison_post_pct": 54.0,
+    "did_pp": 12.0,
+    "pre_period_placebo_pp": 0.0,
+    "pretrend_slope_gap_pp_per_week": 0.0,
+    "pre_post_mean_week_gap": 4.0,
+    "effect_if_1pp_week_drift": 8.0,
+    "weeks": [
+      {
+        "week_number": 1,
+        "treated_rate_pct": 47,
+        "comparison_rate_pct": 45
+      },
+      {
+        "week_number": 2,
+        "treated_rate_pct": 49,
+        "comparison_rate_pct": 47
+      },
+      {
+        "week_number": 3,
+        "treated_rate_pct": 51,
+        "comparison_rate_pct": 49
+      },
+      {
+        "week_number": 4,
+        "treated_rate_pct": 53,
+        "comparison_rate_pct": 51
+      },
+      {
+        "week_number": 5,
+        "treated_rate_pct": 65,
+        "comparison_rate_pct": 51
+      },
+      {
+        "week_number": 6,
+        "treated_rate_pct": 67,
+        "comparison_rate_pct": 53
+      },
+      {
+        "week_number": 7,
+        "treated_rate_pct": 69,
+        "comparison_rate_pct": 55
+      },
+      {
+        "week_number": 8,
+        "treated_rate_pct": 71,
+        "comparison_rate_pct": 57
+      }
+    ]
+  }
 }
