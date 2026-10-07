@@ -266,7 +266,7 @@
 .map-symbol{display:block;width:clamp(2rem,4vw,4rem);height:clamp(2rem,4vw,4rem);filter:drop-shadow(0 0 12px currentColor)}
 @media(max-width:560px){.ps-controller-buttons svg{width:18px;height:18px}.ps-glyph{width:2.6rem;height:2.6rem}.map-symbol{width:2.2rem;height:2.2rem}}
 
-/* Five source-backed charts in the editorial game section. */
+/* Four source-backed charts in the editorial game section. */
 .chart-suite{position:relative;margin-top:clamp(3.5rem,7vw,6rem);padding-top:2.1rem;border-top:1px solid rgba(220,235,248,.23)}
 .story-bridge+.chart-suite{margin-top:2.2rem}.chart-card{position:relative;transition:border-color .45s,box-shadow .45s}.chart-card.is-story-focus{border-color:var(--world-accent);box-shadow:0 0 0 1px color-mix(in srgb,var(--world-accent),transparent 22%),0 18px 44px rgba(0,0,0,.22),0 0 30px color-mix(in srgb,var(--world-accent),transparent 83%)}.chart-card.is-story-focus .chart-number{color:var(--world-accent)}
 .chart-suite-heading{display:grid;grid-template-columns:minmax(0,1fr) minmax(250px,.72fr);gap:2rem;align-items:end;margin-bottom:1.5rem}
@@ -395,3 +395,40 @@
 @media(max-width:900px){.lead-layout{grid-template-columns:1fr}}
 @media(max-width:520px){.lead-selectors{grid-template-columns:repeat(2,minmax(0,1fr))}.lead-graph svg{min-height:230px}}
 @media(prefers-reduced-motion:reduce){.featured-dashboard.is-visible .review-point,.featured-dashboard.is-visible .review-area,.featured-dashboard.is-visible .review-trace,.featured-dashboard.is-visible .review-graph::after{animation:none!important}.featured-dashboard.is-visible .review-point{opacity:1;transform:translate(-50%,-50%) scale(1)}.featured-dashboard.is-visible .review-area{opacity:1}.featured-dashboard.is-visible .review-trace{stroke-dashoffset:0}}
+
+/* A separate, explicitly hypothetical causal-design teaching slide. */
+.causal-card{overflow:hidden;border-color:#a98b62;background:radial-gradient(circle at 82% 10%,rgba(244,193,109,.14),transparent 42%),linear-gradient(145deg,#112b49,#08182c)}
+.causal-layout{display:grid;grid-template-columns:minmax(0,1.38fr) minmax(260px,.82fr);gap:1.2rem;margin-top:1.25rem}
+.causal-graph{overflow:hidden;border:1px solid rgba(144,191,233,.38);border-radius:10px;background:radial-gradient(circle at 76% 16%,rgba(240,191,103,.12),transparent 47%),#071a31}
+.causal-graph svg{display:block;width:100%;height:auto;min-height:285px}
+.causal-post-band{fill:rgba(242,202,126,.075)}
+.causal-gridline{stroke:rgba(156,198,235,.18);stroke-dasharray:3 5}
+.causal-intervention{stroke:#e6bb77;stroke-width:1.5;stroke-dasharray:5 5}
+.causal-graph text{font:700 11px Arial,sans-serif}
+.causal-axis-label{fill:#9bbbd6}.causal-period-label{fill:#f2d18e;font-size:10px!important;letter-spacing:.11em}
+.causal-line-control,.causal-line-treated,.causal-line-counterfactual{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.causal-line-control{stroke:#78b9ef;stroke-width:3}
+.causal-line-treated{stroke:#f1cd80;stroke-width:4;filter:drop-shadow(0 0 5px rgba(241,205,128,.55))}
+.causal-line-counterfactual{stroke:#c4d9e9;stroke-width:2.5;stroke-dasharray:7 6}
+.causal-point-control{fill:#78b9ef;stroke:#e1f4ff;stroke-width:1.5}
+.causal-point-treated{fill:#f1cd80;stroke:#fff2cc;stroke-width:2}
+.causal-effect-bracket{stroke:#f1cd80;stroke-width:2}
+.causal-effect-label{fill:#ffe19b;font-size:14px!important;font-weight:900!important}
+.causal-legend{display:flex;flex-wrap:wrap;gap:.55rem 1rem;margin-top:.7rem;color:#bad1e7;font-size:.63rem}
+.causal-legend span{display:inline-flex;align-items:center;gap:.4rem}
+.causal-legend i{display:inline-block;width:17px;height:3px;border-radius:3px}
+.causal-key-treated{background:#f1cd80;box-shadow:0 0 8px #f1cd80}
+.causal-key-control{background:#78b9ef;box-shadow:0 0 8px #78b9ef}
+.causal-key-counterfactual{height:0!important;border-top:2px dashed #c4d9e9}
+.causal-rigor{display:flex;flex-direction:column;gap:.45rem;padding:1.1rem;border:1px solid #6a8eaf;border-radius:10px;background:linear-gradient(160deg,#0a203b,#102d4b)}
+.causal-rigor>strong{color:#f5d38d;font-size:clamp(2.25rem,4vw,3.8rem);line-height:1;letter-spacing:-.07em}
+.causal-rigor>p{margin:0 0 .45rem;color:#bdd4e8;font-size:.72rem;font-weight:750}
+.causal-check{display:grid;gap:.2rem;padding:.55rem 0;border-top:1px solid rgba(163,197,224,.2)}
+.causal-check b{color:#f0ce89;font-size:.61rem;letter-spacing:.08em}
+.causal-check span{color:#bdd0e2;font-size:.65rem;line-height:1.48}
+.causal-rigor>a{margin-top:auto;color:#afdafa;font-size:.65rem;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.causal-formula{margin:1rem 0 0!important;padding:.8rem 1rem;border-left:3px solid #eac582;background:rgba(238,195,119,.07);color:#ffe2ab!important;font:400 clamp(.95rem,1.5vw,1.25rem)/1.4 Georgia,serif!important}
+.math-body a{color:#1467bc;text-decoration:underline;text-underline-offset:2px}
+.math-body .formula-causal{font-size:clamp(1.05rem,1.7vw,1.5rem);white-space:normal;overflow-wrap:anywhere}
+@media(max-width:900px){.causal-layout{grid-template-columns:1fr}}
+@media(max-width:520px){.causal-graph svg{min-height:220px}.causal-rigor{padding:.9rem}}

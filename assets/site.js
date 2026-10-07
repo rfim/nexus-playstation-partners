@@ -4,13 +4,15 @@ let chartMetrics = null;
 let replayPublicationChart = () => {};
 let replayReviewChart = () => {};
 let replayLeadChart = () => {};
+let replayCausalChart = () => {};
 let activeSupportingChart = 'publication';
 
 const chartSlideLabels = {
   quality: '01 · First-pass',
   publication: '02 · Publication',
   speed: '03 · Review time',
-  handoff: '04 · Lead time'
+  handoff: '04 · Lead time',
+  causal: '05 · Causal check'
 };
 
 const gameStories = {
@@ -88,6 +90,7 @@ function showChartSlide(key) {
     if (key === 'publication') replayPublicationChart();
     if (key === 'speed') replayReviewChart();
     if (key === 'handoff') replayLeadChart();
+    if (key === 'causal') replayCausalChart();
   }
 }
 
@@ -269,7 +272,16 @@ function setupCharts(data) {
     <article class="chart-card chart-card-wide publication-card" data-chart="publication"><div class="review-heading"><div><span class="chart-number">02 / PUBLICATION → FEATURES</span><h4>From approval to storefront.</h4><p>Each line starts when a fictional title was approved and ends at its first observed publication. Select a title to inspect what was known at approval.</p></div><span class="review-count">${totals.titles_published} of ${totals.titles_submitted} observed</span></div><div class="publication-layout"><div><div class="publication-graph"><svg id="publication-svg" viewBox="0 0 680 300" role="img" aria-label="Hours from title approval to first observed storefront publication"></svg></div><div class="publication-legend"><span><i></i>Observed publication</span><span><i></i>No publication event observed is unknown, not zero</span></div><div id="publication-selectors" class="publication-selectors" role="group" aria-label="Inspect a fictional title"></div></div><div class="review-feature-panel publication-feature-panel" aria-live="polite"><span class="review-panel-kicker">POINT-IN-TIME PUBLICATION VIEW</span><div class="review-panel-title"><strong id="publication-selected-name"></strong><span id="publication-selected-status"></span></div><small id="publication-selected-meta"></small><div class="review-feature-grid"><div><span>Prior partner publications</span><strong id="publication-prior-count"></strong></div><div><span>Prior mean handoff</span><strong id="publication-prior-mean"></strong></div><div><span>Approval attempt</span><strong id="publication-attempt"></strong></div><div class="review-observed"><span>Observed later · outcome</span><strong id="publication-observed"></strong></div></div><div class="review-use"><span>POTENTIAL USE</span><strong>Use past handoffs to plan a follow-up window after approval.</strong></div><p>History is restricted to publications before this approval. The selected title’s later storefront event is an outcome, never an input feature. No prediction model was trained.</p><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_title_publication_features.sql" target="_blank" rel="noopener noreferrer">Inspect point-in-time SQL ↗</a></div></div><small>Synthetic title events · elapsed hours only for observed publications · no PlayStation records.</small></article>
     <article class="chart-card chart-card-wide review-card" data-chart="speed"><div class="review-heading"><div><span class="chart-number">03 / SPEED → FEATURES</span><h4>Review time, event by event.</h4><p>Completed review hours in submission order. Select a signal to see what was knowable when it arrived.</p></div><span class="review-count">${reviewEvents.length} synthetic events</span></div><div class="review-layout"><div><div class="review-graph" role="group" aria-label="Review duration by submission order"><svg viewBox="0 0 600 180" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="review-area-gradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#f0c878" stop-opacity=".38"/><stop offset="100%" stop-color="#78b9f5" stop-opacity="0"/></linearGradient><linearGradient id="review-line-gradient" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#77b9f5"/><stop offset="55%" stop-color="#b3d9ff"/><stop offset="100%" stop-color="#f1cb7c"/></linearGradient></defs><path class="review-gridline" d="M 52 31 H 558 M 52 91 H 558 M 52 151 H 558"/><text x="5" y="35">50h</text><text x="5" y="95">25h</text><text x="12" y="155">0h</text><path class="review-area" d="${reviewArea}"/><path class="review-trace" d="${reviewLine}" pathLength="100"/></svg>${reviewPoints}</div><div class="review-axis"><span>Earlier submissions</span><span>Later submissions →</span></div><div class="review-legend"><span><i class="review-legend-approved"></i>Approved</span><span><i class="review-legend-rejected"></i>Rejected</span><span>Point height = observed review hours</span></div></div><div class="review-feature-panel" aria-live="polite"><span class="review-panel-kicker">POINT-IN-TIME FEATURE VIEW</span><div class="review-panel-title"><strong id="review-selected-name"></strong><span id="review-selected-status"></span></div><small id="review-selected-meta"></small><div class="review-feature-grid"><div><span>Prior completed reviews</span><strong id="review-prior-count"></strong></div><div><span>Prior mean review time</span><strong id="review-prior-mean"></strong></div><div><span>Current attempt</span><strong id="review-attempt"></strong></div><div class="review-observed"><span>Observed later · label</span><strong id="review-observed"></strong></div></div><div class="review-use"><span>POTENTIAL USE</span><strong>Estimate review turnaround earlier so partner teams can plan follow-up.</strong></div><p>Prior history could become features; current review duration is the later label, never an input at submission.</p><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_partner_review_features.sql" target="_blank" rel="noopener noreferrer">Inspect point-in-time SQL ↗</a></div></div><small>Synthetic portfolio example · no model was trained and no PlayStation records are used.</small></article>
     <article class="chart-card chart-card-wide lead-card" data-chart="handoff"><div class="review-heading"><div><span class="chart-number">04 / LEAD TIME → FEATURES</span><h4>From first submission to storefront.</h4><p>Each dot is one fictional title with an observed publication. The diamond is its partner mean. Select a title to see what was known when it was first submitted.</p></div><span class="review-count">${totals.titles_published} observed · ${totals.titles_submitted - totals.titles_published} not observed</span></div><div class="lead-layout"><div><div class="lead-graph"><svg id="lead-svg" viewBox="0 0 680 300" role="img" aria-label="Publication lead days by partner and fictional title"></svg></div><div class="lead-legend"><span><i class="lead-legend-dot"></i>Published title</span><span><i class="lead-legend-mean"></i>Partner mean</span><span>Titles without an observed publication are excluded from the mean.</span></div><div id="lead-selectors" class="lead-selectors" role="group" aria-label="Inspect a fictional title's lead time"></div></div><div class="review-feature-panel lead-feature-panel" aria-live="polite"><span class="review-panel-kicker">POINT-IN-TIME LEAD VIEW</span><div class="review-panel-title"><strong id="lead-selected-name"></strong><span id="lead-selected-status"></span></div><small id="lead-selected-meta"></small><div class="review-feature-grid"><div><span>Earlier partner publications</span><strong id="lead-prior-count"></strong></div><div><span>Earlier mean lead time</span><strong id="lead-prior-mean"></strong></div><div><span>Planned release</span><strong id="lead-planned-date"></strong></div><div class="review-observed"><span>Observed later · outcome</span><strong id="lead-observed"></strong></div></div><div class="review-use"><span>POTENTIAL USE</span><strong>Compare delivery variation before agreeing a follow-up window.</strong></div><p>Prior history ends before the selected title's first submission. Its own storefront lead time is shown as a later outcome, never an input feature.</p><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_title_publication_features.sql" target="_blank" rel="noopener noreferrer">Inspect point-in-time SQL ↗</a></div></div><small>First submission → first observed publication · only published titles enter each partner mean · synthetic data.</small></article>`;
+  $('#partner-charts').insertAdjacentHTML('beforeend', `
+    <article class="chart-card chart-card-wide causal-card" data-chart="causal">
+      <div class="review-heading"><div><span class="chart-number">05 / CAUSAL DESIGN · ILLUSTRATIVE</span><h4>Did the workflow change the outcome?</h4><p>A before/after rise is only a start. Compare a treated cohort with one not exposed to the workflow, then ask whether the counterfactual is credible.</p></div><span class="review-count">Hypothetical rates</span></div>
+      <div class="causal-layout"><div><div class="causal-graph"><svg id="causal-svg" viewBox="0 0 680 300" role="img" aria-label="Illustrative eight-week first-pass approval rates for treated and comparison cohorts, with a post-change counterfactual"></svg></div><div class="causal-legend"><span><i class="causal-key-treated"></i>Workflow changed</span><span><i class="causal-key-control"></i>Comparison</span><span><i class="causal-key-counterfactual"></i>Counterfactual under parallel trends</span></div></div>
+      <div class="causal-rigor"><span class="review-panel-kicker">THE ESTIMATE IS CONDITIONAL</span><strong id="causal-estimate">+12 pp</strong><p id="causal-decomposition">Treated +18 pp − comparison +6 pp</p><div class="causal-check"><b>01 · Design</b><span>Define the rollout unit, eligible population and outcome before looking at the result.</span></div><div class="causal-check"><b>02 · Diagnose</b><span>Check pre-trends, changing mix, placebo dates and simultaneous changes. Similar pre-trends do not prove the assumption. <span id="causal-placebo"></span></span></div><div class="causal-check"><b>03 · Infer</b><span>With real unit-level data, report cluster-aware uncertainty and sensitivity to trend violations. A single toy line has no valid confidence interval.</span></div><a href="#math">Inspect the equation ↓</a><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/assets/site.js" target="_blank" rel="noopener noreferrer">Inspect D3 calculation ↗</a></div></div>
+      <p class="causal-formula">DiD = (treated post − treated pre) − (comparison post − comparison pre)</p>
+      <small>Scenario rates are invented to explain the design. No PlayStation or Lifepal causal effect was estimated; this is separate from the six-title dbt reference.</small>
+    </article>`);
   $('#partner-charts').querySelectorAll('.chart-card').forEach((card, index) => { card.dataset.chartOrder = String(index); });
+  setupCausalExample(d3lib);
   const chartSources = {
     quality: ['Inspect first-pass SQL ↗', 'models/marts/mart_partner_publishing.sql']
   };
@@ -498,6 +510,74 @@ function setupCharts(data) {
     replayPublicationChart();
     replayLeadChart();
   }
+}
+
+function setupCausalExample(d3lib) {
+  // A teaching scenario, deliberately independent of metrics.json and the dbt mart.
+  const treated = [47, 49, 51, 53, 65, 67, 69, 71];
+  const comparison = [45, 47, 49, 51, 51, 53, 55, 57];
+  const mean = (values) => values.reduce((sum, value) => sum + value, 0) / values.length;
+  const treatedChange = mean(treated.slice(4)) - mean(treated.slice(0, 4));
+  const comparisonChange = mean(comparison.slice(4)) - mean(comparison.slice(0, 4));
+  const effect = treatedChange - comparisonChange;
+  const placebo = (mean(treated.slice(2, 4)) - mean(treated.slice(0, 2))) - (mean(comparison.slice(2, 4)) - mean(comparison.slice(0, 2)));
+  $('#causal-estimate').textContent = `${effect > 0 ? '+' : ''}${effect} pp`;
+  $('#causal-decomposition').textContent = `Treated +${treatedChange} pp − comparison +${comparisonChange} pp`;
+  $('#causal-placebo').textContent = `The invented pre-period placebo is ${placebo} pp by construction.`;
+
+  function draw(animate = false) {
+    const target = $('#causal-svg');
+    if (!d3lib) {
+      target.innerHTML = '<text x="24" y="70">Illustrative comparison: treated 50% → 68%; comparison 48% → 54%; difference-in-differences +12 pp.</text>';
+      return;
+    }
+    const svg = d3lib.select(target);
+    svg.selectAll('*').remove();
+    const x = d3lib.scaleLinear().domain([0, 7]).range([67, 560]);
+    const y = d3lib.scaleLinear().domain([40, 80]).range([250, 42]);
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const animatePaths = animate && !reducedMotion;
+    const line = d3lib.line().x((point) => x(point.week)).y((point) => y(point.rate)).curve(d3lib.curveMonotoneX);
+    const series = (values, start = 0) => values.map((rate, index) => ({week: start + index, rate}));
+    const preGap = mean(treated.slice(0, 4)) - mean(comparison.slice(0, 4));
+    const counterfactual = [{week: 3, rate: treated[3]}, ...comparison.slice(4).map((rate, index) => ({week: index + 4, rate: rate + preGap}))];
+
+    svg.append('rect').attr('class', 'causal-post-band').attr('x', x(3.5)).attr('y', 25).attr('width', 610 - x(3.5)).attr('height', 238);
+    [40, 50, 60, 70, 80].forEach((tick) => {
+      svg.append('line').attr('class', 'causal-gridline').attr('x1', 65).attr('x2', 610).attr('y1', y(tick)).attr('y2', y(tick));
+      svg.append('text').attr('class', 'causal-axis-label').attr('x', 16).attr('y', y(tick) + 4).text(`${tick}%`);
+    });
+    svg.append('line').attr('class', 'causal-intervention').attr('x1', x(3.5)).attr('x2', x(3.5)).attr('y1', 25).attr('y2', 263);
+    svg.append('text').attr('class', 'causal-period-label').attr('x', 70).attr('y', 21).text('PRE / BASELINE');
+    svg.append('text').attr('class', 'causal-period-label').attr('x', x(3.5) + 12).attr('y', 21).text('POST / WORKFLOW CHANGE');
+    d3lib.range(8).forEach((week) => svg.append('text').attr('class', 'causal-axis-label').attr('x', x(week)).attr('y', 284).attr('text-anchor', 'middle').text(`W${week + 1}`));
+
+    [
+      ['causal-line-control', series(comparison)],
+      ['causal-line-counterfactual', counterfactual],
+      ['causal-line-treated', series(treated)]
+    ].forEach(([className, points]) => {
+      const path = svg.append('path').attr('class', className).attr('d', line(points));
+      if (animatePaths && className !== 'causal-line-counterfactual') {
+        const length = path.node().getTotalLength();
+        path.attr('stroke-dasharray', `${length} ${length}`).attr('stroke-dashoffset', length)
+          .transition().duration(1350).ease(d3lib.easeCubicOut).attr('stroke-dashoffset', 0);
+      }
+    });
+    svg.selectAll('.causal-point-control').data(series(comparison)).join('circle')
+      .attr('class', 'causal-point-control').attr('cx', (point) => x(point.week)).attr('cy', (point) => y(point.rate))
+      .attr('r', animatePaths ? 0 : 3.5)
+      .call((selection) => { if (animatePaths) selection.transition().delay((point) => point.week * 120).duration(350).attr('r', 3.5); });
+    svg.selectAll('.causal-point-treated').data(series(treated)).join('circle')
+      .attr('class', 'causal-point-treated').attr('cx', (point) => x(point.week)).attr('cy', (point) => y(point.rate))
+      .attr('r', animatePaths ? 0 : 4.5)
+      .call((selection) => { if (animatePaths) selection.transition().delay((point) => point.week * 120).duration(350).attr('r', 4.5); });
+    svg.append('line').attr('class', 'causal-effect-bracket').attr('x1', 592).attr('x2', 592).attr('y1', y(counterfactual.at(-1).rate)).attr('y2', y(treated.at(-1)));
+    svg.append('text').attr('class', 'causal-effect-label').attr('x', 605).attr('y', (y(counterfactual.at(-1).rate) + y(treated.at(-1))) / 2 + 4).text(`+${effect} pp`);
+  }
+
+  replayCausalChart = () => draw(true);
+  draw(false);
 }
 
 function setupSignalLab(totals) {
