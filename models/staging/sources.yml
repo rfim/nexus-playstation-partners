@@ -6,12 +6,12 @@ sources:
     schema: main
     tables:
       - name: raw_partners
-        description: One current row per synthetic partner.
+        description: One current row per synthetic partner. Partner name, region and current tier depend on partner_id rather than being copied into title or event rows.
         columns:
           - name: partner_id
             data_tests: [unique, not_null]
       - name: raw_titles
-        description: One current row per synthetic title.
+        description: One current row per synthetic title. partner_id is a foreign key; partner attributes stay in raw_partners.
         columns:
           - name: title_id
             data_tests: [unique, not_null]
@@ -23,7 +23,7 @@ sources:
                     to: source('partner_platform', 'raw_partners')
                     field: partner_id
       - name: raw_submissions
-        description: One row per review attempt; a title may have several.
+        description: One row per review attempt; status and build version depend on submission_id, while title attributes stay in raw_titles.
         columns:
           - name: submission_id
             data_tests: [unique, not_null]
@@ -35,7 +35,7 @@ sources:
                     to: source('partner_platform', 'raw_titles')
                     field: title_id
       - name: raw_publications
-        description: One storefront publication event per row.
+        description: One storefront publication event per row. Storefront region depends on publication_id; title and partner attributes are referenced by key.
         columns:
           - name: publication_id
             data_tests: [unique, not_null]

@@ -12,6 +12,7 @@ BASE = "https://github.com/rfim/nexus-playstation-partners/blob/main/"
 
 ITEMS = {
     "source": ("Source definitions and tests", "models/staging/sources.yml", "yaml", "Synthetic partner, title, review and publication sources with key and relationship tests."),
+    "normalization": ("3NF to dimensional handoff", "docs/normalization.md", "md", "Functional dependencies, source keys, foreign keys and the move to title-grain and dimensional analytics."),
     "stage": ("Typed staging model", "models/staging/stg_submissions.sql", "sql", "One named place to cast times and standardise review status."),
     "snapshot": ("Partner tier snapshot", "snapshots/partner_tier_history.sql", "sql", "Timestamp strategy preserves partner-tier changes as history."),
     "asof": ("Tier at submission", "models/intermediate/int_partner_tier_asof_submission.sql", "sql", "An as-of join leaves pre-capture history unknown rather than using a future tier."),
