@@ -63,6 +63,7 @@ def build() -> dict:
         """)
         cohort_columns = [column[0] for column in cohort_query.description]
         did_demo["weeks"] = [dict(zip(cohort_columns, row)) for row in cohort_query.fetchall()]
+        business_potential = export_business_potential(con)
     partners = [
         dict(zip(("partner_id", "partner_name", "region", "titles_submitted",
                   "first_pass_approved_titles", "titles_published", "submission_attempts",
@@ -89,7 +90,7 @@ def build() -> dict:
     ]
     return {
         "scope": "Synthetic portfolio data; no PlayStation or Lifepal records",
-        "metric_version": 5,
+        "metric_version": 6,
         "totals": {
             "titles_submitted": submitted,
             "first_pass_approved_titles": first_pass,
@@ -105,6 +106,71 @@ def build() -> dict:
             "partners": [row for row in diagnostic_rows if row["partner_id"] != "ALL"],
         },
         "causal_demo": did_demo,
+        "business_potential": business_potential,
+    }
+
+
+def _rows(con, sql: str) -> list[dict]:
+    query = con.execute(sql)
+    columns = [column[0] for column in query.description]
+    return [dict(zip(columns, row)) for row in query.fetchall()]
+
+
+def export_business_potential(con) -> dict:
+    """Opportunity marts for section 07. Calculator defaults come from the marts where they have a value."""
+    shelf = _rows(con, """
+        select title_id, partner_id, title_name,
+               strftime(as_of_date, '%Y-%m-%d') as as_of_date,
+               strftime(planned_release_at, '%Y-%m-%d') as planned_release_at,
+               strftime(approved_at, '%Y-%m-%dT%H:%M:%S') as approved_at,
+               strftime(first_published_at, '%Y-%m-%dT%H:%M:%S') as first_published_at,
+               shelf_status, approval_buffer_days, days_waiting_as_of,
+               days_to_planned_release_as_of
+        from main.mart_title_time_to_shelf order by title_id
+    """)
+    resubmission = _rows(con, """
+        select return_reason, rejected_attempts, titles_affected, partners_affected,
+               cast(reviewer_hours as integer) as reviewer_hours, avg_days_added,
+               cast(rejections_without_resubmission as integer) as rejections_without_resubmission,
+               share_of_rejected_attempts
+        from main.mart_resubmission_cost
+        order by rejected_attempts desc, return_reason
+    """)
+    health = _rows(con, """
+        select partner_id, partner_name, titles_submitted, first_pass_approved_titles,
+               first_pass_rate, first_pass_wilson_lower, first_pass_wilson_upper,
+               titles_approved, titles_published, titles_awaiting_shelf,
+               days_since_last_submission, recency_component,
+               shelf_conversion_component, health_score, is_low_sample
+        from main.mart_partner_health order by health_score, partner_id
+    """)
+    for row in health:
+        for key in ("titles_submitted", "first_pass_approved_titles", "titles_approved",
+                    "titles_published", "titles_awaiting_shelf"):
+            row[key] = int(row[key])
+    rejected = sum(row["rejected_attempts"] for row in resubmission)
+    hours = sum(row["reviewer_hours"] for row in resubmission)
+    days_added = sum(row["avg_days_added"] * row["rejected_attempts"] for row in resubmission)
+    return {
+        "as_of_date": shelf[0]["as_of_date"] if shelf else None,
+        "summary": {
+            "titles": len(shelf),
+            "titles_awaiting_shelf": sum(row["shelf_status"] == "approved_waiting" for row in shelf),
+            "rejected_attempts": rejected,
+            "rejected_reviewer_hours": hours,
+            "top_return_reason": resubmission[0]["return_reason"] if resubmission else None,
+            "lowest_health_partner": health[0]["partner_id"] if health else None,
+        },
+        "calculator_defaults": {
+            "titles_per_year": 400,
+            "first_pass_uplift_points": 10,
+            "reviewer_hours_per_attempt": round(hours / rejected) if rejected else None,
+            "days_added_per_resubmission": round(days_added / rejected) if rejected else None,
+            "derived_from_mart": ["reviewer_hours_per_attempt", "days_added_per_resubmission"],
+        },
+        "shelf": shelf,
+        "resubmission": resubmission,
+        "health": health,
     }
 
 

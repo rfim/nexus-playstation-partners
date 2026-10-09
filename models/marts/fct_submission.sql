@@ -6,6 +6,7 @@ select
     reviewed_at,
     status,
     build_version,
+    return_reason,
     attempt_number,
     review_hours
 from {{ ref('int_submission_lifecycle') }}

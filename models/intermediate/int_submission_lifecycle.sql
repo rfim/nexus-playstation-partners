@@ -6,6 +6,7 @@ select
     s.reviewed_at,
     s.status,
     s.build_version,
+    s.return_reason,
     row_number() over (
         partition by s.title_id
         order by s.submitted_at, s.submission_id

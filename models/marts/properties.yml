@@ -61,6 +61,38 @@ models:
       - name: avg_publication_lead_days
         description: Average days from first submission to first publication among published titles.
 
+  - name: mart_title_time_to_shelf
+    description: One row per title at a fixed clock, var('opportunity_as_of_date'). Shows whether an approved title has reached a storefront, how long it has waited and how much slack remains before its planned release. Events after the clock are treated as unobserved.
+    columns:
+      - name: title_id
+        data_tests: [unique, not_null]
+      - name: shelf_status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['published', 'approved_waiting', 'in_review', 'not_submitted']
+      - name: days_waiting_as_of
+        description: Days from approval to the clock for approved titles with no storefront event yet.
+  - name: mart_resubmission_cost
+    description: One row per return reason. Rejected attempts, reviewer hours spent on them, and the days each rejection added before the partner resubmitted.
+    columns:
+      - name: return_reason
+        data_tests: [unique, not_null]
+      - name: rejected_attempts
+        data_tests: [not_null]
+      - name: avg_days_added
+        description: Mean days from the rejected submission to the next submission of the same title.
+  - name: mart_partner_health
+    description: One row per partner. An illustrative health score in [0, 1] from three equally weighted components (Wilson lower bound on first-pass approval, recency, shelf conversion). Weights are a discussion starting point, not a validated model; low-sample partners are flagged and should not be ranked.
+    columns:
+      - name: partner_id
+        data_tests: [unique, not_null]
+      - name: health_score
+        data_tests: [not_null]
+      - name: is_low_sample
+        description: True when the partner has fewer submitted titles than var('health_min_titles').
+
 exposures:
   - name: partner_release_health
     label: Partner release health (synthetic portfolio example)
@@ -69,6 +101,18 @@ exposures:
     description: A possible partner operations dashboard using the governed publishing mart; no PlayStation dashboard has been deployed.
     depends_on:
       - ref('mart_partner_publishing')
+    owner:
+      name: VIM portfolio example
+      email: portfolio@example.invalid
+  - name: partner_opportunity
+    label: Partner opportunity (synthetic portfolio example)
+    type: dashboard
+    maturity: low
+    description: A possible view for partner managers covering titles waiting for the shelf, the cost of resubmissions by return reason, and partner health. Illustrative only; no PlayStation dashboard has been deployed.
+    depends_on:
+      - ref('mart_title_time_to_shelf')
+      - ref('mart_resubmission_cost')
+      - ref('mart_partner_health')
     owner:
       name: VIM portfolio example
       email: portfolio@example.invalid

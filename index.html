@@ -7,9 +7,9 @@
   <meta name="description" content="NEXUS by VIM: an independent Senior Analytics Engineer portfolio case study for PlayStation Partners Platform. Explore dbt models, tests, metrics and runnable synthetic code.">
   <title>NEXUS for PlayStation Partners | VIM · Senior Analytics Engineer</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="stylesheet" href="assets/site.css?v=7">
+  <link rel="stylesheet" href="assets/site.css?v=8">
   <script src="assets/vendor/d3.v7.min.js" defer></script>
-  <script src="assets/site.js?v=7" defer></script>
+  <script src="assets/site.js?v=8" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#architecture">Skip to the architecture</a>
@@ -179,16 +179,80 @@
       </div>
     </section>
 
+    <section id="potential" class="potential section-pad" aria-labelledby="potential-title">
+      <div class="shell">
+        <div class="section-index"><span>07 / BUSINESS POTENTIAL</span><span>Where trusted partner data pays for itself</span></div>
+        <div class="split-heading"><h2 id="potential-title">From a trusted number<br><em>to a better decision.</em></h2><p>The Partners Platform's mission names three outcomes: better decisions, operational efficiency and revenue opportunities. The same synthetic marts already point at each one. These are hypotheses to test with the team, not claims about PlayStation.</p></div>
+        <div class="bp-lenses">
+          <article class="bp-lens">
+            <span class="bp-tag">01 · REVENUE · TIME TO SHELF</span>
+            <h3>Which titles are ready but not selling?</h3>
+            <p>Every day between approval and a storefront is a day a partner's title can't earn. The mart reads each title at a fixed clock.</p>
+            <div class="bp-stat"><strong id="bp-shelf-stat">2 of 6</strong><small id="bp-shelf-note">synthetic titles approved but not on any storefront at 30 Sep</small></div>
+            <div class="bp-meta">
+              <div><span>DECISION</span>Which partners a partner manager calls first, ranked by days left to the planned release</div>
+              <div><span>MODEL</span><button type="button" class="bp-model" data-snippet="shelf">mart_title_time_to_shelf ↗</button></div>
+            </div>
+          </article>
+          <article class="bp-lens">
+            <span class="bp-tag">02 · EFFICIENCY · RESUBMISSIONS</span>
+            <h3>What does a second review cost?</h3>
+            <p>Each rejected attempt costs reviewer hours on one side and days on the partner's. Return reasons show which fix pays back first.</p>
+            <div class="bp-stat"><strong id="bp-resub-stat">3 returns</strong><small id="bp-resub-note">100 reviewer hours; incomplete metadata caused 2 of 3</small></div>
+            <div class="bp-meta">
+              <div><span>DECISION</span>Which checklist or toolkit change to ship first, sized by the attempts it would avoid</div>
+              <div><span>MODEL</span><button type="button" class="bp-model" data-snippet="resubmission">mart_resubmission_cost ↗</button></div>
+            </div>
+          </article>
+          <article class="bp-lens">
+            <span class="bp-tag">03 · GROWTH · PARTNER HEALTH</span>
+            <h3>Which partners are slowing down?</h3>
+            <p>First-pass approval at its Wilson lower bound, recency and shelf conversion, each bounded in [0, 1]. A small partner is watched, not ranked.</p>
+            <div class="bp-stat"><strong id="bp-health-stat">0–66%</strong><small id="bp-health-note">Harbor Pixel first-pass, Wilson 95% on 0 of 2; health 0.43, lowest of 3 <span class="bp-flag">LOW SAMPLE</span></small></div>
+            <div class="bp-meta">
+              <div><span>DECISION</span>Who to support before they go quiet, and whether a tier programme worked</div>
+              <div><span>MODEL</span><button type="button" class="bp-model" data-snippet="health">mart_partner_health ↗</button></div>
+            </div>
+          </article>
+        </div>
+        <div class="bp-calc" aria-label="Resubmission opportunity calculator">
+          <div class="bp-inputs">
+            <p class="panel-eyebrow">OPPORTUNITY CALCULATOR · YOUR ASSUMPTIONS</p>
+            <h3>Size a first-pass improvement.</h3>
+            <p>Move the sliders. Inputs marked MART start from the synthetic marts; the others are round guesses. None are PlayStation figures.</p>
+            <div class="bp-field"><label for="bp-titles">Titles submitted per year</label><output id="bp-titles-out" for="bp-titles">400</output><input id="bp-titles" type="range" min="50" max="2000" step="50" value="400"></div>
+            <div class="bp-field"><label for="bp-uplift">First-pass approval uplift (points)</label><output id="bp-uplift-out" for="bp-uplift">10</output><input id="bp-uplift" type="range" min="1" max="30" step="1" value="10"></div>
+            <div class="bp-field"><label for="bp-hours">Reviewer hours per attempt <small>MART</small></label><output id="bp-hours-out" for="bp-hours">33</output><input id="bp-hours" type="range" min="2" max="80" step="1" value="33"></div>
+            <div class="bp-field"><label for="bp-days">Days added per resubmission <small>MART</small></label><output id="bp-days-out" for="bp-days">3</output><input id="bp-days" type="range" min="1" max="14" step="1" value="3"></div>
+          </div>
+          <div class="bp-results" aria-live="polite">
+            <div class="bp-result"><strong id="bp-attempts">40</strong><small>review attempts avoided a year</small></div>
+            <div class="bp-result"><strong id="bp-saved">1,320 h</strong><small>reviewer time freed a year</small></div>
+            <div class="bp-result"><strong id="bp-days-total">120</strong><small>title-days reaching the shelf sooner</small></div>
+            <p class="bp-formula">attempts = titles × uplift<br>hours = attempts × hours per attempt<br>title-days = attempts × days per resubmission</p>
+          </div>
+        </div>
+        <div class="bp-hypotheses">
+          <h3>Three hypotheses I'd test in week one</h3>
+          <ol>
+            <li>Most resubmissions trace back to a handful of return reasons that a pre-submission checklist could catch.</li>
+            <li>Titles approved close to their planned release are the ones that miss the shelf on launch day.</li>
+            <li>A partner's health score drops weeks before they go quiet, early enough for a partner manager to act.</li>
+          </ol>
+        </div>
+        <p class="data-note">Stat cards read <a href="assets/metrics.json">the exported dbt marts</a>, fixed at a 30 Sep 2026 clock. The health score's equal weights are a starting point for discussion, not a validated model. Calculator inputs are yours. No PlayStation partner, title, financial or operational data appears here; at Lifepal the same lenses were bind delays, insurer turnaround and insurer health.</p>
+      </div>
+    </section>
     <section id="proof" class="proof section-pad" aria-labelledby="proof-title">
       <div class="shell">
-        <div class="section-index"><span>07 / WORKING CODE</span><span>Run it, inspect it, change it</span></div>
+        <div class="section-index"><span>08 / WORKING CODE</span><span>Run it, inspect it, change it</span></div>
         <div class="split-heading"><h2 id="proof-title">The code is part of <em>the story.</em></h2><p>This public repository includes synthetic seeds, dbt sources, staging, a snapshot and as-of join, statistical macros and diagnostics, facts and dimensions, causal teaching SQL, generic and singular tests, and an exposure. The code window reads repository source; the metric contract is a separate, versioned design reference.</p></div>
         <div class="proof-grid"><div class="run-card"><span class="panel-eyebrow">LOCAL REFERENCE</span><h3>One command builds the answer.</h3><pre><code>python -m pip install -r requirements.txt
 dbt build --profiles-dir .</code></pre><p>dbt runs the seeds, models, snapshot and tests against DuckDB. GitHub Actions repeats the build and checks that this site's examples match the source.</p><a class="button button-primary" href="https://github.com/rfim/nexus-playstation-partners" target="_blank" rel="noopener noreferrer">Open the repository ↗</a><small>Requires Python 3.12. DuckDB is local; no PlayStation account is needed.</small></div><div class="code-window"><div class="code-window-top"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span id="proof-file">models/marts/mart_partner_publishing.sql</span><span id="proof-lang">SQL</span></div><div class="code-tabs" role="tablist" aria-label="Code examples"><button type="button" role="tab" class="is-active" aria-selected="true" data-proof="mart">Business mart</button><button type="button" role="tab" aria-selected="false" data-proof="normalization">3NF design</button><button type="button" role="tab" aria-selected="false" data-proof="title">No fanout</button><button type="button" role="tab" aria-selected="false" data-proof="tests">Test</button><button type="button" role="tab" aria-selected="false" data-proof="semantic">Metric contract</button><button type="button" role="tab" aria-selected="false" data-proof="diagnostics">Stats mart</button><button type="button" role="tab" aria-selected="false" data-proof="wilson">Wilson macro</button><button type="button" role="tab" aria-selected="false" data-proof="snapshot">Snapshot</button><button type="button" role="tab" aria-selected="false" data-proof="asof">As-of feature</button><button type="button" role="tab" aria-selected="false" data-proof="didMart">Causal demo</button><button type="button" role="tab" aria-selected="false" data-proof="didMacro">DiD macro</button></div><pre class="proof-code"><code id="proof-code">Loading source code…</code></pre><div class="code-footer"><span id="proof-description">Curated partner-level measures.</span><a id="proof-link" href="https://github.com/rfim/nexus-playstation-partners" target="_blank" rel="noopener noreferrer">Open full source ↗</a></div></div></div>
       </div>
     </section>
 
-    <section id="conversation" class="conversation section-pad" aria-labelledby="conversation-title"><div class="shell"><div class="section-index"><span>08 / PULL UP A CHAIR</span><span>The decisions behind the model</span></div><div class="split-heading"><h2 id="conversation-title">What would we discuss <em>first?</em></h2><p>The most useful metric is the one a partner team trusts and acts on. I would start with definitions and workflow, then adapt deployment and dashboard details to the team's environment.</p></div><div class="conversation-grid"><article><span>01 / GRAIN</span><h3>What counts as a title?</h3><p>A title, submission attempt and storefront publication are different things. Keeping those grains separate prevents a second review or region from quietly inflating a KPI.</p></article><article><span>02 / MEANING</span><h3>When is “approved” final?</h3><p>Agree with partner operations on status semantics, late corrections and calendar cutoffs before a dashboard becomes a source of truth.</p></article><article><span>03 / OWNERSHIP</span><h3>Who acts on a failed test?</h3><p>Tests, exposures and documentation matter when someone owns the follow-up. The synthetic workflow shows the checks; production would need thresholds and response paths agreed with the team.</p></article></div></div></section>
+    <section id="conversation" class="conversation section-pad" aria-labelledby="conversation-title"><div class="shell"><div class="section-index"><span>09 / PULL UP A CHAIR</span><span>The decisions behind the model</span></div><div class="split-heading"><h2 id="conversation-title">What would we discuss <em>first?</em></h2><p>The most useful metric is the one a partner team trusts and acts on. I would start with definitions and workflow, then adapt deployment and dashboard details to the team's environment.</p></div><div class="conversation-grid"><article><span>01 / GRAIN</span><h3>What counts as a title?</h3><p>A title, submission attempt and storefront publication are different things. Keeping those grains separate prevents a second review or region from quietly inflating a KPI.</p></article><article><span>02 / MEANING</span><h3>When is “approved” final?</h3><p>Agree with partner operations on status semantics, late corrections and calendar cutoffs before a dashboard becomes a source of truth.</p></article><article><span>03 / OWNERSHIP</span><h3>Who acts on a failed test?</h3><p>Tests, exposures and documentation matter when someone owns the follow-up. The synthetic workflow shows the checks; production would need thresholds and response paths agreed with the team.</p></article></div></div></section>
 
     <section id="contact" class="contact section-pad" aria-labelledby="contact-title"><div class="shell contact-grid"><div><p class="section-kicker">A conversation worth having</p><h2 id="contact-title">Let’s make partner data<br><em>easier to trust.</em></h2><p>VIM · Senior Analytics Engineer · London. I would welcome a conversation about the role and the decisions behind this reference.</p></div><div class="contact-actions"><a class="button button-primary" href="mailto:firman.insan.m@gmail.com?subject=NEXUS%20%7C%20PlayStation%20Partners%20Platform">Email VIM ↗</a><a href="https://www.linkedin.com/in/firmaninsan/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a><a href="https://github.com/rfim/nexus-playstation-partners" target="_blank" rel="noopener noreferrer">Inspect the repo ↗</a></div></div></section>
   </main>

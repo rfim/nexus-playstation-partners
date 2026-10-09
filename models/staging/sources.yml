@@ -23,7 +23,7 @@ sources:
                     to: source('partner_platform', 'raw_partners')
                     field: partner_id
       - name: raw_submissions
-        description: One row per review attempt; status and build version depend on submission_id, while title attributes stay in raw_titles.
+        description: One row per review attempt; status, build version and return reason depend on submission_id, while title attributes stay in raw_titles. A return reason is recorded only for rejected attempts.
         columns:
           - name: submission_id
             data_tests: [unique, not_null]

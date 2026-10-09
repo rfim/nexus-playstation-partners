@@ -743,6 +743,69 @@ function setupGameSelection() {
   renderGameStory();
 }
 
+const RETURN_REASON_LABELS = {
+  metadata_incomplete: 'incomplete metadata',
+  suspend_resume_crash: 'a suspend/resume crash',
+};
+
+function setupPotentialCalculator(defaults) {
+  const fields = ['titles', 'uplift', 'hours', 'days'];
+  const input = (key) => $(`#bp-${key}`);
+  if (fields.some((key) => !input(key))) return;
+  const number = new Intl.NumberFormat('en-GB');
+  if (defaults) {
+    const preset = {
+      titles: defaults.titles_per_year,
+      uplift: defaults.first_pass_uplift_points,
+      hours: defaults.reviewer_hours_per_attempt,
+      days: defaults.days_added_per_resubmission,
+    };
+    fields.forEach((key) => { if (preset[key] != null) input(key).value = preset[key]; });
+  }
+  const value = (key) => Number(input(key).value);
+  const render = () => {
+    fields.forEach((key) => { $(`#bp-${key}-out`).textContent = number.format(value(key)); });
+    const attempts = Math.round(value('titles') * value('uplift') / 100);
+    $('#bp-attempts').textContent = number.format(attempts);
+    $('#bp-saved').textContent = `${number.format(attempts * value('hours'))} h`;
+    $('#bp-days-total').textContent = number.format(attempts * value('days'));
+  };
+  fields.forEach((key) => input(key).addEventListener('input', render));
+  render();
+}
+
+async function setupPotential() {
+  if (!$('#potential')) return;
+  let potential = null;
+  try {
+    potential = (await loadJSON('assets/metrics.json')).business_potential;
+  } catch (error) {
+    setupPotentialCalculator(null);
+    return;
+  }
+  if (!potential) { setupPotentialCalculator(null); return; }
+  const {summary, resubmission, health, as_of_date: asOf} = potential;
+  const [, month, day] = asOf.split('-').map(Number);
+  const clock = `${day} ${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month - 1]}`;
+  $('#bp-shelf-stat').textContent = `${summary.titles_awaiting_shelf} of ${summary.titles}`;
+  $('#bp-shelf-note').textContent = `synthetic titles approved but not on any storefront at ${clock}`;
+  const top = resubmission[0];
+  $('#bp-resub-stat').textContent = `${summary.rejected_attempts} returns`;
+  $('#bp-resub-note').textContent = `${summary.rejected_reviewer_hours} reviewer hours; ${RETURN_REASON_LABELS[top.return_reason] || top.return_reason.replaceAll('_', ' ')} caused ${top.rejected_attempts} of ${summary.rejected_attempts}`;
+  const weakest = health[0];
+  const pct = (value) => Math.round(100 * value);
+  $('#bp-health-stat').textContent = `${pct(weakest.first_pass_wilson_lower)}–${pct(weakest.first_pass_wilson_upper)}%`;
+  const note = $('#bp-health-note');
+  note.textContent = `${weakest.partner_name} first-pass, Wilson 95% on ${weakest.first_pass_approved_titles} of ${weakest.titles_submitted}; health ${weakest.health_score.toFixed(2)}, lowest of ${health.length} `;
+  if (weakest.is_low_sample) {
+    const flag = document.createElement('span');
+    flag.className = 'bp-flag';
+    flag.textContent = 'LOW SAMPLE';
+    note.append(flag);
+  }
+  setupPotentialCalculator(potential.calculator_defaults);
+}
+
 setupChartSlides();
 setupGameSelection();
 setupRoute();
@@ -753,3 +816,4 @@ setupMetrics().catch(() => {
 setupCodeInspector().catch(() => {
   $('#proof-code').textContent = 'Code preview could not load. Open the repository to inspect the source.';
 });
+setupPotential();

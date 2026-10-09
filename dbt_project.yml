@@ -19,3 +19,11 @@ models:
       +materialized: view
     marts:
       +materialized: table
+
+vars:
+  # Fixed clock for the synthetic opportunity marts, so the exported site data stays deterministic.
+  opportunity_as_of_date: '2026-09-30'
+  # A partner with fewer submitted titles is shown with its bounds and flagged, never ranked.
+  health_min_titles: 5
+  # Days without a submission after which the recency component of partner health reaches zero.
+  health_recency_window_days: 60

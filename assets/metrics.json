@@ -1,6 +1,6 @@
 {
   "scope": "Synthetic portfolio data; no PlayStation or Lifepal records",
-  "metric_version": 5,
+  "metric_version": 6,
   "totals": {
     "titles_submitted": 6,
     "first_pass_approved_titles": 3,
@@ -389,6 +389,182 @@
         "week_number": 8,
         "treated_rate_pct": 71,
         "comparison_rate_pct": 57
+      }
+    ]
+  },
+  "business_potential": {
+    "as_of_date": "2026-09-30",
+    "summary": {
+      "titles": 6,
+      "titles_awaiting_shelf": 2,
+      "rejected_attempts": 3,
+      "rejected_reviewer_hours": 100,
+      "top_return_reason": "metadata_incomplete",
+      "lowest_health_partner": "P02"
+    },
+    "calculator_defaults": {
+      "titles_per_year": 400,
+      "first_pass_uplift_points": 10,
+      "reviewer_hours_per_attempt": 33,
+      "days_added_per_resubmission": 3,
+      "derived_from_mart": [
+        "reviewer_hours_per_attempt",
+        "days_added_per_resubmission"
+      ]
+    },
+    "shelf": [
+      {
+        "title_id": "T101",
+        "partner_id": "P01",
+        "title_name": "Horizon Echo",
+        "as_of_date": "2026-09-30",
+        "planned_release_at": "2026-10-15",
+        "approved_at": "2026-09-05T11:00:00",
+        "first_published_at": "2026-09-07T10:00:00",
+        "shelf_status": "published",
+        "approval_buffer_days": 40,
+        "days_waiting_as_of": null,
+        "days_to_planned_release_as_of": null
+      },
+      {
+        "title_id": "T102",
+        "partner_id": "P01",
+        "title_name": "Lantern Run",
+        "as_of_date": "2026-09-30",
+        "planned_release_at": "2026-10-20",
+        "approved_at": "2026-09-11T09:00:00",
+        "first_published_at": "2026-09-14T12:00:00",
+        "shelf_status": "published",
+        "approval_buffer_days": 39,
+        "days_waiting_as_of": null,
+        "days_to_planned_release_as_of": null
+      },
+      {
+        "title_id": "T201",
+        "partner_id": "P02",
+        "title_name": "Neon Current",
+        "as_of_date": "2026-09-30",
+        "planned_release_at": "2026-10-10",
+        "approved_at": "2026-09-05T09:00:00",
+        "first_published_at": "2026-09-06T11:00:00",
+        "shelf_status": "published",
+        "approval_buffer_days": 35,
+        "days_waiting_as_of": null,
+        "days_to_planned_release_as_of": null
+      },
+      {
+        "title_id": "T202",
+        "partner_id": "P02",
+        "title_name": "Cloud Assembly",
+        "as_of_date": "2026-09-30",
+        "planned_release_at": "2026-10-25",
+        "approved_at": "2026-09-18T10:00:00",
+        "first_published_at": null,
+        "shelf_status": "approved_waiting",
+        "approval_buffer_days": 37,
+        "days_waiting_as_of": 12,
+        "days_to_planned_release_as_of": 25
+      },
+      {
+        "title_id": "T301",
+        "partner_id": "P03",
+        "title_name": "Small Orbit",
+        "as_of_date": "2026-09-30",
+        "planned_release_at": "2026-10-05",
+        "approved_at": "2026-09-02T09:00:00",
+        "first_published_at": "2026-09-04T12:00:00",
+        "shelf_status": "published",
+        "approval_buffer_days": 33,
+        "days_waiting_as_of": null,
+        "days_to_planned_release_as_of": null
+      },
+      {
+        "title_id": "T302",
+        "partner_id": "P03",
+        "title_name": "Moontrail",
+        "as_of_date": "2026-09-30",
+        "planned_release_at": "2026-10-30",
+        "approved_at": "2026-09-22T10:00:00",
+        "first_published_at": null,
+        "shelf_status": "approved_waiting",
+        "approval_buffer_days": 38,
+        "days_waiting_as_of": 8,
+        "days_to_planned_release_as_of": 30
+      }
+    ],
+    "resubmission": [
+      {
+        "return_reason": "metadata_incomplete",
+        "rejected_attempts": 2,
+        "titles_affected": 2,
+        "partners_affected": 2,
+        "reviewer_hours": 52,
+        "avg_days_added": 2.5,
+        "rejections_without_resubmission": 0,
+        "share_of_rejected_attempts": 0.667
+      },
+      {
+        "return_reason": "suspend_resume_crash",
+        "rejected_attempts": 1,
+        "titles_affected": 1,
+        "partners_affected": 1,
+        "reviewer_hours": 48,
+        "avg_days_added": 5.0,
+        "rejections_without_resubmission": 0,
+        "share_of_rejected_attempts": 0.333
+      }
+    ],
+    "health": [
+      {
+        "partner_id": "P02",
+        "partner_name": "Harbor Pixel",
+        "titles_submitted": 2,
+        "first_pass_approved_titles": 0,
+        "first_pass_rate": 0.0,
+        "first_pass_wilson_lower": 0.0,
+        "first_pass_wilson_upper": 0.658,
+        "titles_approved": 2,
+        "titles_published": 1,
+        "titles_awaiting_shelf": 1,
+        "days_since_last_submission": 13,
+        "recency_component": 0.783,
+        "shelf_conversion_component": 0.5,
+        "health_score": 0.428,
+        "is_low_sample": true
+      },
+      {
+        "partner_id": "P03",
+        "partner_name": "Signal Forge",
+        "titles_submitted": 2,
+        "first_pass_approved_titles": 2,
+        "first_pass_rate": 1.0,
+        "first_pass_wilson_lower": 0.342,
+        "first_pass_wilson_upper": 1.0,
+        "titles_approved": 2,
+        "titles_published": 1,
+        "titles_awaiting_shelf": 1,
+        "days_since_last_submission": 9,
+        "recency_component": 0.85,
+        "shelf_conversion_component": 0.5,
+        "health_score": 0.564,
+        "is_low_sample": true
+      },
+      {
+        "partner_id": "P01",
+        "partner_name": "Atlas Vale Studios",
+        "titles_submitted": 2,
+        "first_pass_approved_titles": 1,
+        "first_pass_rate": 0.5,
+        "first_pass_wilson_lower": 0.095,
+        "first_pass_wilson_upper": 0.905,
+        "titles_approved": 2,
+        "titles_published": 2,
+        "titles_awaiting_shelf": 0,
+        "days_since_last_submission": 20,
+        "recency_component": 0.667,
+        "shelf_conversion_component": 1.0,
+        "health_score": 0.587,
+        "is_low_sample": true
       }
     ]
   }
