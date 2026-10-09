@@ -6,3 +6,4 @@ dbt_packages/
 __pycache__/
 *.pyc
 .user.yml
+previews/
