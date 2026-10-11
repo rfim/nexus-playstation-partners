@@ -13,11 +13,15 @@ ROOT = Path(__file__).resolve().parents[1]
 DATABASE = ROOT / "target" / "nexus_partner_analytics.duckdb"
 OUTPUT = ROOT / "assets" / "data"
 MANIFEST = OUTPUT / "tables.json"
+DBT_MANIFEST = ROOT / "target" / "manifest.json"
 GOVERNANCE = (ROOT / "assets" / "governance.json").as_posix()
 PLATFORM = (ROOT / "assets" / "platform.json").as_posix()
 
-# Raw seeds stay behind the staging layer, as they do in dbt.
+# Layer of each exported table; the SQL page groups these into source,
+# bronze, silver and gold.
 LAYERS = (
+    ("raw_", "source"),
+    ("platform_", "source"),
     ("stg_", "staging"),
     ("cost_", "platform"),
     ("mart_cost_", "platform"),
@@ -26,7 +30,7 @@ LAYERS = (
     ("fct_", "marts"),
     ("mart_", "marts"),
     ("partner_tier_history", "snapshot"),
-    ("hypothetical_workflow_weeks", "seed"),
+    ("hypothetical_workflow_weeks", "source"),
 )
 
 
@@ -87,8 +91,26 @@ def _tables(con, relations) -> list[dict]:
     return tables
 
 
+def _macros() -> list[dict]:
+    """The project's own dbt macros, for the SQL page's reference list."""
+    macros = json.loads(DBT_MANIFEST.read_text())["macros"].values()
+    return sorted(
+        (
+            {
+                "name": m["name"],
+                "path": m["original_file_path"],
+                "description": m.get("description") or "",
+                "arguments": [a["name"] for a in m.get("arguments", [])],
+                "sql": m["macro_sql"].strip(),
+            }
+            for m in macros if m["package_name"] == "nexus_partner_analytics"
+        ),
+        key=lambda m: m["name"],
+    )
+
+
 def _manifest(tables: list[dict]) -> str:
-    return json.dumps({"tables": tables}, indent=2) + "\n"
+    return json.dumps({"tables": tables, "macros": _macros()}, indent=2) + "\n"
 
 
 def main() -> None:

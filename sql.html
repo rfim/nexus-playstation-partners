@@ -8,8 +8,8 @@
   <title>Live SQL Workspace | NEXUS by VIM</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="stylesheet" href="assets/site.css?v=8">
-  <link rel="stylesheet" href="assets/playground.css?v=2">
-  <script src="assets/playground.js?v=4" type="module"></script>
+  <link rel="stylesheet" href="assets/playground.css?v=4">
+  <script src="assets/playground.js?v=6" type="module"></script>
 </head>
 <body class="sql-page">
   <a class="skip-link" href="#sql-editor">Skip to the SQL editor</a>
@@ -27,7 +27,7 @@
         <p class="sql-kicker">LIVE SQL · DUCKDB IN YOUR BROWSER</p>
         <h1 id="playground-title">Query the dbt build <em>yourself.</em></h1>
       </div>
-      <p><code>dbt build</code> exports every staging, intermediate, snapshot and mart model, plus the governance and lineage catalogs, as Parquet. GitHub Actions rebuilds them and checks that the files match. DuckDB-WASM loads them here, so your SQL runs on your own device and nothing is sent to a server.</p>
+      <p><code>dbt build</code> exports the raw sources and every bronze, silver and gold model, plus the platform cost, governance and lineage tables, as Parquet. The project macros are listed too. GitHub Actions rebuilds them and checks that the files match. DuckDB-WASM loads them here, so your SQL runs on your own device and nothing is sent to a server.</p>
     </div>
     <div class="sql-layout">
       <aside class="playground-tables" aria-label="Tables from the dbt build">
@@ -35,7 +35,7 @@
         <label class="visually-hidden" for="sql-table-filter">Filter tables</label>
         <input id="sql-table-filter" class="sql-filter" type="search" placeholder="Filter tables…" autocomplete="off">
         <div id="sql-tables">Loading tables…</div>
-        <p class="sql-hint">Select a table to preview it. Hover to see its columns.</p>
+        <p class="sql-hint">Select a table name to preview it. Open its columns to insert one into the query.</p>
       </aside>
       <div class="code-window playground-window">
         <div class="code-window-top"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>query.sql</span><span>DuckDB</span></div>

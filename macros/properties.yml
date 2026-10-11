@@ -1,0 +1,48 @@
+version: 2
+
+macros:
+  - name: safe_ratio
+    description: Divides two expressions and returns null instead of failing when the denominator is zero.
+    arguments:
+      - name: numerator
+        type: expression
+      - name: denominator
+        type: expression
+  - name: review_hours
+    description: Whole hours between submission and review, so every model measures review time the same way.
+    arguments:
+      - name: start_time
+        type: timestamp
+      - name: end_time
+        type: timestamp
+  - name: wilson_score_bound
+    description: Lower or upper Wilson score bound for a proportion. Algebra only; it is a valid interval only under a defensible sampling design.
+    arguments:
+      - name: proportion
+        type: expression
+      - name: trials
+        type: expression
+      - name: side
+        type: string
+        description: "'lower' or 'upper'; anything else fails compilation."
+      - name: z
+        type: number
+        description: Critical value, 1.96 by default.
+  - name: difference_in_differences
+    description: Two-period difference-in-differences contrast. Identification needs separate design checks.
+    arguments:
+      - name: treated_pre
+        type: expression
+      - name: treated_post
+        type: expression
+      - name: comparison_pre
+        type: expression
+      - name: comparison_post
+        type: expression
+  - name: test_non_negative
+    description: Generic data test that fails on any negative value in a column.
+    arguments:
+      - name: model
+        type: relation
+      - name: column_name
+        type: string
