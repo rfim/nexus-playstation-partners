@@ -31,6 +31,10 @@
 
   $('#code-filter').addEventListener('input', (event) => {
     const needle = event.target.value.trim().toLowerCase();
+    const pinned = document.querySelector('.code-pinned');
+    if (pinned) pinned.hidden = Boolean(needle) && !pinned.dataset.search.includes(needle);
+    const empty = document.querySelector('.code-empty');
+    let total = 0;
     for (const group of document.querySelectorAll('.code-group')) {
       let any = false;
       for (const item of group.querySelectorAll('.code-file')) {
@@ -39,8 +43,10 @@
         any ||= hit;
       }
       group.hidden = !any;
+      total += group.querySelectorAll('.code-file:not([hidden])').length;
       if (needle) group.open = true;
     }
+    if (empty) empty.hidden = total > 0 || (pinned && !pinned.hidden);
   });
 
   function renderTree(folders) {
@@ -79,6 +85,11 @@
       }
       nav.append(group);
     }
+    const empty = document.createElement('p');
+    empty.className = 'code-empty';
+    empty.hidden = true;
+    empty.textContent = 'No file or code matches that filter.';
+    nav.append(empty);
   }
 
   function show(file) {
@@ -89,9 +100,9 @@
     const parts = file.path.split('/');
     $('#code-folder').textContent = parts.length > 1 ? `${parts.slice(0, -1).join('/')}/` : '';
     $('#code-path').textContent = parts.at(-1);
-    const lines = file.code.replace(/\n$/, '').split('\n');
-    const width = String(lines.length).length;
-    $('#code-text').textContent = lines.map((line, i) => `${String(i + 1).padStart(width)}  ${line}`).join('\n');
+    // Colour by language (SQL with dbt Jinja, Python, YAML), one line per row with its number.
+    const lines = window.NexusHighlight.highlightLines(file.code.replace(/\n$/, ''), file.language);
+    $('#code-text').innerHTML = lines.map((line, i) => `<span class="code-line"><span class="code-ln">${i + 1}</span>${line}</span>`).join('');
     const actions = $('#code-actions');
     actions.replaceChildren();
     const model = file.path.match(/^(?:models\/[^/]+|snapshots)\/(\w+)\.sql$/)?.[1];

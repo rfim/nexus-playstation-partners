@@ -48,3 +48,5 @@
 button.meta-node{cursor:pointer}button.meta-node:hover{border-color:#8ecbff;background:#13294a}
 .meta-source{color:#a9c2df;border-style:dashed}.meta-exposure{border-color:#7a3b2a;color:#ffb48a}.meta-seed{color:#f4ca72;border-style:dashed}
 .code-body{font-size:.78rem}
+.code-pinned[hidden],.code-empty[hidden]{display:none}.code-empty{margin:.6rem .3rem;color:#6a7c92;font-size:.68rem}
+.code-body code{display:block}
