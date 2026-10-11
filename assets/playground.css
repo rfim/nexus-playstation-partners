@@ -91,8 +91,6 @@
 @media(max-width:700px){.qbar{flex-direction:column}.qviews{padding:.4rem .5rem;border-left:0;border-top:1px solid #1d3a5c;overflow-x:auto}}
 .playground-window.is-view .code-footer{display:none}
 /* Views use the whole workspace: the SQL sidebar steps aside */
-.sql-layout.is-view-mode{grid-template-columns:minmax(0,1fr)}
-.sql-layout.is-view-mode .playground-tables{display:none}
 .sql-view-frame{height:calc(100vh - 110px);min-height:720px}
 .qview-dbt{border-color:#f28b4b!important;color:#ffd2b5!important}.qview-dbt.is-open{background:#3a2316!important;color:#fff!important}
 .qfocus{margin-left:.35rem;border-style:dashed!important}
@@ -114,23 +112,18 @@ body.sql-focus .sql-output{max-height:none}
 .side-rail .rail-show{writing-mode:horizontal-tb;transform:none;width:30px;height:30px;padding:0;border:1px solid #c7d8eb;font-size:.85rem}
 .sql-layout.is-side-hidden{grid-template-columns:44px minmax(0,1fr)}
 .sql-layout.is-side-hidden .playground-tables{display:none}
-.sql-layout.is-view-mode .side-rail{display:none}
-.sql-layout.is-view-mode.is-side-hidden{grid-template-columns:minmax(0,1fr)}
 @media(max-width:900px){.sql-layout.is-side-hidden{grid-template-columns:minmax(0,1fr)}.side-rail{flex-direction:row;position:static}.side-rail button{writing-mode:horizontal-tb;transform:none}}
 /* Airflow: a teal accent wherever it appears, so it stands out */
-.side-switch{grid-template-columns:repeat(4,1fr)}
-.side-switch .side-airflow{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;color:#0f6f5b}
-.side-switch .side-airflow i,.qview-airflow i,.af-card-kicker i{width:7px;height:7px;border-radius:50%;background:#19c39b;animation:afdot 1.8s ease-out infinite}
-.side-switch .side-airflow[aria-selected="true"]{background:#e3f8f2;color:#064e40;box-shadow:inset 0 0 0 1px #19c39b}
+.qview-airflow i{width:7px;height:7px;border-radius:50%;background:#19c39b;animation:afdot 1.8s ease-out infinite}
 .qview-airflow{display:inline-flex;align-items:center;gap:.35rem;border-color:#19c39b!important;color:#9ff0dc!important}.qview-airflow.is-open{background:#0b3d36!important;color:#fff!important}
 .qtab-view-airflow .qtab-title:before{background:#19c39b;border-radius:50%}
-.rail-airflow{color:#0f6f5b!important}
-.af-card{display:grid;gap:.2rem;margin-bottom:.6rem;padding:.8rem .85rem;border-radius:10px;color:#e6fff9;background:linear-gradient(120deg,#062a2f,#0b3d46)}
-.af-card-kicker{display:flex;align-items:center;gap:.4rem;color:#5fe0c8;font-size:.56rem;font-weight:850;letter-spacing:.12em}
-.af-card strong{font:800 .78rem ui-monospace,SFMono-Regular,Menlo,monospace}.af-card small{color:#9fd9cb;font-size:.62rem}
-.af-card-actions{display:flex;gap:.35rem;margin-top:.4rem}.af-card-actions button{flex:1;padding:.4rem .5rem;border:1px solid #5fe0c8;border-radius:7px;background:none;color:#e6fff9;font-size:.66rem;font-weight:800;cursor:pointer}
-.af-card-actions button:first-child{border-color:#19c39b;background:#19c39b;color:#04221d}
-.af-side-task{display:flex;justify-content:space-between;align-items:center;width:100%;padding:.3rem .5rem .3rem .9rem;border:0;border-radius:6px;background:none;cursor:pointer;text-align:left}
-.af-side-task:hover{background:#e9f8f4}.af-side-task span{color:#17233d;font:600 .68rem ui-monospace,SFMono-Regular,Menlo,monospace}.af-side-task small{color:#6a7c92;font-size:.6rem}
 @keyframes afdot{0%{box-shadow:0 0 0 0 rgba(25,195,155,.7)}70%{box-shadow:0 0 0 6px rgba(25,195,155,0)}100%{box-shadow:0 0 0 0 rgba(25,195,155,0)}}
-@media(prefers-reduced-motion:reduce){.side-switch .side-airflow i,.qview-airflow i,.af-card-kicker i{animation:none}}
+@media(prefers-reduced-motion:reduce){.qview-airflow i{animation:none}}
+/* SQL editor with syntax colours: transparent text over a highlighted copy */
+.sql-editor-wrap{position:relative;background:#0b1b31}
+.sql-highlight{position:absolute;inset:0;margin:0;padding:1.1rem;overflow:hidden;pointer-events:none;color:#d6e9fa;font:400 .74rem/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;tab-size:2;white-space:pre}
+.sql-highlight code{font:inherit}
+.sql-editor-wrap .sql-editor{position:relative;background:transparent;color:transparent;caret-color:#f4ca72}
+.sql-editor-wrap .sql-editor::selection{background:rgba(90,168,255,.35);color:transparent}
+.sql-editor-wrap .sql-editor[readonly]{background:transparent;color:transparent}
+.playground-window.is-view .sql-editor-wrap{display:none}

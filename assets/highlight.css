@@ -1,0 +1,14 @@
+/* Syntax colours for dark code panels (dbt view, Airflow code, SQL editor). */
+.hl-kw{color:#ff9ecb;font-weight:600}
+.hl-fn,.hl-def{color:#7fd4ff}
+.hl-builtin{color:#8be9c9}
+.hl-str{color:#b8f28c}
+.hl-num{color:#ffc97a}
+.hl-com{color:#7d93b2;font-style:italic}
+.hl-jinja{color:#f4ca72;background:rgba(244,202,114,.09);border-radius:3px}
+.hl-ident{color:#e2efff}
+.hl-type{color:#c9a7ff}
+.hl-op{color:#9fb6d3}
+.hl-deco{color:#ffb07a}
+.hl-key{color:#7fd4ff}
+.code-line{display:block}.code-ln{display:inline-block;min-width:2.4em;margin-right:1.1em;color:#4f6b8f;text-align:right;user-select:none}

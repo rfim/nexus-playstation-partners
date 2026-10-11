@@ -3,35 +3,48 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="The NEXUS Airflow DAG: task graph, a replay of a recorded run, and each task's command and log.">
+  <meta name="description" content="The NEXUS Airflow DAG in an Airflow-style view: grid of runs, graph, code and task logs, replaying a recorded run.">
   <title>Airflow DAG | NEXUS by VIM</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="stylesheet" href="assets/site.css?v=9">
-  <link rel="stylesheet" href="assets/airflow.css?v=2">
-  <script src="assets/airflow.js?v=4" defer></script>
+  <link rel="stylesheet" href="assets/highlight.css?v=1">
+  <link rel="stylesheet" href="assets/airflow.css?v=4">
+  <script src="assets/highlight.js?v=1" defer></script>
+  <script src="assets/airflow.js?v=5" defer></script>
 </head>
-<body class="view-page af-page">
-  <main class="af" aria-label="Airflow DAG">
-    <header class="af-head">
-      <div>
-        <p class="af-kicker"><i aria-hidden="true"></i>AIRFLOW 3 · HYPOTHETICAL ORCHESTRATION</p>
-        <h1 id="af-dag">nexus_partner_analytics</h1>
-        <div class="af-meta" id="af-meta"></div>
+<body class="afu">
+  <nav class="afu-nav" aria-label="Airflow navigation">
+    <span class="afu-logo" title="Airflow (hypothetical)"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 16 L16 3 C21 3 25 7 25 11 Z" fill="#017cee"/><path d="M16 16 L29 16 C29 21 25 25 21 25 Z" fill="#00ad46"/><path d="M16 16 L16 29 C11 29 7 25 7 21 Z" fill="#e43921"/><path d="M16 16 L3 16 C3 11 7 7 11 7 Z" fill="#ffc80a"/></svg></span>
+    <span class="afu-navitem" title="Home (not part of this demo)">⌂<small>Home</small></span>
+    <span class="afu-navitem is-active" title="Dags">◫<small>Dags</small></span>
+    <span class="afu-navitem" title="Assets (not part of this demo)">◇<small>Assets</small></span>
+    <span class="afu-navitem" title="Browse (not part of this demo)">☰<small>Browse</small></span>
+    <span class="afu-navitem" title="Admin (not part of this demo)">⚙<small>Admin</small></span>
+  </nav>
+  <main class="afu-main">
+    <div class="afu-crumbs"><span>Dags</span><b>›</b><strong id="afu-dag-crumb">nexus_partner_analytics</strong><em class="afu-demo">Hypothetical · replays a recorded run · nothing executes in your browser</em></div>
+    <header class="afu-head">
+      <div class="afu-title">
+        <span class="afu-toggle" title="DAG is unpaused"><i></i></span>
+        <h1 id="afu-dag">nexus_partner_analytics</h1>
+        <div class="afu-tags" id="afu-tags"></div>
       </div>
-      <div class="af-controls">
-        <button type="button" id="af-trigger" class="af-trigger">▶ Trigger DAG run</button>
-        <label class="af-check"><input type="checkbox" id="af-fail"> Fail the test gate</label>
-        <label class="af-speed">Speed <select id="af-speed"><option value="1">1× (recorded)</option><option value="4" selected>4×</option><option value="12">12×</option></select></label>
-        <button type="button" id="af-source" class="af-source">DAG source ↗</button>
+      <div class="afu-actions">
+        <label class="afu-opt"><input type="checkbox" id="afu-fail"> Fail the test gate</label>
+        <label class="afu-opt">Speed <select id="afu-speed"><option value="1">1×</option><option value="4" selected>4×</option><option value="12">12×</option></select></label>
+        <button type="button" class="afu-trigger" id="afu-trigger"><span aria-hidden="true">▶</span> Trigger</button>
       </div>
     </header>
-    <section class="af-run" aria-live="polite"><span class="af-run-state" id="af-run-state">No run yet</span><span id="af-run-note">Replays a recorded <code>airflow dags test</code> run along the DAG's dependencies. Nothing executes in your browser.</span></section>
-    <div class="af-body">
-      <div class="af-graph-wrap"><div class="af-graph" id="af-graph" role="img" aria-label="Airflow task graph"></div><div class="af-legend" id="af-legend"></div></div>
-      <aside class="af-side">
-        <div class="af-task" id="af-task"></div>
-        <div class="af-log"><div class="af-log-head">Run log</div><pre id="af-log"></pre></div>
-      </aside>
+    <dl class="afu-facts" id="afu-facts"></dl>
+    <div class="afu-tabs" role="tablist" aria-label="DAG views">
+      <button type="button" role="tab" data-tab="overview" aria-selected="false">Overview</button>
+      <button type="button" role="tab" data-tab="grid" aria-selected="true">Grid</button>
+      <button type="button" role="tab" data-tab="graph" aria-selected="false">Graph</button>
+      <button type="button" role="tab" data-tab="code" aria-selected="false">Code</button>
+      <button type="button" role="tab" data-tab="details" aria-selected="false">Details</button>
+    </div>
+    <div class="afu-body">
+      <section class="afu-pane" id="afu-pane" aria-live="polite"></section>
+      <aside class="afu-panel" id="afu-panel" aria-live="polite"></aside>
     </div>
   </main>
 </body>

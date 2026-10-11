@@ -159,6 +159,19 @@ if (root) setup(root);
 
 function setup(root) {
   const editor = root.querySelector("#sql-editor");
+  const highlightEl = root.querySelector("#sql-highlight");
+  // The textarea's text is transparent; a highlighted copy sits behind it.
+  const paintEditor = () => {
+    if (!highlightEl || !window.NexusHighlight) return;
+    highlightEl.innerHTML = `${window.NexusHighlight.highlight(editor.value, "sql")}\n`;
+    highlightEl.parentElement.scrollTop = editor.scrollTop;
+    highlightEl.parentElement.scrollLeft = editor.scrollLeft;
+  };
+  editor.addEventListener("scroll", () => {
+    if (!highlightEl) return;
+    highlightEl.parentElement.scrollTop = editor.scrollTop;
+    highlightEl.parentElement.scrollLeft = editor.scrollLeft;
+  });
   const runButton = root.querySelector("#sql-run");
   const status = root.querySelector("#sql-status");
   const output = root.querySelector("#sql-output");
@@ -210,12 +223,25 @@ function setup(root) {
     }
   });
 
-  // The sidebar can be tucked into a slim rail; Ctrl/Cmd+B toggles it.
+  // The sidebar can be tucked into a slim rail; Ctrl/Cmd+B toggles it. View tabs
+  // (dbt, Lineage, Airflow) always show the rail, so the view keeps the width.
   const rail = root.querySelector(".side-rail");
+  let sidebarShown = true;
+  const applySidebar = () => {
+    const inView = activeTab().kind === "view";
+    const open = sidebarShown && !inView;
+    layoutEl.classList.toggle("is-side-hidden", !open);
+    if (rail) rail.hidden = open;
+  };
   const setSidebar = (visible, panel) => {
-    layoutEl.classList.toggle("is-side-hidden", !visible);
-    if (rail) rail.hidden = visible;
+    sidebarShown = visible;
+    if (visible && activeTab().kind === "view") {
+      // Tables, examples and history work on queries: return to the latest query tab.
+      const query = [...tabs].reverse().find((t) => t.kind !== "view");
+      if (query) selectTab(query.id); else newTab();
+    }
     if (panel) showPanel(panel);
+    applySidebar();
     try { localStorage.setItem(`${STORAGE_KEY}-sidebar`, visible ? "shown" : "hidden"); } catch { /* per-visit only */ }
   };
   root.querySelector("#sql-side-hide")?.addEventListener("click", () => setSidebar(false));
@@ -229,44 +255,8 @@ function setup(root) {
     }
   });
   try {
-    if (localStorage.getItem(`${STORAGE_KEY}-sidebar`) === "hidden") setSidebar(false);
+    sidebarShown = localStorage.getItem(`${STORAGE_KEY}-sidebar`) !== "hidden";
   } catch { /* storage unavailable */ }
-
-  // Airflow panel in the sidebar: the DAG at a glance, opening the Airflow tab.
-  const airflowList = root.querySelector("#sql-airflow");
-  if (airflowList) {
-    fetch("assets/airflow.json").then((r) => r.json()).then((af) => {
-      root.querySelector("#sql-airflow-schedule").textContent = `${af.schedule} · ${af.tasks.length} tasks · retries ${af.retries}`;
-      const stage = (t) => (t.group === "transform" ? "Stage + test" : t.group === "publish" ? "Publish"
-        : t.task_id === "test_gate" ? "Test gate" : t.task_id === "check_budgets" ? "Budget check" : "Ingest");
-      const order = ["Ingest", "Stage + test", "Test gate", "Publish", "Budget check"];
-      const recorded = Object.fromEntries(af.recorded_run.tasks.map((t) => [t.task_id, t]));
-      for (const name of order) {
-        const group = document.createElement("div");
-        group.className = "af-side-group";
-        const heading = document.createElement("p");
-        heading.className = "tbl-sub-label";
-        heading.textContent = name;
-        group.append(heading);
-        const tasks = af.tasks.filter((t) => stage(t) === name)
-          .sort((a, b) => (recorded[a.task_id]?.offset_s ?? 0) - (recorded[b.task_id]?.offset_s ?? 0));
-        for (const t of tasks) {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className = "af-side-task";
-          button.innerHTML = "<span></span><small></small>";
-          button.querySelector("span").textContent = t.task_id.split(".").pop();
-          button.querySelector("small").textContent = recorded[t.task_id] ? `${recorded[t.task_id].duration_s}s` : "";
-          button.title = t.command ?? t.task_id;
-          button.addEventListener("click", () => openView("airflow", { type: "airflow-select", task: t.task_id }));
-          group.append(button);
-        }
-        airflowList.append(group);
-      }
-    }).catch(() => { airflowList.textContent = "Airflow DAG unavailable."; });
-    root.querySelector("#sql-airflow-open")?.addEventListener("click", () => openView("airflow"));
-    root.querySelector("#sql-airflow-run")?.addEventListener("click", () => openView("airflow", { type: "airflow-trigger" }));
-  }
 
   // Sidebar panels: tables, examples, history.
   root.querySelectorAll("[data-panel]").forEach((button) => {
@@ -300,6 +290,7 @@ function setup(root) {
     }
   });
   editor.addEventListener("input", () => {
+    paintEditor();
     activeTab().sql = editor.value;
     save();
   });
@@ -536,8 +527,8 @@ function setup(root) {
     const tab = activeTab();
     const isView = tab.kind === "view";
     windowEl.classList.toggle("is-view", isView);
-    // Views bring their own navigation, so they take the full workspace width.
-    layoutEl.classList.toggle("is-view-mode", isView);
+    // Views bring their own navigation; the sidebar folds into its rail beside them.
+    applySidebar();
     viewHost.hidden = !isView;
     for (const frame of Object.values(frames)) frame.hidden = !isView || frame.dataset.view !== tab.view;
     if (isView) {
@@ -547,6 +538,7 @@ function setup(root) {
       return;
     }
     editor.value = tab.sql;
+    paintEditor();
     editor.readOnly = tab.kind === "macro";
     runButton.disabled = tab.kind === "macro";
     if (tab.error) {
@@ -755,6 +747,7 @@ function setup(root) {
     if (tab.kind === "macro" || tab.kind === "view") return;
     const { selectionStart: from, selectionEnd: to, value } = editor;
     editor.value = value.slice(0, from) + text + value.slice(to);
+    paintEditor();
     editor.focus();
     editor.selectionStart = editor.selectionEnd = from + text.length;
     tab.sql = editor.value;
