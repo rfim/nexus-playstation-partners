@@ -26,17 +26,26 @@ In production, `ingest_sources` would be a sensor on the partner file drop rathe
 
 ## Run it locally
 
-Use Python 3.12, from the repository root:
+Airflow and dbt pin different dependency versions, so give Airflow its own environment and
+point the DAG at the project's dbt. With Python 3.12, from the repository root:
 
 ```bash
-python -m venv .venv-airflow && . .venv-airflow/bin/activate
-pip install -r requirements.txt
-pip install -r airflow/requirements.txt \
+# The project environment (dbt and DuckDB), as in the main README
+python -m venv .venv && .venv/bin/pip install -r requirements.txt
+
+# A separate Airflow environment
+python -m venv .venv-airflow
+.venv-airflow/bin/pip install -r airflow/requirements.txt \
   --constraint https://raw.githubusercontent.com/apache/airflow/constraints-3.2.2/constraints-3.12.txt
+
 export AIRFLOW_HOME="$PWD/.airflow" AIRFLOW__CORE__DAGS_FOLDER="$PWD/airflow/dags" AIRFLOW__CORE__LOAD_EXAMPLES=False
-airflow db migrate
-airflow dags test nexus_partner_analytics   # runs every task once, in process
-pytest airflow/tests                        # DAG integrity checks
+export NEXUS_DBT_BIN="$PWD/.venv/bin/dbt" NEXUS_PYTHON_BIN="$PWD/.venv/bin/python"
+.venv-airflow/bin/airflow db migrate
+.venv-airflow/bin/airflow dags test nexus_partner_analytics   # runs every task once, in process
+.venv-airflow/bin/python -m pytest airflow/tests             # DAG integrity checks
 ```
 
-`airflow standalone` starts the UI on http://localhost:8080 if you want to see the graph.
+A full `dags test` run rebuilds the project from scratch (parse, 9 seeds, snapshot, four
+layer builds, 99 tests at the gate), regenerates the site exports and logs the budget
+warning for `NEXUS_BI_WH`. `airflow standalone` starts the UI on http://localhost:8080 if
+you want to see the graph. CI runs the integrity checks on every push.
