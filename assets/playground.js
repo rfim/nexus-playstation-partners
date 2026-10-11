@@ -57,8 +57,16 @@ order by shelf_status, days_to_planned_release_as_of;`,
 from mart_partner_health
 order by health_score desc;`,
   },
+  catalog: {
+    label: "Governance catalog",
+    sql: `-- The governance catalog, exported from the dbt manifest
+select model, owning_group, access, contract_enforced,
+       classification, data_tests, exposures
+from governance_models
+order by access, model;`,
+  },
   governance: {
-    label: "Governance",
+    label: "Public model audit",
     sql: `-- Ownership, access and contracts, exported from the dbt manifest.
 -- For each public model: who owns it, is it contracted, and how many
 -- partner-confidential columns and enforced constraints does it carry?
@@ -118,6 +126,7 @@ function setup(root) {
   const tableList = root.querySelector("#sql-tables");
   let connection = null;
   let starting = null;
+  let lastResult = null;
 
   for (const [key, preset] of Object.entries(PRESETS)) {
     const button = document.createElement("button");
@@ -143,34 +152,39 @@ function setup(root) {
     }
   });
   editor.addEventListener("input", () => markPreset(null));
-  // Other sections can hand the playground a query to run.
-  document.addEventListener("playground:run", (event) => {
-    editor.value = event.detail.sql;
-    markPreset(null);
-    run();
-  });
   // Other pages can link straight to a preset with ?preset=<key>.
   const requested = new URLSearchParams(location.search).get("preset");
   const initial = PRESETS[requested] ? requested : "scorecard";
   editor.value = PRESETS[initial].sql;
   markPreset(initial);
-  if (requested && PRESETS[requested]) run();
 
   fetch("assets/data/tables.json")
     .then((response) => response.json())
     .then(({ tables }) => renderTables(tables))
     .catch(() => { tableList.textContent = "Table list unavailable."; });
 
-  // Start DuckDB only when the section is near, so other visitors skip the download.
-  if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
-        observer.disconnect();
-        start().catch(() => {});
-      }
-    }, { rootMargin: "400px" });
-    observer.observe(root);
-  }
+  const filterBox = root.querySelector("#sql-table-filter");
+  filterBox?.addEventListener("input", () => {
+    const needle = filterBox.value.trim().toLowerCase();
+    for (const button of tableList.querySelectorAll("button")) {
+      button.hidden = needle !== "" && !button.textContent.toLowerCase().includes(needle);
+    }
+  });
+
+  const download = root.querySelector("#sql-download");
+  download?.addEventListener("click", () => {
+    if (!lastResult) return;
+    const csv = [lastResult.columns, ...lastResult.rows].map((row) => row.map(csvCell).join(",")).join("\n");
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    link.download = "nexus-query.csv";
+    link.click();
+    URL.revokeObjectURL(link.href);
+  });
+
+  // This page exists to run SQL: start DuckDB straight away, and run a linked preset.
+  if (requested && PRESETS[requested]) run();
+  else start().catch(() => {});
 
   function markPreset(key) {
     for (const button of tabs.querySelectorAll("button")) {
@@ -267,7 +281,13 @@ function setup(root) {
       head.append(th);
     }
     const body = table.createTBody();
-    const rows = result.toArray().slice(0, MAX_ROWS);
+    const allRows = result.toArray();
+    lastResult = {
+      columns,
+      rows: allRows.map((row) => columns.map((name, index) => format(row[name], kinds[index]))),
+    };
+    if (download) download.disabled = false;
+    const rows = allRows.slice(0, MAX_ROWS);
     for (const row of rows) {
       const tr = body.insertRow();
       columns.forEach((name, index) => {
@@ -282,11 +302,17 @@ function setup(root) {
   }
 
   function showError(error) {
+    lastResult = null;
+    if (download) download.disabled = true;
     const pre = document.createElement("pre");
     pre.className = "sql-error";
     pre.textContent = String(error?.message ?? error);
     output.replaceChildren(pre);
   }
+}
+
+function csvCell(value) {
+  return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
 }
 
 function format(value, kind) {

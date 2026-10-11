@@ -15,17 +15,6 @@
     contract: (m) => m.contract_enforced,
     exposed: (m) => m.exposures.length > 0,
   };
-  const CATALOG_SQL = `-- The governance catalog, exported from the dbt manifest
-select model, owning_group, access, contract_enforced,
-       classification, data_tests, exposures
-from governance_models
-order by access, model;
-
--- Try: which partner-confidential columns does each public model expose?
--- select g.model, c.column_name, c.data_type, c.constraints
--- from governance_columns c join governance_models g using (model)
--- where g.access = 'public' and c.classification = 'partner_confidential';`;
-
   let models = [];
   let filter = 'all';
   let selected = null;
@@ -59,11 +48,6 @@ order by access, model;
     filter = button.dataset.filter;
     root.querySelectorAll('#gov-filters button').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
     renderRows();
-  });
-
-  root.querySelector('#gov-sql').addEventListener('click', () => {
-    document.dispatchEvent(new CustomEvent('playground:run', { detail: { sql: CATALOG_SQL } }));
-    document.querySelector('#playground')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
   function renderStats(summary) {
