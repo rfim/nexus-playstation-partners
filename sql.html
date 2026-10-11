@@ -8,8 +8,8 @@
   <title>Live SQL Workspace | NEXUS by VIM</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="stylesheet" href="assets/site.css?v=9">
-  <link rel="stylesheet" href="assets/playground.css?v=8">
-  <script src="assets/playground.js?v=10" type="module"></script>
+  <link rel="stylesheet" href="assets/playground.css?v=9">
+  <script src="assets/playground.js?v=11" type="module"></script>
 </head>
 <body class="sql-page">
   <a class="skip-link" href="#sql-editor">Skip to the SQL editor</a>
@@ -30,10 +30,16 @@
       <p><code>dbt build</code> exports the raw sources and every bronze, silver and gold model, plus the platform cost, governance and lineage tables, as Parquet. The project macros are listed too. GitHub Actions rebuilds them and checks that the files match. DuckDB-WASM loads them here, so your SQL runs on your own device and nothing is sent to a server.</p>
     </div>
     <div class="sql-layout">
+      <nav class="side-rail" aria-label="Show sidebar" hidden>
+        <button type="button" class="rail-show" data-rail-panel="" title="Show sidebar (Ctrl+B)" aria-label="Show sidebar">»</button>
+        <button type="button" data-rail-panel="tables" title="Tables">Tables</button>
+        <button type="button" data-rail-panel="examples" title="Examples">Examples</button>
+        <button type="button" data-rail-panel="history" title="History">History</button>
+      </nav>
       <aside class="playground-tables" aria-label="Workspace sidebar">
-        <div class="side-switch" role="tablist" aria-label="Sidebar">
+        <div class="side-top"><div class="side-switch" role="tablist" aria-label="Sidebar">
           <button type="button" role="tab" data-panel="tables" aria-selected="true">Tables</button><button type="button" role="tab" data-panel="examples" aria-selected="false">Examples</button><button type="button" role="tab" data-panel="history" aria-selected="false">History</button>
-        </div>
+        </div><button type="button" class="side-hide" id="sql-side-hide" title="Hide sidebar (Ctrl+B)" aria-label="Hide sidebar">«</button></div>
         <div class="side-panel" data-panel-body="tables">
           <label class="visually-hidden" for="sql-table-filter">Filter tables</label>
           <input id="sql-table-filter" class="sql-filter" type="search" placeholder="Filter tables or columns…" autocomplete="off">

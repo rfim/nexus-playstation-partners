@@ -104,3 +104,16 @@ body.sql-focus .playground-tables{display:none}
 body.sql-focus .sql-view-frame{height:calc(100vh - 44px);min-height:0}
 body.sql-focus .sql-editor{min-height:35vh}
 body.sql-focus .sql-output{max-height:none}
+/* Hideable sidebar: a slim rail brings it back on any panel */
+.side-top{display:flex;align-items:start;gap:.4rem}.side-top .side-switch{flex:1}
+.side-hide{flex:0 0 auto;width:30px;height:30px;border:1px solid #c7d8eb;border-radius:7px;background:#fff;color:#45617f;font-size:.85rem;cursor:pointer}.side-hide:hover{border-color:#1769c6;color:#17233d}
+.side-rail{display:flex;flex-direction:column;align-items:center;gap:.4rem;padding:.6rem .3rem;border:1px solid #c7d8eb;border-radius:12px;background:#fff;position:sticky;top:1rem;align-self:start}
+.side-rail[hidden]{display:none}
+.side-rail button{writing-mode:vertical-rl;transform:rotate(180deg);padding:.6rem .25rem;border:0;border-radius:6px;background:none;color:#45617f;font-size:.66rem;font-weight:800;letter-spacing:.04em;cursor:pointer}
+.side-rail button:hover{background:#edf4fb;color:#17233d}
+.side-rail .rail-show{writing-mode:horizontal-tb;transform:none;width:30px;height:30px;padding:0;border:1px solid #c7d8eb;font-size:.85rem}
+.sql-layout.is-side-hidden{grid-template-columns:44px minmax(0,1fr)}
+.sql-layout.is-side-hidden .playground-tables{display:none}
+.sql-layout.is-view-mode .side-rail{display:none}
+.sql-layout.is-view-mode.is-side-hidden{grid-template-columns:minmax(0,1fr)}
+@media(max-width:900px){.sql-layout.is-side-hidden{grid-template-columns:minmax(0,1fr)}.side-rail{flex-direction:row;position:static}.side-rail button{writing-mode:horizontal-tb;transform:none}}

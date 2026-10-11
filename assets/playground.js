@@ -206,6 +206,28 @@ function setup(root) {
     if (type === "open-view" && VIEWS[view]) openView(view, id ? { type: "lineage-select", id } : null);
   });
 
+  // The sidebar can be tucked into a slim rail; Ctrl/Cmd+B toggles it.
+  const rail = root.querySelector(".side-rail");
+  const setSidebar = (visible, panel) => {
+    layoutEl.classList.toggle("is-side-hidden", !visible);
+    if (rail) rail.hidden = visible;
+    if (panel) showPanel(panel);
+    try { localStorage.setItem(`${STORAGE_KEY}-sidebar`, visible ? "shown" : "hidden"); } catch { /* per-visit only */ }
+  };
+  root.querySelector("#sql-side-hide")?.addEventListener("click", () => setSidebar(false));
+  root.querySelectorAll("[data-rail-panel]").forEach((button) => {
+    button.addEventListener("click", () => setSidebar(true, button.dataset.railPanel || null));
+  });
+  document.addEventListener("keydown", (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "b") {
+      event.preventDefault();
+      setSidebar(layoutEl.classList.contains("is-side-hidden"));
+    }
+  });
+  try {
+    if (localStorage.getItem(`${STORAGE_KEY}-sidebar`) === "hidden") setSidebar(false);
+  } catch { /* storage unavailable */ }
+
   // Sidebar panels: tables, examples, history.
   root.querySelectorAll("[data-panel]").forEach((button) => {
     button.addEventListener("click", () => showPanel(button.dataset.panel));
