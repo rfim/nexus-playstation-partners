@@ -4,6 +4,14 @@ const MAX_ROWS = 200;
 const MAX_TABS = 12;
 const MAX_HISTORY = 40;
 const STORAGE_KEY = "nexus-sql-workspace-v1";
+// Views that open as tabs beside the queries. Each is a page of this site,
+// embedded once and kept alive while its tab is open.
+const VIEWS = {
+  lineage: { label: "Lineage", src: "platform.html?view=lineage", hint: "dbt lineage graph · select a node, then query it in a new tab" },
+  cost: { label: "Cost", src: "platform.html?view=cost", hint: "Platform cost · budget, daily burn, attribution by user and model" },
+  governance: { label: "Governance", src: "governance.html", hint: "Governance catalog · owners, access, contracts and classification" },
+  code: { label: "Code", src: "code.html", hint: "Project source · every model, macro, test and script" },
+};
 
 const PRESETS = {
   scorecard: {
@@ -160,6 +168,9 @@ function setup(root) {
   const exampleList = root.querySelector("#sql-examples");
   const historyList = root.querySelector("#sql-history");
   const download = root.querySelector("#sql-download");
+  const windowEl = root.querySelector(".playground-window");
+  const viewHost = root.querySelector("#sql-views");
+  const frames = {};
   let connection = null;
   let starting = null;
   let engineStatus = "Starting DuckDB…";
@@ -171,6 +182,18 @@ function setup(root) {
   let activeId = saved.activeId;
   let history = saved.history;
   let nextId = Math.max(0, ...tabs.map((t) => t.id)) + 1;
+
+  root.querySelectorAll("[data-view]").forEach((button) => {
+    button.addEventListener("click", () => openView(button.dataset.view));
+  });
+
+  // Embedded views hand back queries and cross-links as messages.
+  window.addEventListener("message", (event) => {
+    if (event.origin !== location.origin || event.data?.source !== "nexus-platform") return;
+    const { type, title, kind, sql, view, id } = event.data;
+    if (type === "open-sql" && typeof sql === "string") openTab({ title, kind: kind ?? "query", sql, run: true });
+    if (type === "open-view" && VIEWS[view]) openView(view, id ? { type: "lineage-select", id } : null);
+  });
 
   // Sidebar panels: tables, examples, history.
   root.querySelectorAll("[data-panel]").forEach((button) => {
@@ -245,7 +268,11 @@ function setup(root) {
 
   // Other pages can link straight to an example with ?preset=<key>.
   const requested = new URLSearchParams(location.search).get("preset");
-  if (PRESETS[requested]) {
+  const requestedView = new URLSearchParams(location.search).get("view");
+  if (VIEWS[requestedView]) {
+    openView(requestedView);
+    start().catch(() => {});
+  } else if (PRESETS[requested]) {
     openTab({ title: PRESETS[requested].label, kind: "example", sql: PRESETS[requested].sql, run: true });
   } else {
     renderTabs();
@@ -263,7 +290,9 @@ function setup(root) {
     try {
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
       if (!stored?.tabs?.length) return fresh;
-      const tabsBack = stored.tabs.filter((t) => typeof t.sql === "string").slice(0, MAX_TABS);
+      const tabsBack = stored.tabs
+        .filter((t) => typeof t.sql === "string" && (t.kind !== "view" || VIEWS[t.view]))
+        .slice(0, MAX_TABS);
       if (!tabsBack.length) return fresh;
       return {
         tabs: tabsBack,
@@ -278,7 +307,7 @@ function setup(root) {
   function save() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        tabs: tabs.map(({ id, title, kind, sql }) => ({ id, title, kind, sql })),
+        tabs: tabs.map(({ id, title, kind, sql, view }) => ({ id, title, kind, sql, view })),
         activeId,
         history,
       }));
@@ -319,10 +348,59 @@ function setup(root) {
     editor.focus();
   }
 
+  function openView(view, message = null) {
+    let tab = tabs.find((t) => t.kind === "view" && t.view === view);
+    if (!tab) {
+      if (tabs.length >= MAX_TABS) {
+        const victim = tabs.find((t) => t.id !== activeId);
+        tabs = tabs.filter((t) => t !== victim);
+      }
+      tab = { id: nextId++, title: VIEWS[view].label, kind: "view", view, sql: "" };
+      tabs.push(tab);
+    }
+    activeId = tab.id;
+    save();
+    renderTabs();
+    renderActive();
+    if (message) sendToView(view, message);
+    return tab;
+  }
+
+  function frameFor(view) {
+    if (!frames[view]) {
+      const frame = document.createElement("iframe");
+      frame.className = "sql-view-frame";
+      frame.title = VIEWS[view].label;
+      frame.src = VIEWS[view].src;
+      frame.dataset.view = view;
+      frame.loaded = false;
+      frame.pending = [];
+      frame.addEventListener("load", () => {
+        frame.loaded = true;
+        // Give the view a moment to render its data before handing it messages.
+        setTimeout(() => frame.pending.splice(0).forEach((m) => frame.contentWindow.postMessage(m, location.origin)), 400);
+      });
+      viewHost.append(frame);
+      frames[view] = frame;
+    }
+    return frames[view];
+  }
+
+  function sendToView(view, message) {
+    const frame = frameFor(view);
+    const payload = { source: "nexus-sql", ...message };
+    if (frame.loaded) frame.contentWindow.postMessage(payload, location.origin);
+    else frame.pending.push(payload);
+  }
+
   function closeTab(id) {
     const index = tabs.findIndex((t) => t.id === id);
     if (index < 0) return;
-    tabs.splice(index, 1);
+    const [closed] = tabs.splice(index, 1);
+    if (closed.kind === "view" && frames[closed.view]) {
+      frames[closed.view].remove();
+      delete frames[closed.view];
+    }
     if (!tabs.length) {
       tabs.push({ id: nextId++, title: "Query 1", kind: "query", sql: "" });
     }
@@ -340,10 +418,13 @@ function setup(root) {
   }
 
   function renderTabs() {
+    root.querySelectorAll("[data-view]").forEach((b) => {
+      b.classList.toggle("is-open", tabs.some((t) => t.kind === "view" && t.view === b.dataset.view));
+    });
     tabStrip.replaceChildren();
     for (const tab of tabs) {
       const wrap = document.createElement("div");
-      wrap.className = `qtab qtab-${tab.kind}`;
+      wrap.className = `qtab qtab-${tab.kind}${tab.view ? ` qtab-view-${tab.view}` : ""}`;
       wrap.classList.toggle("is-active", tab.id === activeId);
       const select = document.createElement("button");
       select.type = "button";
@@ -376,6 +457,16 @@ function setup(root) {
 
   function renderActive() {
     const tab = activeTab();
+    const isView = tab.kind === "view";
+    windowEl.classList.toggle("is-view", isView);
+    viewHost.hidden = !isView;
+    for (const frame of Object.values(frames)) frame.hidden = !isView || frame.dataset.view !== tab.view;
+    if (isView) {
+      frameFor(tab.view).hidden = false;
+      status.textContent = VIEWS[tab.view].hint;
+      if (download) download.disabled = true;
+      return;
+    }
     editor.value = tab.sql;
     editor.readOnly = tab.kind === "macro";
     runButton.disabled = tab.kind === "macro";
@@ -399,7 +490,8 @@ function setup(root) {
   }
 
   function showStatus() {
-    status.textContent = activeTab().status ?? engineStatus;
+    const tab = activeTab();
+    status.textContent = tab.kind === "view" ? VIEWS[tab.view].hint : tab.status ?? engineStatus;
   }
 
   function showPanel(name) {
@@ -581,7 +673,7 @@ function setup(root) {
 
   function insertText(text) {
     const tab = activeTab();
-    if (tab.kind === "macro") return;
+    if (tab.kind === "macro" || tab.kind === "view") return;
     const { selectionStart: from, selectionEnd: to, value } = editor;
     editor.value = value.slice(0, from) + text + value.slice(to);
     editor.focus();
@@ -632,7 +724,7 @@ function setup(root) {
   async function run() {
     const tab = activeTab();
     const sql = tab.sql.trim();
-    if (!sql || tab.kind === "macro") return;
+    if (!sql || tab.kind === "macro" || tab.kind === "view") return;
     runButton.disabled = true;
     try {
       const conn = connection ?? await start();

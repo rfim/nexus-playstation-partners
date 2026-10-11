@@ -49,3 +49,13 @@
 @media(max-width:1100px){.pf-budget{grid-template-columns:repeat(2,minmax(0,1fr))}.pf-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:900px){.pf-two{grid-template-columns:minmax(0,1fr)}.pf-node{grid-template-columns:minmax(0,1fr)}.pf-node>*,.pf-node .pf-facts,.pf-node .pf-risk,.pf-node .pf-link{grid-column:1;grid-row:auto}.pf-map>div{grid-template-columns:minmax(0,1fr);gap:.3rem}.pf-map span{display:none}}
 @media(max-width:560px){.pf-budget,.pf-stats{grid-template-columns:minmax(0,1fr)}.pf-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.pf-clear{margin-left:0}}
+/* Embedded as a tab in the SQL workspace: show only the requested section */
+.pf-embed body{background:#f4f7fb}
+.pf-embed .site-header,.pf-embed .skip-link,.pf-embed .pf-hero,.pf-embed .site-footer,.pf-embed .pf-translate,.pf-embed .split-heading,.pf-embed .section-index{display:none}
+.pf-embed-cost #lineage,.pf-embed-lineage #cost{display:none}
+.pf-embed .pf-section{padding:1rem 0 1.5rem;background:#f4f7fb}
+.pf-embed .shell{width:calc(100% - 2rem)}
+.pf-sql-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 .8rem}
+.pf-sql-button{padding:.4rem .75rem;border:1px solid #145eb7;border-radius:999px;background:#145eb7;color:#fff;font-size:.68rem;font-weight:800;cursor:pointer}.pf-sql-button:hover{background:#0b4fa8}
+.pf-sql-button+.pf-sql-button{background:#fff;color:#145eb7}
+.pf-embed .pf-node{grid-template-columns:minmax(0,1fr)}.pf-embed .pf-node>*,.pf-embed .pf-node .pf-facts,.pf-embed .pf-node .pf-risk,.pf-embed .pf-node .pf-link,.pf-embed .pf-node .pf-sql-actions{grid-column:1;grid-row:auto}

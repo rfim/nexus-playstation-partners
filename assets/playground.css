@@ -77,3 +77,16 @@
 .hist-open strong{color:#17233d;font-size:.7rem}.hist-open code{overflow:hidden;color:#45617f;font:400 .6rem ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;text-overflow:ellipsis}
 .hist-open small{color:#6a7c92;font-size:.58rem}.hist-item.is-failed .hist-open small{color:#b0412b}
 .hist-remove{margin:.35rem .3rem 0 0;width:20px;height:20px;border:0;border-radius:4px;background:none;color:#8193a8;cursor:pointer}.hist-remove:hover{background:#e3eaf3;color:#17233d}
+/* View tabs: lineage, cost, governance and code embedded beside queries */
+.qbar{display:flex;align-items:stretch;background:#081627;border-bottom:1px solid #2d4f75}
+.qbar .qtabs{flex:1;min-width:0;border-bottom:0}
+.qviews{display:flex;align-items:center;gap:.25rem;padding:0 .5rem;border-left:1px solid #1d3a5c}
+.qviews span{color:#7f9bbd;font-size:.56rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+.qviews button{padding:.3rem .55rem;border:1px solid #2d4f75;border-radius:999px;background:none;color:#a9c2df;font-size:.64rem;font-weight:800;cursor:pointer;white-space:nowrap}
+.qviews button:hover{border-color:#8ecbff;color:#fff}.qviews button.is-open{border-color:#8ecbff;color:#fff;background:#13294a}
+.qtab-view .qtab-title:before{border-radius:50%}.qtab-view-lineage .qtab-title:before{background:#5aa8ff}.qtab-view-cost .qtab-title:before{background:#1baf7a}.qtab-view-governance .qtab-title:before{background:#9b8cf0}.qtab-view-code .qtab-title:before{background:#d6e9fa}
+.sql-views{flex:1;min-height:640px;background:#f4f7fb}.sql-views[hidden]{display:none}
+.sql-view-frame{display:block;width:100%;height:calc(100vh - 150px);min-height:640px;border:0;background:#f4f7fb}.sql-view-frame[hidden]{display:none}
+.playground-window.is-view .sql-editor,.playground-window.is-view .sql-output,.playground-window.is-view .sql-actions{display:none}
+@media(max-width:700px){.qbar{flex-direction:column}.qviews{padding:.4rem .5rem;border-left:0;border-top:1px solid #1d3a5c;overflow-x:auto}}
+.playground-window.is-view .code-footer{display:none}

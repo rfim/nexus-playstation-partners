@@ -8,6 +8,26 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "assets" / "snippets.json"
+CODE_OUTPUT = ROOT / "assets" / "code.json"
+
+# The SQL workspace's code browser: every dbt and pipeline file, by folder.
+CODE_FOLDERS = (
+    ("dbt project", ["dbt_project.yml", "profiles.yml", "requirements.txt"]),
+    ("models/staging", ["models/staging/*"]),
+    ("models/intermediate", ["models/intermediate/*"]),
+    ("models/marts", ["models/marts/*"]),
+    ("models/platform", ["models/platform/*"]),
+    ("models", ["models/*.yml"]),
+    ("snapshots", ["snapshots/*"]),
+    ("macros", ["macros/*"]),
+    ("tests", ["tests/*"]),
+    ("seeds", ["seeds/*.yml"]),
+    ("semantic", ["semantic/*"]),
+    ("scripts", ["scripts/*.py"]),
+    ("ci", [".github/workflows/*"]),
+    ("docs", ["docs/*"]),
+)
+LANGUAGES = {".sql": "sql", ".yml": "yaml", ".yaml": "yaml", ".py": "python", ".md": "md", ".txt": "text"}
 BASE = "https://github.com/rfim/nexus-playstation-partners/blob/main/"
 
 ITEMS = {
@@ -59,18 +79,40 @@ def build() -> dict:
     return result
 
 
+def build_code() -> dict:
+    folders = []
+    for label, patterns in CODE_FOLDERS:
+        paths = sorted({p for pattern in patterns for p in ROOT.glob(pattern) if p.is_file()})
+        files = [
+            {
+                "path": path.relative_to(ROOT).as_posix(),
+                "language": LANGUAGES.get(path.suffix, "text"),
+                "code": path.read_text(),
+            }
+            for path in paths
+        ]
+        if files:
+            folders.append({"folder": label, "files": files})
+    return {"base": BASE, "folders": folders}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    rendered = json.dumps(build(), indent=2, ensure_ascii=False) + "\n"
+    outputs = {
+        OUTPUT: json.dumps(build(), indent=2, ensure_ascii=False) + "\n",
+        CODE_OUTPUT: json.dumps(build_code(), indent=1, ensure_ascii=False) + "\n",
+    }
     if args.check:
-        if not OUTPUT.exists() or OUTPUT.read_text() != rendered:
-            raise SystemExit("assets/snippets.json is stale; run scripts/build_snippets.py")
-        print("snippets.json matches repository source")
+        for path, rendered in outputs.items():
+            if not path.exists() or path.read_text() != rendered:
+                raise SystemExit(f"assets/{path.name} is stale; run scripts/build_snippets.py")
+        print("snippets.json and code.json match repository source")
     else:
-        OUTPUT.write_text(rendered)
-        print(f"Wrote {OUTPUT}")
+        for path, rendered in outputs.items():
+            path.write_text(rendered)
+            print(f"Wrote {path}")
 
 
 if __name__ == "__main__":
