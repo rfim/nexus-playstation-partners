@@ -17,3 +17,10 @@ groups:
     config:
       meta:
         responsibility: Curated facts, dimensions and marts that dashboards and partner teams consume.
+  - name: platform_ops
+    owner:
+      name: Platform engineering (portfolio example)
+      email: platform@example.invalid
+    config:
+      meta:
+        responsibility: Warehouse budgets, credit attribution and the cost of every dbt model.

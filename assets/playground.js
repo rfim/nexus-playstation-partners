@@ -71,6 +71,32 @@ where g.access = 'public'
 group by all
 order by g.contract_enforced desc, g.model;`,
   },
+  cost: {
+    label: "Cost by model",
+    sql: `-- What each dbt model costs to build this month (synthetic credits).
+select m.model_name, n.layer, n.owning_group, m.runs,
+       m.avg_execution_seconds, m.cost_usd_mtd, m.pct_of_dbt_cost
+from mart_cost_by_model m
+left join lineage_nodes n on n.name = m.model_name
+order by m.cost_usd_mtd desc;`,
+  },
+  impact: {
+    label: "Impact analysis",
+    sql: `-- Everything that breaks if raw_submissions changes:
+-- a recursive walk down the dbt lineage graph.
+with recursive downstream(node_id, hops) as (
+  select node_id, 0 from lineage_nodes
+  where name = 'partner_platform.raw_submissions'
+  union
+  select e.to_node, d.hops + 1
+  from downstream d join lineage_edges e on e.from_node = d.node_id
+)
+select n.name, n.type, n.layer, n.owning_group, min(d.hops) as hops
+from downstream d join lineage_nodes n using (node_id)
+where d.hops > 0
+group by all
+order by hops, n.name;`,
+  },
   tables: {
     label: "All tables",
     sql: `select table_name, count(*) as columns
@@ -123,8 +149,12 @@ function setup(root) {
     markPreset(null);
     run();
   });
-  editor.value = PRESETS.scorecard.sql;
-  markPreset("scorecard");
+  // Other pages can link straight to a preset with ?preset=<key>.
+  const requested = new URLSearchParams(location.search).get("preset");
+  const initial = PRESETS[requested] ? requested : "scorecard";
+  editor.value = PRESETS[initial].sql;
+  markPreset(initial);
+  if (requested && PRESETS[requested]) run();
 
   fetch("assets/data/tables.json")
     .then((response) => response.json())

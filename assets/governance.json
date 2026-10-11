@@ -1,11 +1,11 @@
 {
   "summary": {
-    "models": 18,
-    "public_models": 8,
-    "contracts_enforced": 3,
-    "data_tests": 76,
-    "exposures": 2,
-    "groups": 2
+    "models": 23,
+    "public_models": 12,
+    "contracts_enforced": 4,
+    "data_tests": 99,
+    "exposures": 3,
+    "groups": 3
   },
   "groups": [
     {
@@ -21,6 +21,13 @@
       "email": "portfolio@example.invalid",
       "responsibility": "Curated facts, dimensions and marts that dashboards and partner teams consume.",
       "models": 9
+    },
+    {
+      "name": "platform_ops",
+      "owner": "Platform engineering (portfolio example)",
+      "email": "platform@example.invalid",
+      "responsibility": "Warehouse budgets, credit attribution and the cost of every dbt model.",
+      "models": 5
     }
   ],
   "models": [
@@ -1608,6 +1615,450 @@
       "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_workflow_did_demo.sql"
     },
     {
+      "name": "cost_warehouse_daily",
+      "layer": "platform",
+      "description": "Daily credits and cost per warehouse up to var('cost_as_of_date'). Compute and cloud-services credits are kept apart, as Snowflake bills them.",
+      "materialized": "view",
+      "group": "platform_ops",
+      "owner": "Platform engineering (portfolio example)",
+      "access": "protected",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 4,
+      "upstream": [],
+      "sources": [],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "warehouse_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "workload",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "usage_date",
+          "data_type": "date",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "credits_used_compute",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "credits_used_cloud_services",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "credits_used",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "non_negative",
+            "not_null"
+          ]
+        },
+        {
+          "name": "cost_usd",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/platform/cost_warehouse_daily.sql"
+    },
+    {
+      "name": "mart_cost_budget_vs_actual",
+      "layer": "platform",
+      "description": "One row per warehouse. Month-to-date credits against the resource-monitor quota, a straight-line forecast to month end, and a status that follows the monitor's notify and suspend triggers.",
+      "materialized": "table",
+      "group": "platform_ops",
+      "owner": "Platform engineering (portfolio example)",
+      "access": "public",
+      "contract_enforced": true,
+      "classification": "internal",
+      "tests": 3,
+      "upstream": [
+        "cost_warehouse_daily"
+      ],
+      "sources": [],
+      "exposures": [
+        "platform_cost_and_lineage"
+      ],
+      "columns": [
+        {
+          "name": "warehouse_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [
+            "not_null",
+            "primary_key"
+          ],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "workload",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "resource_monitor",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "credit_quota",
+          "data_type": "integer",
+          "description": "",
+          "classification": "internal",
+          "constraints": [
+            "check"
+          ],
+          "tests": []
+        },
+        {
+          "name": "credits_used_mtd",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "cost_usd_mtd",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "pct_of_budget_used",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "forecast_credits_month_end",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "forecast_pct_of_budget",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "budget_status",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "accepted_values"
+          ]
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/platform/mart_cost_budget_vs_actual.sql"
+    },
+    {
+      "name": "mart_cost_by_model",
+      "layer": "platform",
+      "description": "Month-to-date dbt warehouse credits allocated to each model by its share of that day's execution time. The allocation reconciles to the metered NEXUS_DBT_WH total.",
+      "materialized": "table",
+      "group": "platform_ops",
+      "owner": "Platform engineering (portfolio example)",
+      "access": "public",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 3,
+      "upstream": [
+        "cost_warehouse_daily"
+      ],
+      "sources": [],
+      "exposures": [
+        "platform_cost_and_lineage"
+      ],
+      "columns": [
+        {
+          "name": "model_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "runs",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "avg_execution_seconds",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "max_execution_seconds",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "credits_allocated_mtd",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "cost_usd_mtd",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "pct_of_dbt_cost",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/platform/mart_cost_by_model.sql"
+    },
+    {
+      "name": "mart_cost_by_user",
+      "layer": "platform",
+      "description": "Month-to-date credits attributed to each service user and role. Attribution excludes idle time, so it is always below metered compute.",
+      "materialized": "table",
+      "group": "platform_ops",
+      "owner": "Platform engineering (portfolio example)",
+      "access": "public",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 2,
+      "upstream": [],
+      "sources": [],
+      "exposures": [
+        "platform_cost_and_lineage"
+      ],
+      "columns": [
+        {
+          "name": "warehouse_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "user_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "not_null"
+          ]
+        },
+        {
+          "name": "role_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "query_count",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "credits_attributed",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "cost_usd",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "pct_of_warehouse_attributed",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "credits_per_1k_queries",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/platform/mart_cost_by_user.sql"
+    },
+    {
+      "name": "mart_cost_daily",
+      "layer": "platform",
+      "description": "One row per warehouse per day with cumulative month-to-date credits and a trailing seven-day baseline. Days above var('cost_anomaly_ratio') times the baseline are flagged.",
+      "materialized": "table",
+      "group": "platform_ops",
+      "owner": "Platform engineering (portfolio example)",
+      "access": "public",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 1,
+      "upstream": [
+        "cost_warehouse_daily"
+      ],
+      "sources": [],
+      "exposures": [
+        "platform_cost_and_lineage"
+      ],
+      "columns": [
+        {
+          "name": "warehouse_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "workload",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "usage_date",
+          "data_type": "date",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "credits_used",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "cost_usd",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "trailing_7d_avg_credits",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "cumulative_credits_mtd",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "is_anomaly",
+          "data_type": "boolean",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "not_null"
+          ]
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/platform/mart_cost_daily.sql"
+    },
+    {
       "name": "stg_partners",
       "layer": "staging",
       "description": "",
@@ -1877,6 +2328,19 @@
       "owner": "VIM portfolio example",
       "depends_on": [
         "mart_partner_publishing"
+      ]
+    },
+    {
+      "name": "platform_cost_and_lineage",
+      "label": "Platform cost and lineage (synthetic portfolio example)",
+      "type": "dashboard",
+      "maturity": "low",
+      "owner": "Platform engineering (portfolio example)",
+      "depends_on": [
+        "mart_cost_budget_vs_actual",
+        "mart_cost_by_model",
+        "mart_cost_by_user",
+        "mart_cost_daily"
       ]
     }
   ]

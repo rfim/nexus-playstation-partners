@@ -28,6 +28,14 @@ models:
       +access: protected
       +meta:
         classification: internal
+    platform:
+      +materialized: table
+      +group: platform_ops
+      +access: protected
+      +meta:
+        classification: internal
+      cost_warehouse_daily:
+        +materialized: view
     marts:
       +materialized: table
       +group: partner_analytics
@@ -36,6 +44,12 @@ models:
         classification: partner_confidential
 
 vars:
+  # Platform cost: a fixed mid-month clock so the run-rate forecast has something to forecast.
+  cost_as_of_date: '2026-09-24'
+  # Illustrative on-demand price per credit; real contracts differ.
+  credit_price_usd: 3.0
+  # A warehouse-day is anomalous above this multiple of its trailing seven-day average.
+  cost_anomaly_ratio: 2.0
   # Fixed clock for the synthetic opportunity marts, so the exported site data stays deterministic.
   opportunity_as_of_date: '2026-09-30'
   # A partner with fewer submitted titles is shown with its bounds and flagged, never ranked.

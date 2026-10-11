@@ -1,6 +1,41 @@
 {
   "tables": [
     {
+      "name": "cost_warehouse_daily",
+      "layer": "platform",
+      "rows": 96,
+      "columns": [
+        {
+          "name": "warehouse_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "workload",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "usage_date",
+          "type": "DATE"
+        },
+        {
+          "name": "credits_used_compute",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "credits_used_cloud_services",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "credits_used",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "cost_usd",
+          "type": "DOUBLE"
+        }
+      ]
+    },
+    {
       "name": "dim_partner",
       "layer": "marts",
       "rows": 3,
@@ -360,6 +395,166 @@
         {
           "name": "publication_lead_days",
           "type": "BIGINT"
+        }
+      ]
+    },
+    {
+      "name": "mart_cost_budget_vs_actual",
+      "layer": "platform",
+      "rows": 4,
+      "columns": [
+        {
+          "name": "warehouse_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "workload",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "resource_monitor",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "credit_quota",
+          "type": "INTEGER"
+        },
+        {
+          "name": "credits_used_mtd",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "cost_usd_mtd",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "pct_of_budget_used",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "forecast_credits_month_end",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "forecast_pct_of_budget",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "budget_status",
+          "type": "VARCHAR"
+        }
+      ]
+    },
+    {
+      "name": "mart_cost_by_model",
+      "layer": "platform",
+      "rows": 19,
+      "columns": [
+        {
+          "name": "model_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "runs",
+          "type": "BIGINT"
+        },
+        {
+          "name": "avg_execution_seconds",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "max_execution_seconds",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "credits_allocated_mtd",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "cost_usd_mtd",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "pct_of_dbt_cost",
+          "type": "DOUBLE"
+        }
+      ]
+    },
+    {
+      "name": "mart_cost_by_user",
+      "layer": "platform",
+      "rows": 7,
+      "columns": [
+        {
+          "name": "warehouse_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "user_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "role_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "query_count",
+          "type": "BIGINT"
+        },
+        {
+          "name": "credits_attributed",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "cost_usd",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "pct_of_warehouse_attributed",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "credits_per_1k_queries",
+          "type": "DOUBLE"
+        }
+      ]
+    },
+    {
+      "name": "mart_cost_daily",
+      "layer": "platform",
+      "rows": 96,
+      "columns": [
+        {
+          "name": "warehouse_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "workload",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "usage_date",
+          "type": "DATE"
+        },
+        {
+          "name": "credits_used",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "cost_usd",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "trailing_7d_avg_credits",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "cumulative_credits_mtd",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "is_anomaly",
+          "type": "BOOLEAN"
         }
       ]
     },
@@ -859,7 +1054,7 @@
     {
       "name": "governance_models",
       "layer": "governance",
-      "rows": 18,
+      "rows": 23,
       "columns": [
         {
           "name": "model",
@@ -910,7 +1105,7 @@
     {
       "name": "governance_columns",
       "layer": "governance",
-      "rows": 169,
+      "rows": 209,
       "columns": [
         {
           "name": "model",
@@ -935,6 +1130,64 @@
         {
           "name": "tests",
           "type": "VARCHAR[]"
+        }
+      ]
+    },
+    {
+      "name": "lineage_nodes",
+      "layer": "lineage",
+      "rows": 36,
+      "columns": [
+        {
+          "name": "node_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "type",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "layer",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "depth",
+          "type": "BIGINT"
+        },
+        {
+          "name": "owning_group",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "access",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "materialized",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "cost_usd_mtd",
+          "type": "DOUBLE"
+        }
+      ]
+    },
+    {
+      "name": "lineage_edges",
+      "layer": "lineage",
+      "rows": 48,
+      "columns": [
+        {
+          "name": "from_node",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "to_node",
+          "type": "VARCHAR"
         }
       ]
     }

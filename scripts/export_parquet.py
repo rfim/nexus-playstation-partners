@@ -14,10 +14,13 @@ DATABASE = ROOT / "target" / "nexus_partner_analytics.duckdb"
 OUTPUT = ROOT / "assets" / "data"
 MANIFEST = OUTPUT / "tables.json"
 GOVERNANCE = (ROOT / "assets" / "governance.json").as_posix()
+PLATFORM = (ROOT / "assets" / "platform.json").as_posix()
 
 # Raw seeds stay behind the staging layer, as they do in dbt.
 LAYERS = (
     ("stg_", "staging"),
+    ("cost_", "platform"),
+    ("mart_cost_", "platform"),
     ("int_", "intermediate"),
     ("dim_", "marts"),
     ("fct_", "marts"),
@@ -41,6 +44,18 @@ GOVERNANCE_TABLES = {
         from (select m.name as model, unnest(m.columns) as c from {_MODELS})""",
 }
 
+# dbt lineage from the manifest: one row per node and one per ref() edge.
+_LINEAGE = f"(select lineage from read_json('{PLATFORM}'))"
+LINEAGE_TABLES = {
+    "lineage_nodes": f"""
+        select n.id as node_id, n.name, n.type, n.layer, n.depth, n."group" as owning_group,
+               n.access, n.materialized, n.cost_usd_mtd
+        from (select unnest(lineage.nodes) as n from {_LINEAGE}) order by n.depth, n.name""",
+    "lineage_edges": f"""
+        select e."from" as from_node, e."to" as to_node
+        from (select unnest(lineage.edges) as e from {_LINEAGE})""",
+}
+
 
 def _layer(name: str) -> str | None:
     return next((layer for prefix, layer in LAYERS if name.startswith(prefix)), None)
@@ -54,6 +69,7 @@ def _relations(con) -> list[tuple[str, str, str]]:
     ).fetchall()]
     relations = [(n, _layer(n), f'select * from main."{n}"') for n in names if _layer(n)]
     relations += [(n, "governance", sql) for n, sql in GOVERNANCE_TABLES.items()]
+    relations += [(n, "lineage", sql) for n, sql in LINEAGE_TABLES.items()]
     return relations
 
 
