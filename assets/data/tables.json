@@ -1,0 +1,860 @@
+{
+  "tables": [
+    {
+      "name": "dim_partner",
+      "layer": "marts",
+      "rows": 3,
+      "columns": [
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "region",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_tier",
+          "type": "VARCHAR"
+        }
+      ]
+    },
+    {
+      "name": "dim_title",
+      "layer": "marts",
+      "rows": 6,
+      "columns": [
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "title_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "platform",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "planned_release_at",
+          "type": "DATE"
+        }
+      ]
+    },
+    {
+      "name": "fct_submission",
+      "layer": "marts",
+      "rows": 9,
+      "columns": [
+        {
+          "name": "submission_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "submitted_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "reviewed_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "build_version",
+          "type": "INTEGER"
+        },
+        {
+          "name": "return_reason",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "attempt_number",
+          "type": "BIGINT"
+        },
+        {
+          "name": "review_hours",
+          "type": "BIGINT"
+        }
+      ]
+    },
+    {
+      "name": "hypothetical_workflow_weeks",
+      "layer": "seed",
+      "rows": 16,
+      "columns": [
+        {
+          "name": "cohort",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "week_number",
+          "type": "INTEGER"
+        },
+        {
+          "name": "first_pass_rate_pct",
+          "type": "INTEGER"
+        }
+      ]
+    },
+    {
+      "name": "int_partner_review_features",
+      "layer": "intermediate",
+      "rows": 9,
+      "columns": [
+        {
+          "name": "submission_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "submitted_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "reviewed_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "attempt_number",
+          "type": "BIGINT"
+        },
+        {
+          "name": "review_hours",
+          "type": "BIGINT"
+        },
+        {
+          "name": "prior_partner_review_count",
+          "type": "BIGINT"
+        },
+        {
+          "name": "prior_partner_avg_review_hours",
+          "type": "DOUBLE"
+        }
+      ]
+    },
+    {
+      "name": "int_partner_tier_asof_submission",
+      "layer": "intermediate",
+      "rows": 9,
+      "columns": [
+        {
+          "name": "submission_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "submitted_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "tier_at_submission",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "tier_valid_from",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "tier_valid_to",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "tier_history_available",
+          "type": "INTEGER"
+        }
+      ]
+    },
+    {
+      "name": "int_submission_lifecycle",
+      "layer": "intermediate",
+      "rows": 9,
+      "columns": [
+        {
+          "name": "submission_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "submitted_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "reviewed_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "build_version",
+          "type": "INTEGER"
+        },
+        {
+          "name": "return_reason",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "attempt_number",
+          "type": "BIGINT"
+        },
+        {
+          "name": "review_hours",
+          "type": "BIGINT"
+        }
+      ]
+    },
+    {
+      "name": "int_title_outcomes",
+      "layer": "intermediate",
+      "rows": 6,
+      "columns": [
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "planned_release_at",
+          "type": "DATE"
+        },
+        {
+          "name": "submission_attempts",
+          "type": "BIGINT"
+        },
+        {
+          "name": "reviewed_attempts",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "review_hours_total",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "first_pass_approved",
+          "type": "INTEGER"
+        },
+        {
+          "name": "ever_approved",
+          "type": "INTEGER"
+        },
+        {
+          "name": "published_regions",
+          "type": "BIGINT"
+        },
+        {
+          "name": "first_submitted_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "first_published_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "publication_lead_days",
+          "type": "BIGINT"
+        }
+      ]
+    },
+    {
+      "name": "int_title_publication_features",
+      "layer": "intermediate",
+      "rows": 6,
+      "columns": [
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "first_submitted_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "planned_release_at",
+          "type": "DATE"
+        },
+        {
+          "name": "approved_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "approval_attempt_number",
+          "type": "BIGINT"
+        },
+        {
+          "name": "prior_partner_published_titles",
+          "type": "BIGINT"
+        },
+        {
+          "name": "prior_partner_avg_handoff_hours",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "prior_partner_published_at_submission",
+          "type": "BIGINT"
+        },
+        {
+          "name": "prior_partner_avg_lead_days_at_submission",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "first_published_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "published_regions",
+          "type": "BIGINT"
+        },
+        {
+          "name": "observed_handoff_hours",
+          "type": "BIGINT"
+        },
+        {
+          "name": "publication_lead_days",
+          "type": "BIGINT"
+        }
+      ]
+    },
+    {
+      "name": "mart_partner_health",
+      "layer": "marts",
+      "rows": 3,
+      "columns": [
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "as_of_date",
+          "type": "DATE"
+        },
+        {
+          "name": "titles_submitted",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "first_pass_approved_titles",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "first_pass_rate",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "first_pass_wilson_lower",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "first_pass_wilson_upper",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "titles_approved",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "titles_published",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "titles_awaiting_shelf",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "days_since_last_submission",
+          "type": "BIGINT"
+        },
+        {
+          "name": "recency_component",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "shelf_conversion_component",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "health_score",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "is_low_sample",
+          "type": "BOOLEAN"
+        }
+      ]
+    },
+    {
+      "name": "mart_partner_publishing",
+      "layer": "marts",
+      "rows": 3,
+      "columns": [
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "region",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "titles_submitted",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "first_pass_approved_titles",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "titles_published",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "published_storefront_regions",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "submission_attempts",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "reviewed_attempts",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "review_hours_total",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "first_pass_approval_pct",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "avg_review_hours",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "avg_publication_lead_days",
+          "type": "DOUBLE"
+        }
+      ]
+    },
+    {
+      "name": "mart_partner_statistical_diagnostics",
+      "layer": "marts",
+      "rows": 4,
+      "columns": [
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "titles_submitted",
+          "type": "BIGINT"
+        },
+        {
+          "name": "first_pass_approved_titles",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "first_pass_approval_pct",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "wilson_lower_pct",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "wilson_upper_pct",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "titles_published",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "titles_without_publication",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "reviewed_attempts",
+          "type": "BIGINT"
+        },
+        {
+          "name": "mean_review_hours",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "q1_review_hours",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "median_review_hours",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "q3_review_hours",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "p90_review_hours",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "observed_publication_leads",
+          "type": "BIGINT"
+        },
+        {
+          "name": "mean_lead_days",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "median_lead_days",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "submission_events",
+          "type": "BIGINT"
+        },
+        {
+          "name": "tier_history_covered_events",
+          "type": "HUGEINT"
+        }
+      ]
+    },
+    {
+      "name": "mart_resubmission_cost",
+      "layer": "marts",
+      "rows": 2,
+      "columns": [
+        {
+          "name": "return_reason",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "rejected_attempts",
+          "type": "BIGINT"
+        },
+        {
+          "name": "titles_affected",
+          "type": "BIGINT"
+        },
+        {
+          "name": "partners_affected",
+          "type": "BIGINT"
+        },
+        {
+          "name": "reviewer_hours",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "avg_days_added",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "rejections_without_resubmission",
+          "type": "HUGEINT"
+        },
+        {
+          "name": "share_of_rejected_attempts",
+          "type": "DOUBLE"
+        }
+      ]
+    },
+    {
+      "name": "mart_title_time_to_shelf",
+      "layer": "marts",
+      "rows": 6,
+      "columns": [
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "title_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "as_of_date",
+          "type": "DATE"
+        },
+        {
+          "name": "planned_release_at",
+          "type": "DATE"
+        },
+        {
+          "name": "approved_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "first_published_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "shelf_status",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "approval_buffer_days",
+          "type": "BIGINT"
+        },
+        {
+          "name": "days_waiting_as_of",
+          "type": "BIGINT"
+        },
+        {
+          "name": "days_to_planned_release_as_of",
+          "type": "BIGINT"
+        }
+      ]
+    },
+    {
+      "name": "mart_workflow_did_demo",
+      "layer": "marts",
+      "rows": 1,
+      "columns": [
+        {
+          "name": "treated_pre_pct",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "treated_post_pct",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "comparison_pre_pct",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "comparison_post_pct",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "did_pp",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "pre_period_placebo_pp",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "pretrend_slope_gap_pp_per_week",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "pre_post_mean_week_gap",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "effect_if_1pp_week_drift",
+          "type": "DOUBLE"
+        }
+      ]
+    },
+    {
+      "name": "partner_tier_history",
+      "layer": "snapshot",
+      "rows": 3,
+      "columns": [
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_tier",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "dbt_scd_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "dbt_updated_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "dbt_valid_from",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "dbt_valid_to",
+          "type": "TIMESTAMP"
+        }
+      ]
+    },
+    {
+      "name": "stg_partners",
+      "layer": "staging",
+      "rows": 3,
+      "columns": [
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "region",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_tier",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP"
+        }
+      ]
+    },
+    {
+      "name": "stg_publications",
+      "layer": "staging",
+      "rows": 4,
+      "columns": [
+        {
+          "name": "publication_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "published_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "storefront_region",
+          "type": "VARCHAR"
+        }
+      ]
+    },
+    {
+      "name": "stg_submissions",
+      "layer": "staging",
+      "rows": 9,
+      "columns": [
+        {
+          "name": "submission_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "submitted_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "reviewed_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "build_version",
+          "type": "INTEGER"
+        },
+        {
+          "name": "return_reason",
+          "type": "VARCHAR"
+        }
+      ]
+    },
+    {
+      "name": "stg_titles",
+      "layer": "staging",
+      "rows": 6,
+      "columns": [
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "title_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "platform",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "planned_release_at",
+          "type": "DATE"
+        }
+      ]
+    }
+  ]
+}

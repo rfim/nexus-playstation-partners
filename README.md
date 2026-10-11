@@ -27,6 +27,7 @@ python -m pip install -r requirements.txt
 dbt build --profiles-dir .
 python scripts/export_metrics.py --check
 python scripts/build_snippets.py --check
+python scripts/export_parquet.py --check
 ```
 
 The DuckDB file is created in `target/`. No cloud account is needed. The build runs seeds, staging models, intermediate logic, a timestamp snapshot, a guarded as-of join, dimensions, a submission fact, a partner publishing mart, descriptive diagnostics, a separate causal arithmetic model, generic and singular tests, and an exposure. `semantic/partner_metrics.yml` is a versioned metric definition for discussion, not a deployed semantic layer.
@@ -37,7 +38,20 @@ To view the site locally:
 python -m http.server 8767
 ```
 
-Open http://localhost:8767/. Every architecture block opens source from this repository. GitHub Actions runs the dbt build and checks that the exported site data and snippets match the working files.
+Open http://localhost:8767/. Every architecture block opens source from this repository.
+
+## Live SQL playground
+
+The **Query the dbt build yourself** panel in section 08 runs [DuckDB-WASM](https://duckdb.org/docs/api/wasm/overview) in the visitor's browser, so the live site needs no server or database account. `scripts/export_parquet.py` writes every staging, intermediate, snapshot, seed and mart table from the local DuckDB build to `assets/data/*.parquet` (about 100 KB) plus a `tables.json` manifest. The page registers each file as a read-only view, and visitors can run any SQL against them. DuckDB-WASM 1.29.0 loads from jsDelivr only when the section scrolls into view.
+
+After changing a model, refresh the files and commit them:
+
+```bash
+dbt build --profiles-dir .
+python scripts/export_parquet.py
+```
+
+CI runs `export_parquet.py --check` to confirm the committed Parquet rows match a fresh build. GitHub Actions runs the dbt build and checks that the exported site data and snippets match the working files.
 
 ## Core metric contract
 
