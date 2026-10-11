@@ -1,7 +1,6 @@
 // Governance catalog rendered from assets/governance.json (exported from the dbt manifest).
 (() => {
   const root = document.querySelector('#governance');
-  const toWorkspace = (message) => window.parent.postMessage({ source: 'nexus-platform', ...message }, location.origin);
   if (!root) return;
 
   const CLASSES = {
@@ -168,26 +167,6 @@
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     const parts = [head, el('p', 'gov-desc', m.description || 'No description yet.'), badges, lineage];
-    // Embedded in the SQL workspace: hand queries back to it as new tabs.
-    if (window.parent !== window) {
-      const actions = el('div', 'gov-sql-actions');
-      const preview = el('button', 'gov-sql-button', 'Preview in a SQL tab');
-      preview.type = 'button';
-      preview.addEventListener('click', () => toWorkspace({ type: 'open-sql', title: m.name, kind: 'table', sql: `select *\nfrom ${m.name}\nlimit 50;` }));
-      const columns = el('button', 'gov-sql-button', 'Columns in a SQL tab');
-      columns.type = 'button';
-      columns.addEventListener('click', () => toWorkspace({
-        type: 'open-sql',
-        title: `Columns: ${m.name}`,
-        kind: 'example',
-        sql: `-- Column governance for ${m.name}, from the dbt manifest\nselect column_name, data_type, classification, constraints, tests\nfrom governance_columns\nwhere model = '${m.name}';`,
-      }));
-      const lineageButton = el('button', 'gov-sql-button', 'Show in lineage');
-      lineageButton.type = 'button';
-      lineageButton.addEventListener('click', () => toWorkspace({ type: 'open-view', view: 'lineage', id: `model.nexus_partner_analytics.${m.name}` }));
-      actions.append(preview, columns, lineageButton);
-      parts.push(actions);
-    }
     parts.push(el('div', 'gov-columns-wrap'), link);
     panel.replaceChildren(...parts);
     panel.querySelector('.gov-columns-wrap').append(table);

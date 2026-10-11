@@ -14,9 +14,3 @@
 .gov-sql-link{padding:0;border:0;background:none;color:#095bbd;font:inherit;font-weight:800;cursor:pointer;border-bottom:1px solid #8ab6ed}
 @media(max-width:1000px){.gov-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.gov-overview,.gov-grid{grid-template-columns:minmax(0,1fr)}.gov-table-wrap{max-height:420px;border-right:0;border-bottom:1px solid #dbe5f0}}
 @media(max-width:560px){.gov-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.gov-groups{grid-template-columns:minmax(0,1fr)}.gov-table .gov-owner,.gov-table thead th:nth-child(2){display:none}}
-.gov-sql-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 1rem}
-.gov-sql-button{padding:.4rem .75rem;border:1px solid #145eb7;border-radius:999px;background:#fff;color:#145eb7;font-size:.68rem;font-weight:800;cursor:pointer}.gov-sql-button:first-child{background:#145eb7;color:#fff}.gov-sql-button:hover{border-color:#0b4fa8}
-/* Standalone/embedded governance view */
-.view-page{background:#f4f7fb}.view-page .governance{padding:1.2rem 0 2rem}.view-page .governance .shell{width:calc(100% - 2rem)}
-.view-page .governance .section-index,.view-page .governance .split-heading,.view-page .governance .data-note .gov-sql-link{display:none}
-.view-page .visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}

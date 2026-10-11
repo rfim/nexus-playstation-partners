@@ -8,9 +8,7 @@ const STORAGE_KEY = "nexus-sql-workspace-v1";
 // embedded once and kept alive while its tab is open.
 const VIEWS = {
   lineage: { label: "Lineage", src: "platform.html?view=lineage", hint: "dbt lineage graph · select a node, then query it in a new tab" },
-  cost: { label: "Cost", src: "platform.html?view=cost", hint: "Platform cost · budget, daily burn, attribution by user and model" },
-  governance: { label: "Governance", src: "governance.html", hint: "Governance catalog · owners, access, contracts and classification" },
-  code: { label: "Code", src: "code.html", hint: "Project source · every model, macro, test and script" },
+  dbt: { label: "dbt", src: "code.html", hint: "dbt project · every model, macro, test and script, with each model's build cost" },
 };
 
 const PRESETS = {
