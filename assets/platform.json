@@ -1,0 +1,1953 @@
+{
+  "cost": {
+    "as_of_date": "2026-09-24",
+    "days_elapsed": 24,
+    "days_in_month": 30,
+    "credit_price_usd": 3.0,
+    "summary": {
+      "credits_mtd": 34.312,
+      "cost_usd_mtd": 102.94,
+      "forecast_credits": 42.89,
+      "forecast_usd": 128.67,
+      "budget_credits": 50,
+      "budget_usd": 150.0,
+      "anomalies": 1,
+      "dbt_cost_usd_mtd": 27.08
+    },
+    "budget": [
+      {
+        "warehouse_name": "NEXUS_BI_WH",
+        "workload": "Reporting / BI",
+        "resource_monitor": "MON_NEXUS_BI",
+        "credit_quota": 15,
+        "credits_used_mtd": 14.74,
+        "cost_usd_mtd": 44.22,
+        "pct_of_budget_used": 98.3,
+        "forecast_credits_month_end": 18.426,
+        "forecast_pct_of_budget": 122.8,
+        "budget_status": "forecast_over"
+      },
+      {
+        "warehouse_name": "NEXUS_CI_WH",
+        "workload": "CI/CD",
+        "resource_monitor": "MON_NEXUS_CI",
+        "credit_quota": 10,
+        "credits_used_mtd": 5.33,
+        "cost_usd_mtd": 15.99,
+        "pct_of_budget_used": 53.3,
+        "forecast_credits_month_end": 6.662,
+        "forecast_pct_of_budget": 66.6,
+        "budget_status": "ok"
+      },
+      {
+        "warehouse_name": "NEXUS_DBT_WH",
+        "workload": "dbt transforms",
+        "resource_monitor": "MON_NEXUS_DBT",
+        "credit_quota": 15,
+        "credits_used_mtd": 9.019,
+        "cost_usd_mtd": 27.06,
+        "pct_of_budget_used": 60.1,
+        "forecast_credits_month_end": 11.273,
+        "forecast_pct_of_budget": 75.2,
+        "budget_status": "ok"
+      },
+      {
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "workload": "Ingestion",
+        "resource_monitor": "MON_NEXUS_LOAD",
+        "credit_quota": 10,
+        "credits_used_mtd": 5.223,
+        "cost_usd_mtd": 15.67,
+        "pct_of_budget_used": 52.2,
+        "forecast_credits_month_end": 6.529,
+        "forecast_pct_of_budget": 65.3,
+        "budget_status": "ok"
+      }
+    ],
+    "daily": [
+      {
+        "usage_date": "2026-09-01",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.5816,
+        "cost_usd": 1.74,
+        "trailing_7d_avg_credits": null,
+        "cumulative_credits_mtd": 0.5816,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-01",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2592,
+        "cost_usd": 0.78,
+        "trailing_7d_avg_credits": null,
+        "cumulative_credits_mtd": 0.2592,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-01",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.3948,
+        "cost_usd": 1.18,
+        "trailing_7d_avg_credits": null,
+        "cumulative_credits_mtd": 0.3948,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-01",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2571,
+        "cost_usd": 0.77,
+        "trailing_7d_avg_credits": null,
+        "cumulative_credits_mtd": 0.2571,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-02",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.6698,
+        "cost_usd": 2.01,
+        "trailing_7d_avg_credits": 0.5816,
+        "cumulative_credits_mtd": 1.2514,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-02",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.3016,
+        "cost_usd": 0.9,
+        "trailing_7d_avg_credits": 0.2592,
+        "cumulative_credits_mtd": 0.5608,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-02",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.4302,
+        "cost_usd": 1.29,
+        "trailing_7d_avg_credits": 0.3948,
+        "cumulative_credits_mtd": 0.825,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-02",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2601,
+        "cost_usd": 0.78,
+        "trailing_7d_avg_credits": 0.2571,
+        "cumulative_credits_mtd": 0.5172,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-03",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.7472,
+        "cost_usd": 2.24,
+        "trailing_7d_avg_credits": 0.6257,
+        "cumulative_credits_mtd": 1.9986,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-03",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2723,
+        "cost_usd": 0.82,
+        "trailing_7d_avg_credits": 0.2804,
+        "cumulative_credits_mtd": 0.8331,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-03",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.4037,
+        "cost_usd": 1.21,
+        "trailing_7d_avg_credits": 0.4125,
+        "cumulative_credits_mtd": 1.2287,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-03",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2249,
+        "cost_usd": 0.67,
+        "trailing_7d_avg_credits": 0.2586,
+        "cumulative_credits_mtd": 0.7421,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-04",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.564,
+        "cost_usd": 1.69,
+        "trailing_7d_avg_credits": 0.6662,
+        "cumulative_credits_mtd": 2.5626,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-04",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2371,
+        "cost_usd": 0.71,
+        "trailing_7d_avg_credits": 0.2777,
+        "cumulative_credits_mtd": 1.0702,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-04",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.3896,
+        "cost_usd": 1.17,
+        "trailing_7d_avg_credits": 0.4096,
+        "cumulative_credits_mtd": 1.6183,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-04",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2887,
+        "cost_usd": 0.87,
+        "trailing_7d_avg_credits": 0.2474,
+        "cumulative_credits_mtd": 1.0308,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-05",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.2238,
+        "cost_usd": 0.67,
+        "trailing_7d_avg_credits": 0.6406,
+        "cumulative_credits_mtd": 2.7864,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-05",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.0865,
+        "cost_usd": 0.26,
+        "trailing_7d_avg_credits": 0.2676,
+        "cumulative_credits_mtd": 1.1567,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-05",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.1544,
+        "cost_usd": 0.46,
+        "trailing_7d_avg_credits": 0.4046,
+        "cumulative_credits_mtd": 1.7727,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-05",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.1299,
+        "cost_usd": 0.39,
+        "trailing_7d_avg_credits": 0.2577,
+        "cumulative_credits_mtd": 1.1607,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-06",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.2473,
+        "cost_usd": 0.74,
+        "trailing_7d_avg_credits": 0.5573,
+        "cumulative_credits_mtd": 3.0337,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-06",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.1074,
+        "cost_usd": 0.32,
+        "trailing_7d_avg_credits": 0.2313,
+        "cumulative_credits_mtd": 1.2641,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-06",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.1619,
+        "cost_usd": 0.49,
+        "trailing_7d_avg_credits": 0.3545,
+        "cumulative_credits_mtd": 1.9346,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-06",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.1127,
+        "cost_usd": 0.34,
+        "trailing_7d_avg_credits": 0.2321,
+        "cumulative_credits_mtd": 1.2734,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-07",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.6277,
+        "cost_usd": 1.88,
+        "trailing_7d_avg_credits": 0.5056,
+        "cumulative_credits_mtd": 3.6614,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-07",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2343,
+        "cost_usd": 0.7,
+        "trailing_7d_avg_credits": 0.2107,
+        "cumulative_credits_mtd": 1.4984,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-07",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.4254,
+        "cost_usd": 1.28,
+        "trailing_7d_avg_credits": 0.3224,
+        "cumulative_credits_mtd": 2.36,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-07",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2939,
+        "cost_usd": 0.88,
+        "trailing_7d_avg_credits": 0.2122,
+        "cumulative_credits_mtd": 1.5673,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-08",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.6902,
+        "cost_usd": 2.07,
+        "trailing_7d_avg_credits": 0.5231,
+        "cumulative_credits_mtd": 4.3516,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-08",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2787,
+        "cost_usd": 0.84,
+        "trailing_7d_avg_credits": 0.2141,
+        "cumulative_credits_mtd": 1.7771,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-08",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.4345,
+        "cost_usd": 1.3,
+        "trailing_7d_avg_credits": 0.3371,
+        "cumulative_credits_mtd": 2.7945,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-08",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2428,
+        "cost_usd": 0.73,
+        "trailing_7d_avg_credits": 0.2239,
+        "cumulative_credits_mtd": 1.8101,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-09",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.7021,
+        "cost_usd": 2.11,
+        "trailing_7d_avg_credits": 0.5386,
+        "cumulative_credits_mtd": 5.0537,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-09",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2473,
+        "cost_usd": 0.74,
+        "trailing_7d_avg_credits": 0.2168,
+        "cumulative_credits_mtd": 2.0244,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-09",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.4112,
+        "cost_usd": 1.23,
+        "trailing_7d_avg_credits": 0.3428,
+        "cumulative_credits_mtd": 3.2057,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-09",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2368,
+        "cost_usd": 0.71,
+        "trailing_7d_avg_credits": 0.2219,
+        "cumulative_credits_mtd": 2.0469,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-10",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.7147,
+        "cost_usd": 2.14,
+        "trailing_7d_avg_credits": 0.5432,
+        "cumulative_credits_mtd": 5.7684,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-10",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2773,
+        "cost_usd": 0.83,
+        "trailing_7d_avg_credits": 0.2091,
+        "cumulative_credits_mtd": 2.3017,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-10",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.3628,
+        "cost_usd": 1.09,
+        "trailing_7d_avg_credits": 0.3401,
+        "cumulative_credits_mtd": 3.5685,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-10",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.242,
+        "cost_usd": 0.73,
+        "trailing_7d_avg_credits": 0.2185,
+        "cumulative_credits_mtd": 2.2889,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-11",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.6114,
+        "cost_usd": 1.83,
+        "trailing_7d_avg_credits": 0.5385,
+        "cumulative_credits_mtd": 6.3798,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-11",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2663,
+        "cost_usd": 0.8,
+        "trailing_7d_avg_credits": 0.2098,
+        "cumulative_credits_mtd": 2.568,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-11",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.3436,
+        "cost_usd": 1.03,
+        "trailing_7d_avg_credits": 0.3343,
+        "cumulative_credits_mtd": 3.9121,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-11",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2323,
+        "cost_usd": 0.7,
+        "trailing_7d_avg_credits": 0.221,
+        "cumulative_credits_mtd": 2.5212,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-12",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.2417,
+        "cost_usd": 0.73,
+        "trailing_7d_avg_credits": 0.5453,
+        "cumulative_credits_mtd": 6.6215,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-12",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.0921,
+        "cost_usd": 0.28,
+        "trailing_7d_avg_credits": 0.214,
+        "cumulative_credits_mtd": 2.6601,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-12",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.1784,
+        "cost_usd": 0.54,
+        "trailing_7d_avg_credits": 0.3277,
+        "cumulative_credits_mtd": 4.0905,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-12",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.1168,
+        "cost_usd": 0.35,
+        "trailing_7d_avg_credits": 0.2129,
+        "cumulative_credits_mtd": 2.638,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-13",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.2589,
+        "cost_usd": 0.78,
+        "trailing_7d_avg_credits": 0.5479,
+        "cumulative_credits_mtd": 6.8804,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-13",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.0944,
+        "cost_usd": 0.28,
+        "trailing_7d_avg_credits": 0.2148,
+        "cumulative_credits_mtd": 2.7545,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-13",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.1621,
+        "cost_usd": 0.49,
+        "trailing_7d_avg_credits": 0.3311,
+        "cumulative_credits_mtd": 4.2526,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-13",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.0999,
+        "cost_usd": 0.3,
+        "trailing_7d_avg_credits": 0.211,
+        "cumulative_credits_mtd": 2.7379,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-14",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.6382,
+        "cost_usd": 1.91,
+        "trailing_7d_avg_credits": 0.5495,
+        "cumulative_credits_mtd": 7.5186,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-14",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2636,
+        "cost_usd": 0.79,
+        "trailing_7d_avg_credits": 0.2129,
+        "cumulative_credits_mtd": 3.0181,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-14",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.4313,
+        "cost_usd": 1.29,
+        "trailing_7d_avg_credits": 0.3311,
+        "cumulative_credits_mtd": 4.6839,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-14",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2416,
+        "cost_usd": 0.72,
+        "trailing_7d_avg_credits": 0.2092,
+        "cumulative_credits_mtd": 2.9795,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-15",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.8163,
+        "cost_usd": 2.45,
+        "trailing_7d_avg_credits": 0.551,
+        "cumulative_credits_mtd": 8.3349,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-15",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.3011,
+        "cost_usd": 0.9,
+        "trailing_7d_avg_credits": 0.2171,
+        "cumulative_credits_mtd": 3.3192,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-15",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.3518,
+        "cost_usd": 1.06,
+        "trailing_7d_avg_credits": 0.332,
+        "cumulative_credits_mtd": 5.0357,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-15",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2692,
+        "cost_usd": 0.81,
+        "trailing_7d_avg_credits": 0.2017,
+        "cumulative_credits_mtd": 3.2487,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-16",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.8484,
+        "cost_usd": 2.55,
+        "trailing_7d_avg_credits": 0.569,
+        "cumulative_credits_mtd": 9.1833,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-16",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2793,
+        "cost_usd": 0.84,
+        "trailing_7d_avg_credits": 0.2203,
+        "cumulative_credits_mtd": 3.5985,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-16",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 1.3442,
+        "cost_usd": 4.03,
+        "trailing_7d_avg_credits": 0.3202,
+        "cumulative_credits_mtd": 6.3799,
+        "is_anomaly": true
+      },
+      {
+        "usage_date": "2026-09-16",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.246,
+        "cost_usd": 0.74,
+        "trailing_7d_avg_credits": 0.2055,
+        "cumulative_credits_mtd": 3.4947,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-17",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.8424,
+        "cost_usd": 2.53,
+        "trailing_7d_avg_credits": 0.5899,
+        "cumulative_credits_mtd": 10.0257,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-17",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2412,
+        "cost_usd": 0.72,
+        "trailing_7d_avg_credits": 0.2249,
+        "cumulative_credits_mtd": 3.8397,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-17",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.4017,
+        "cost_usd": 1.21,
+        "trailing_7d_avg_credits": 0.4535,
+        "cumulative_credits_mtd": 6.7816,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-17",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2442,
+        "cost_usd": 0.73,
+        "trailing_7d_avg_credits": 0.2068,
+        "cumulative_credits_mtd": 3.7389,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-18",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.7119,
+        "cost_usd": 2.14,
+        "trailing_7d_avg_credits": 0.6082,
+        "cumulative_credits_mtd": 10.7376,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-18",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.266,
+        "cost_usd": 0.8,
+        "trailing_7d_avg_credits": 0.2197,
+        "cumulative_credits_mtd": 4.1057,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-18",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.342,
+        "cost_usd": 1.03,
+        "trailing_7d_avg_credits": 0.459,
+        "cumulative_credits_mtd": 7.1236,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-18",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2241,
+        "cost_usd": 0.67,
+        "trailing_7d_avg_credits": 0.2071,
+        "cumulative_credits_mtd": 3.963,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-19",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.281,
+        "cost_usd": 0.84,
+        "trailing_7d_avg_credits": 0.6225,
+        "cumulative_credits_mtd": 11.0186,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-19",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.1109,
+        "cost_usd": 0.33,
+        "trailing_7d_avg_credits": 0.2197,
+        "cumulative_credits_mtd": 4.2166,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-19",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.1472,
+        "cost_usd": 0.44,
+        "trailing_7d_avg_credits": 0.4588,
+        "cumulative_credits_mtd": 7.2708,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-19",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.1239,
+        "cost_usd": 0.37,
+        "trailing_7d_avg_credits": 0.206,
+        "cumulative_credits_mtd": 4.0869,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-20",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.2217,
+        "cost_usd": 0.67,
+        "trailing_7d_avg_credits": 0.6282,
+        "cumulative_credits_mtd": 11.2403,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-20",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.0855,
+        "cost_usd": 0.26,
+        "trailing_7d_avg_credits": 0.2224,
+        "cumulative_credits_mtd": 4.3021,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-20",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.1622,
+        "cost_usd": 0.49,
+        "trailing_7d_avg_credits": 0.4543,
+        "cumulative_credits_mtd": 7.433,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-20",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.102,
+        "cost_usd": 0.31,
+        "trailing_7d_avg_credits": 0.207,
+        "cumulative_credits_mtd": 4.1889,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-21",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.826,
+        "cost_usd": 2.48,
+        "trailing_7d_avg_credits": 0.6228,
+        "cumulative_credits_mtd": 12.0663,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-21",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2657,
+        "cost_usd": 0.8,
+        "trailing_7d_avg_credits": 0.2211,
+        "cumulative_credits_mtd": 4.5678,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-21",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.4336,
+        "cost_usd": 1.3,
+        "trailing_7d_avg_credits": 0.4543,
+        "cumulative_credits_mtd": 7.8666,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-21",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2378,
+        "cost_usd": 0.71,
+        "trailing_7d_avg_credits": 0.2073,
+        "cumulative_credits_mtd": 4.4267,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-22",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.8771,
+        "cost_usd": 2.63,
+        "trailing_7d_avg_credits": 0.6497,
+        "cumulative_credits_mtd": 12.9434,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-22",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2614,
+        "cost_usd": 0.78,
+        "trailing_7d_avg_credits": 0.2214,
+        "cumulative_credits_mtd": 4.8292,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-22",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.3698,
+        "cost_usd": 1.11,
+        "trailing_7d_avg_credits": 0.4547,
+        "cumulative_credits_mtd": 8.2364,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-22",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2504,
+        "cost_usd": 0.75,
+        "trailing_7d_avg_credits": 0.2067,
+        "cumulative_credits_mtd": 4.6771,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-23",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.9048,
+        "cost_usd": 2.71,
+        "trailing_7d_avg_credits": 0.6584,
+        "cumulative_credits_mtd": 13.8482,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-23",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.238,
+        "cost_usd": 0.71,
+        "trailing_7d_avg_credits": 0.2157,
+        "cumulative_credits_mtd": 5.0672,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-23",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.4172,
+        "cost_usd": 1.25,
+        "trailing_7d_avg_credits": 0.4572,
+        "cumulative_credits_mtd": 8.6536,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-23",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2791,
+        "cost_usd": 0.84,
+        "trailing_7d_avg_credits": 0.2041,
+        "cumulative_credits_mtd": 4.9562,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-24",
+        "warehouse_name": "NEXUS_BI_WH",
+        "credits_used": 0.8922,
+        "cost_usd": 2.68,
+        "trailing_7d_avg_credits": 0.6664,
+        "cumulative_credits_mtd": 14.7404,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-24",
+        "warehouse_name": "NEXUS_CI_WH",
+        "credits_used": 0.2624,
+        "cost_usd": 0.79,
+        "trailing_7d_avg_credits": 0.2098,
+        "cumulative_credits_mtd": 5.3296,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-24",
+        "warehouse_name": "NEXUS_DBT_WH",
+        "credits_used": 0.3649,
+        "cost_usd": 1.09,
+        "trailing_7d_avg_credits": 0.3248,
+        "cumulative_credits_mtd": 9.0185,
+        "is_anomaly": false
+      },
+      {
+        "usage_date": "2026-09-24",
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "credits_used": 0.2672,
+        "cost_usd": 0.8,
+        "trailing_7d_avg_credits": 0.2088,
+        "cumulative_credits_mtd": 5.2234,
+        "is_anomaly": false
+      }
+    ],
+    "by_user": [
+      {
+        "warehouse_name": "NEXUS_DBT_WH",
+        "user_name": "SVC_DBT",
+        "role_name": "TRANSFORM_ROLE",
+        "query_count": 887,
+        "credits_attributed": 7.3087,
+        "cost_usd": 21.93,
+        "pct_of_warehouse_attributed": 93.1,
+        "credits_per_1k_queries": 8.2398
+      },
+      {
+        "warehouse_name": "NEXUS_BI_WH",
+        "user_name": "SVC_POWERBI",
+        "role_name": "BI_READER_ROLE",
+        "query_count": 6413,
+        "credits_attributed": 7.1172,
+        "cost_usd": 21.35,
+        "pct_of_warehouse_attributed": 58.2,
+        "credits_per_1k_queries": 1.1098
+      },
+      {
+        "warehouse_name": "NEXUS_CI_WH",
+        "user_name": "SVC_GITHUB_CI",
+        "role_name": "CI_ROLE",
+        "query_count": 977,
+        "credits_attributed": 4.6199,
+        "cost_usd": 13.86,
+        "pct_of_warehouse_attributed": 100.0,
+        "credits_per_1k_queries": 4.7287
+      },
+      {
+        "warehouse_name": "NEXUS_LOAD_WH",
+        "user_name": "SVC_INGEST",
+        "role_name": "INGEST_ROLE",
+        "query_count": 732,
+        "credits_attributed": 4.5096,
+        "cost_usd": 13.53,
+        "pct_of_warehouse_attributed": 100.0,
+        "credits_per_1k_queries": 6.1607
+      },
+      {
+        "warehouse_name": "NEXUS_BI_WH",
+        "user_name": "SVC_STREAMLIT",
+        "role_name": "APP_READER_ROLE",
+        "query_count": 2957,
+        "credits_attributed": 3.2808,
+        "cost_usd": 9.84,
+        "pct_of_warehouse_attributed": 26.8,
+        "credits_per_1k_queries": 1.1095
+      },
+      {
+        "warehouse_name": "NEXUS_BI_WH",
+        "user_name": "PARTNER_OPS_ANALYST",
+        "role_name": "PARTNER_ANALYST_ROLE",
+        "query_count": 1650,
+        "credits_attributed": 1.8326,
+        "cost_usd": 5.5,
+        "pct_of_warehouse_attributed": 15.0,
+        "credits_per_1k_queries": 1.1107
+      },
+      {
+        "warehouse_name": "NEXUS_DBT_WH",
+        "user_name": "VIM_ANALYTICS_ENG",
+        "role_name": "ANALYTICS_ENG_ROLE",
+        "query_count": 67,
+        "credits_attributed": 0.5414,
+        "cost_usd": 1.62,
+        "pct_of_warehouse_attributed": 6.9,
+        "credits_per_1k_queries": 8.0806
+      }
+    ],
+    "by_model": [
+      {
+        "model_name": "int_title_publication_features",
+        "runs": 24,
+        "avg_execution_seconds": 44.1,
+        "max_execution_seconds": 232.87,
+        "credits_allocated_mtd": 1.7495,
+        "cost_usd_mtd": 5.25,
+        "pct_of_dbt_cost": 19.4
+      },
+      {
+        "model_name": "mart_partner_statistical_diagnostics",
+        "runs": 24,
+        "avg_execution_seconds": 33.54,
+        "max_execution_seconds": 164.86,
+        "credits_allocated_mtd": 1.355,
+        "cost_usd_mtd": 4.07,
+        "pct_of_dbt_cost": 15.0
+      },
+      {
+        "model_name": "mart_partner_publishing",
+        "runs": 24,
+        "avg_execution_seconds": 21.57,
+        "max_execution_seconds": 105.3,
+        "credits_allocated_mtd": 0.879,
+        "cost_usd_mtd": 2.64,
+        "pct_of_dbt_cost": 9.7
+      },
+      {
+        "model_name": "fct_submission",
+        "runs": 24,
+        "avg_execution_seconds": 19.8,
+        "max_execution_seconds": 89.65,
+        "credits_allocated_mtd": 0.8119,
+        "cost_usd_mtd": 2.44,
+        "pct_of_dbt_cost": 9.0
+      },
+      {
+        "model_name": "mart_resubmission_cost",
+        "runs": 24,
+        "avg_execution_seconds": 16.32,
+        "max_execution_seconds": 66.99,
+        "credits_allocated_mtd": 0.6677,
+        "cost_usd_mtd": 2.0,
+        "pct_of_dbt_cost": 7.4
+      },
+      {
+        "model_name": "int_title_outcomes",
+        "runs": 24,
+        "avg_execution_seconds": 15.86,
+        "max_execution_seconds": 72.38,
+        "credits_allocated_mtd": 0.6407,
+        "cost_usd_mtd": 1.92,
+        "pct_of_dbt_cost": 7.1
+      },
+      {
+        "model_name": "mart_workflow_did_demo",
+        "runs": 24,
+        "avg_execution_seconds": 13.67,
+        "max_execution_seconds": 69.25,
+        "credits_allocated_mtd": 0.5495,
+        "cost_usd_mtd": 1.65,
+        "pct_of_dbt_cost": 6.1
+      },
+      {
+        "model_name": "mart_partner_health",
+        "runs": 24,
+        "avg_execution_seconds": 8.8,
+        "max_execution_seconds": 44.86,
+        "credits_allocated_mtd": 0.3585,
+        "cost_usd_mtd": 1.08,
+        "pct_of_dbt_cost": 4.0
+      },
+      {
+        "model_name": "mart_title_time_to_shelf",
+        "runs": 24,
+        "avg_execution_seconds": 7.03,
+        "max_execution_seconds": 35.4,
+        "credits_allocated_mtd": 0.2852,
+        "cost_usd_mtd": 0.86,
+        "pct_of_dbt_cost": 3.2
+      },
+      {
+        "model_name": "dim_title",
+        "runs": 24,
+        "avg_execution_seconds": 6.86,
+        "max_execution_seconds": 36.96,
+        "credits_allocated_mtd": 0.276,
+        "cost_usd_mtd": 0.83,
+        "pct_of_dbt_cost": 3.1
+      },
+      {
+        "model_name": "stg_publications",
+        "runs": 24,
+        "avg_execution_seconds": 6.72,
+        "max_execution_seconds": 30.85,
+        "credits_allocated_mtd": 0.2727,
+        "cost_usd_mtd": 0.82,
+        "pct_of_dbt_cost": 3.0
+      },
+      {
+        "model_name": "partner_tier_history",
+        "runs": 24,
+        "avg_execution_seconds": 5.67,
+        "max_execution_seconds": 30.59,
+        "credits_allocated_mtd": 0.2295,
+        "cost_usd_mtd": 0.69,
+        "pct_of_dbt_cost": 2.5
+      },
+      {
+        "model_name": "int_partner_review_features",
+        "runs": 24,
+        "avg_execution_seconds": 5.45,
+        "max_execution_seconds": 27.97,
+        "credits_allocated_mtd": 0.2194,
+        "cost_usd_mtd": 0.66,
+        "pct_of_dbt_cost": 2.4
+      },
+      {
+        "model_name": "int_submission_lifecycle",
+        "runs": 24,
+        "avg_execution_seconds": 3.64,
+        "max_execution_seconds": 17.28,
+        "credits_allocated_mtd": 0.147,
+        "cost_usd_mtd": 0.44,
+        "pct_of_dbt_cost": 1.6
+      },
+      {
+        "model_name": "stg_partners",
+        "runs": 24,
+        "avg_execution_seconds": 3.47,
+        "max_execution_seconds": 15.5,
+        "credits_allocated_mtd": 0.1407,
+        "cost_usd_mtd": 0.42,
+        "pct_of_dbt_cost": 1.6
+      },
+      {
+        "model_name": "dim_partner",
+        "runs": 24,
+        "avg_execution_seconds": 3.32,
+        "max_execution_seconds": 14.02,
+        "credits_allocated_mtd": 0.1355,
+        "cost_usd_mtd": 0.41,
+        "pct_of_dbt_cost": 1.5
+      },
+      {
+        "model_name": "stg_titles",
+        "runs": 24,
+        "avg_execution_seconds": 2.84,
+        "max_execution_seconds": 12.43,
+        "credits_allocated_mtd": 0.1142,
+        "cost_usd_mtd": 0.34,
+        "pct_of_dbt_cost": 1.3
+      },
+      {
+        "model_name": "stg_submissions",
+        "runs": 24,
+        "avg_execution_seconds": 2.63,
+        "max_execution_seconds": 11.05,
+        "credits_allocated_mtd": 0.1076,
+        "cost_usd_mtd": 0.32,
+        "pct_of_dbt_cost": 1.2
+      },
+      {
+        "model_name": "int_partner_tier_asof_submission",
+        "runs": 24,
+        "avg_execution_seconds": 1.94,
+        "max_execution_seconds": 9.03,
+        "credits_allocated_mtd": 0.0789,
+        "cost_usd_mtd": 0.24,
+        "pct_of_dbt_cost": 0.9
+      }
+    ]
+  },
+  "lineage": {
+    "nodes": [
+      {
+        "id": "seed.nexus_partner_analytics.hypothetical_workflow_weeks",
+        "name": "hypothetical_workflow_weeks",
+        "type": "seed",
+        "layer": "seed",
+        "depth": 0,
+        "description": "Separate invented cohort rates for teaching difference-in-differences. These are not PlayStation, Lifepal, or six-title operational data and carry no sampling uncertainty estimate.",
+        "group": null,
+        "owner": null,
+        "access": null,
+        "materialized": "seed",
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/seeds/hypothetical_workflow_weeks.csv"
+      },
+      {
+        "id": "seed.nexus_partner_analytics.platform_dbt_model_runs",
+        "name": "platform_dbt_model_runs",
+        "type": "seed",
+        "layer": "seed",
+        "depth": 0,
+        "description": "Invented daily dbt run history, one row per model per scheduled run, as a dbt on-run-end hook would log it.",
+        "group": null,
+        "owner": null,
+        "access": null,
+        "materialized": "seed",
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/seeds/platform_dbt_model_runs.csv"
+      },
+      {
+        "id": "seed.nexus_partner_analytics.platform_query_attribution",
+        "name": "platform_query_attribution",
+        "type": "seed",
+        "layer": "seed",
+        "depth": 0,
+        "description": "Invented per-user, per-day attributed credits shaped like ACCOUNT_USAGE.QUERY_ATTRIBUTION_HISTORY. Each workload runs under its own service user.",
+        "group": null,
+        "owner": null,
+        "access": null,
+        "materialized": "seed",
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/seeds/platform_query_attribution.csv"
+      },
+      {
+        "id": "seed.nexus_partner_analytics.platform_warehouse_budget",
+        "name": "platform_warehouse_budget",
+        "type": "seed",
+        "layer": "seed",
+        "depth": 0,
+        "description": "Invented resource-monitor quota per warehouse, mirroring a Snowflake CREDIT_QUOTA assignment. One warehouse per workload.",
+        "group": null,
+        "owner": null,
+        "access": null,
+        "materialized": "seed",
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/seeds/platform_warehouse_budget.csv"
+      },
+      {
+        "id": "seed.nexus_partner_analytics.platform_warehouse_metering",
+        "name": "platform_warehouse_metering",
+        "type": "seed",
+        "layer": "seed",
+        "depth": 0,
+        "description": "Invented daily credits per warehouse for September 2026, shaped like ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY. Includes one backfill spike on NEXUS_DBT_WH.",
+        "group": null,
+        "owner": null,
+        "access": null,
+        "materialized": "seed",
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/seeds/platform_warehouse_metering.csv"
+      },
+      {
+        "id": "source.nexus_partner_analytics.partner_platform.raw_partners",
+        "name": "partner_platform.raw_partners",
+        "type": "source",
+        "layer": "source",
+        "depth": 0,
+        "description": "One current row per synthetic partner. Partner name, region and current tier depend on partner_id rather than being copied into title or event rows.",
+        "group": null,
+        "owner": null,
+        "access": null,
+        "materialized": null,
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/sources.yml"
+      },
+      {
+        "id": "source.nexus_partner_analytics.partner_platform.raw_publications",
+        "name": "partner_platform.raw_publications",
+        "type": "source",
+        "layer": "source",
+        "depth": 0,
+        "description": "One storefront publication event per row. Storefront region depends on publication_id; title and partner attributes are referenced by key.",
+        "group": null,
+        "owner": null,
+        "access": null,
+        "materialized": null,
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/sources.yml"
+      },
+      {
+        "id": "source.nexus_partner_analytics.partner_platform.raw_submissions",
+        "name": "partner_platform.raw_submissions",
+        "type": "source",
+        "layer": "source",
+        "depth": 0,
+        "description": "One row per review attempt; status, build version and return reason depend on submission_id, while title attributes stay in raw_titles. A return reason is recorded only for rejected attempts.",
+        "group": null,
+        "owner": null,
+        "access": null,
+        "materialized": null,
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/sources.yml"
+      },
+      {
+        "id": "source.nexus_partner_analytics.partner_platform.raw_titles",
+        "name": "partner_platform.raw_titles",
+        "type": "source",
+        "layer": "source",
+        "depth": 0,
+        "description": "One current row per synthetic title. partner_id is a foreign key; partner attributes stay in raw_partners.",
+        "group": null,
+        "owner": null,
+        "access": null,
+        "materialized": null,
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/sources.yml"
+      },
+      {
+        "id": "model.nexus_partner_analytics.cost_warehouse_daily",
+        "name": "cost_warehouse_daily",
+        "type": "model",
+        "layer": "platform",
+        "depth": 1,
+        "description": "Daily credits and cost per warehouse up to var('cost_as_of_date'). Compute and cloud-services credits are kept apart, as Snowflake bills them.",
+        "group": "platform_ops",
+        "owner": "Platform engineering (portfolio example)",
+        "access": "protected",
+        "materialized": "view",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/platform/cost_warehouse_daily.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.mart_cost_by_user",
+        "name": "mart_cost_by_user",
+        "type": "model",
+        "layer": "platform",
+        "depth": 1,
+        "description": "Month-to-date credits attributed to each service user and role. Attribution excludes idle time, so it is always below metered compute.",
+        "group": "platform_ops",
+        "owner": "Platform engineering (portfolio example)",
+        "access": "public",
+        "materialized": "table",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/platform/mart_cost_by_user.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.mart_workflow_did_demo",
+        "name": "mart_workflow_did_demo",
+        "type": "model",
+        "layer": "marts",
+        "depth": 1,
+        "description": "Difference-in-differences arithmetic over a separate, entirely invented two-cohort weekly fixture.",
+        "group": "partner_analytics",
+        "owner": "Partner analytics (portfolio example)",
+        "access": "protected",
+        "materialized": "table",
+        "classification": "public",
+        "contract_enforced": false,
+        "cost_usd_mtd": 1.65,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_workflow_did_demo.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.stg_partners",
+        "name": "stg_partners",
+        "type": "model",
+        "layer": "staging",
+        "depth": 1,
+        "description": "",
+        "group": "data_platform",
+        "owner": "Data platform (portfolio example)",
+        "access": "protected",
+        "materialized": "view",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": 0.42,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/stg_partners.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.stg_publications",
+        "name": "stg_publications",
+        "type": "model",
+        "layer": "staging",
+        "depth": 1,
+        "description": "",
+        "group": "data_platform",
+        "owner": "Data platform (portfolio example)",
+        "access": "protected",
+        "materialized": "view",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": 0.82,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/stg_publications.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.stg_submissions",
+        "name": "stg_submissions",
+        "type": "model",
+        "layer": "staging",
+        "depth": 1,
+        "description": "",
+        "group": "data_platform",
+        "owner": "Data platform (portfolio example)",
+        "access": "protected",
+        "materialized": "view",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": 0.32,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/stg_submissions.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.stg_titles",
+        "name": "stg_titles",
+        "type": "model",
+        "layer": "staging",
+        "depth": 1,
+        "description": "",
+        "group": "data_platform",
+        "owner": "Data platform (portfolio example)",
+        "access": "protected",
+        "materialized": "view",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": 0.34,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/stg_titles.sql"
+      },
+      {
+        "id": "snapshot.nexus_partner_analytics.partner_tier_history",
+        "name": "partner_tier_history",
+        "type": "snapshot",
+        "layer": "snapshot",
+        "depth": 1,
+        "description": "",
+        "group": null,
+        "owner": null,
+        "access": null,
+        "materialized": "snapshot",
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": 0.69,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/snapshots/partner_tier_history.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.dim_partner",
+        "name": "dim_partner",
+        "type": "model",
+        "layer": "marts",
+        "depth": 2,
+        "description": "One row per partner; a synthetic current-state dimension.",
+        "group": "partner_analytics",
+        "owner": "Partner analytics (portfolio example)",
+        "access": "public",
+        "materialized": "table",
+        "classification": "partner_confidential",
+        "contract_enforced": true,
+        "cost_usd_mtd": 0.41,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/dim_partner.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.dim_title",
+        "name": "dim_title",
+        "type": "model",
+        "layer": "marts",
+        "depth": 2,
+        "description": "One row per game or content title.",
+        "group": "partner_analytics",
+        "owner": "Partner analytics (portfolio example)",
+        "access": "public",
+        "materialized": "table",
+        "classification": "partner_confidential",
+        "contract_enforced": false,
+        "cost_usd_mtd": 0.83,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/dim_title.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.int_submission_lifecycle",
+        "name": "int_submission_lifecycle",
+        "type": "model",
+        "layer": "intermediate",
+        "depth": 2,
+        "description": "Review attempts ordered within each title. One row per submission.",
+        "group": "data_platform",
+        "owner": "Data platform (portfolio example)",
+        "access": "protected",
+        "materialized": "view",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": 0.44,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_submission_lifecycle.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.mart_cost_budget_vs_actual",
+        "name": "mart_cost_budget_vs_actual",
+        "type": "model",
+        "layer": "platform",
+        "depth": 2,
+        "description": "One row per warehouse. Month-to-date credits against the resource-monitor quota, a straight-line forecast to month end, and a status that follows the monitor's notify and suspend triggers.",
+        "group": "platform_ops",
+        "owner": "Platform engineering (portfolio example)",
+        "access": "public",
+        "materialized": "table",
+        "classification": "internal",
+        "contract_enforced": true,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/platform/mart_cost_budget_vs_actual.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.mart_cost_by_model",
+        "name": "mart_cost_by_model",
+        "type": "model",
+        "layer": "platform",
+        "depth": 2,
+        "description": "Month-to-date dbt warehouse credits allocated to each model by its share of that day's execution time. The allocation reconciles to the metered NEXUS_DBT_WH total.",
+        "group": "platform_ops",
+        "owner": "Platform engineering (portfolio example)",
+        "access": "public",
+        "materialized": "table",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/platform/mart_cost_by_model.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.mart_cost_daily",
+        "name": "mart_cost_daily",
+        "type": "model",
+        "layer": "platform",
+        "depth": 2,
+        "description": "One row per warehouse per day with cumulative month-to-date credits and a trailing seven-day baseline. Days above var('cost_anomaly_ratio') times the baseline are flagged.",
+        "group": "platform_ops",
+        "owner": "Platform engineering (portfolio example)",
+        "access": "public",
+        "materialized": "table",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/platform/mart_cost_daily.sql"
+      },
+      {
+        "id": "exposure.nexus_partner_analytics.platform_cost_and_lineage",
+        "name": "platform_cost_and_lineage",
+        "type": "exposure",
+        "layer": "exposure",
+        "depth": 3,
+        "description": "The platform page of this site. Budget against actual, daily burn and anomalies, cost by user and by dbt model, and the dbt lineage graph. All cost data is invented.",
+        "group": null,
+        "owner": "Platform engineering (portfolio example)",
+        "access": null,
+        "materialized": null,
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/platform/properties.yml"
+      },
+      {
+        "id": "model.nexus_partner_analytics.fct_submission",
+        "name": "fct_submission",
+        "type": "model",
+        "layer": "marts",
+        "depth": 3,
+        "description": "One row per publishing review attempt.",
+        "group": "partner_analytics",
+        "owner": "Partner analytics (portfolio example)",
+        "access": "public",
+        "materialized": "table",
+        "classification": "partner_confidential",
+        "contract_enforced": true,
+        "cost_usd_mtd": 2.44,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/fct_submission.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.int_partner_review_features",
+        "name": "int_partner_review_features",
+        "type": "model",
+        "layer": "intermediate",
+        "depth": 3,
+        "description": "One row per submission with partner review history available at submission time. The current review duration remains the observed label.",
+        "group": "data_platform",
+        "owner": "Data platform (portfolio example)",
+        "access": "protected",
+        "materialized": "view",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": 0.66,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_partner_review_features.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.int_partner_tier_asof_submission",
+        "name": "int_partner_tier_asof_submission",
+        "type": "model",
+        "layer": "intermediate",
+        "depth": 3,
+        "description": "Partner tier valid at submission time; events before the first snapshot capture remain unknown.",
+        "group": "data_platform",
+        "owner": "Data platform (portfolio example)",
+        "access": "protected",
+        "materialized": "view",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": 0.24,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_partner_tier_asof_submission.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.int_title_outcomes",
+        "name": "int_title_outcomes",
+        "type": "model",
+        "layer": "intermediate",
+        "depth": 3,
+        "description": "One row per title; submission and publication streams are aggregated separately before joining to prevent fanout.",
+        "group": "data_platform",
+        "owner": "Data platform (portfolio example)",
+        "access": "protected",
+        "materialized": "view",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": 1.92,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_title_outcomes.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.mart_resubmission_cost",
+        "name": "mart_resubmission_cost",
+        "type": "model",
+        "layer": "marts",
+        "depth": 3,
+        "description": "One row per return reason. Rejected attempts, reviewer hours spent on them, and the days each rejection added before the partner resubmitted.",
+        "group": "partner_analytics",
+        "owner": "Partner analytics (portfolio example)",
+        "access": "public",
+        "materialized": "table",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": 2.0,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_resubmission_cost.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.int_title_publication_features",
+        "name": "int_title_publication_features",
+        "type": "model",
+        "layer": "intermediate",
+        "depth": 4,
+        "description": "One row per approved title. Partner history is calculated separately at first submission and at approval, using only titles published strictly before each point. Current publication remains an observed outcome.",
+        "group": "data_platform",
+        "owner": "Data platform (portfolio example)",
+        "access": "protected",
+        "materialized": "view",
+        "classification": "internal",
+        "contract_enforced": false,
+        "cost_usd_mtd": 5.25,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_title_publication_features.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.mart_partner_publishing",
+        "name": "mart_partner_publishing",
+        "type": "model",
+        "layer": "marts",
+        "depth": 4,
+        "description": "Partner-level publishing health. All title outcomes are combined at title grain before this aggregation.",
+        "group": "partner_analytics",
+        "owner": "Partner analytics (portfolio example)",
+        "access": "public",
+        "materialized": "table",
+        "classification": "partner_confidential",
+        "contract_enforced": true,
+        "cost_usd_mtd": 2.64,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_partner_publishing.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.mart_partner_statistical_diagnostics",
+        "name": "mart_partner_statistical_diagnostics",
+        "type": "model",
+        "layer": "marts",
+        "depth": 4,
+        "description": "Descriptive partner and overall summaries; Wilson calculations are teaching examples, not intervals inferred from a random sample.",
+        "group": "partner_analytics",
+        "owner": "Partner analytics (portfolio example)",
+        "access": "public",
+        "materialized": "table",
+        "classification": "partner_confidential",
+        "contract_enforced": false,
+        "cost_usd_mtd": 4.07,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_partner_statistical_diagnostics.sql"
+      },
+      {
+        "id": "model.nexus_partner_analytics.mart_title_time_to_shelf",
+        "name": "mart_title_time_to_shelf",
+        "type": "model",
+        "layer": "marts",
+        "depth": 4,
+        "description": "One row per title at a fixed clock, var('opportunity_as_of_date'). Shows whether an approved title has reached a storefront, how long it has waited and how much slack remains before its planned release. Events after the clock are treated as unobserved.",
+        "group": "partner_analytics",
+        "owner": "Partner analytics (portfolio example)",
+        "access": "public",
+        "materialized": "table",
+        "classification": "partner_confidential",
+        "contract_enforced": false,
+        "cost_usd_mtd": 0.86,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_title_time_to_shelf.sql"
+      },
+      {
+        "id": "exposure.nexus_partner_analytics.partner_release_health",
+        "name": "partner_release_health",
+        "type": "exposure",
+        "layer": "exposure",
+        "depth": 5,
+        "description": "A possible partner operations dashboard using the governed publishing mart; no PlayStation dashboard has been deployed.",
+        "group": null,
+        "owner": "VIM portfolio example",
+        "access": null,
+        "materialized": null,
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/properties.yml"
+      },
+      {
+        "id": "model.nexus_partner_analytics.mart_partner_health",
+        "name": "mart_partner_health",
+        "type": "model",
+        "layer": "marts",
+        "depth": 5,
+        "description": "One row per partner. An illustrative health score in [0, 1] from three equally weighted components (Wilson lower bound on first-pass approval, recency, shelf conversion). Weights are a discussion starting point, not a validated model; low-sample partners are flagged and should not be ranked.",
+        "group": "partner_analytics",
+        "owner": "Partner analytics (portfolio example)",
+        "access": "public",
+        "materialized": "table",
+        "classification": "partner_confidential",
+        "contract_enforced": false,
+        "cost_usd_mtd": 1.08,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_partner_health.sql"
+      },
+      {
+        "id": "exposure.nexus_partner_analytics.partner_opportunity",
+        "name": "partner_opportunity",
+        "type": "exposure",
+        "layer": "exposure",
+        "depth": 6,
+        "description": "A possible view for partner managers covering titles waiting for the shelf, the cost of resubmissions by return reason, and partner health. Illustrative only; no PlayStation dashboard has been deployed.",
+        "group": null,
+        "owner": "VIM portfolio example",
+        "access": null,
+        "materialized": null,
+        "classification": null,
+        "contract_enforced": false,
+        "cost_usd_mtd": null,
+        "url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/properties.yml"
+      }
+    ],
+    "edges": [
+      {
+        "from": "model.nexus_partner_analytics.cost_warehouse_daily",
+        "to": "model.nexus_partner_analytics.mart_cost_budget_vs_actual"
+      },
+      {
+        "from": "model.nexus_partner_analytics.cost_warehouse_daily",
+        "to": "model.nexus_partner_analytics.mart_cost_by_model"
+      },
+      {
+        "from": "model.nexus_partner_analytics.cost_warehouse_daily",
+        "to": "model.nexus_partner_analytics.mart_cost_daily"
+      },
+      {
+        "from": "model.nexus_partner_analytics.dim_partner",
+        "to": "model.nexus_partner_analytics.mart_partner_health"
+      },
+      {
+        "from": "model.nexus_partner_analytics.dim_partner",
+        "to": "model.nexus_partner_analytics.mart_partner_publishing"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_partner_tier_asof_submission",
+        "to": "model.nexus_partner_analytics.mart_partner_statistical_diagnostics"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_submission_lifecycle",
+        "to": "model.nexus_partner_analytics.fct_submission"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_submission_lifecycle",
+        "to": "model.nexus_partner_analytics.int_partner_review_features"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_submission_lifecycle",
+        "to": "model.nexus_partner_analytics.int_partner_tier_asof_submission"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_submission_lifecycle",
+        "to": "model.nexus_partner_analytics.int_title_outcomes"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_submission_lifecycle",
+        "to": "model.nexus_partner_analytics.int_title_publication_features"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_submission_lifecycle",
+        "to": "model.nexus_partner_analytics.mart_partner_health"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_submission_lifecycle",
+        "to": "model.nexus_partner_analytics.mart_partner_statistical_diagnostics"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_submission_lifecycle",
+        "to": "model.nexus_partner_analytics.mart_resubmission_cost"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_submission_lifecycle",
+        "to": "model.nexus_partner_analytics.mart_title_time_to_shelf"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_title_outcomes",
+        "to": "model.nexus_partner_analytics.int_title_publication_features"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_title_outcomes",
+        "to": "model.nexus_partner_analytics.mart_partner_health"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_title_outcomes",
+        "to": "model.nexus_partner_analytics.mart_partner_publishing"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_title_outcomes",
+        "to": "model.nexus_partner_analytics.mart_partner_statistical_diagnostics"
+      },
+      {
+        "from": "model.nexus_partner_analytics.int_title_outcomes",
+        "to": "model.nexus_partner_analytics.mart_title_time_to_shelf"
+      },
+      {
+        "from": "model.nexus_partner_analytics.mart_cost_budget_vs_actual",
+        "to": "exposure.nexus_partner_analytics.platform_cost_and_lineage"
+      },
+      {
+        "from": "model.nexus_partner_analytics.mart_cost_by_model",
+        "to": "exposure.nexus_partner_analytics.platform_cost_and_lineage"
+      },
+      {
+        "from": "model.nexus_partner_analytics.mart_cost_by_user",
+        "to": "exposure.nexus_partner_analytics.platform_cost_and_lineage"
+      },
+      {
+        "from": "model.nexus_partner_analytics.mart_cost_daily",
+        "to": "exposure.nexus_partner_analytics.platform_cost_and_lineage"
+      },
+      {
+        "from": "model.nexus_partner_analytics.mart_partner_health",
+        "to": "exposure.nexus_partner_analytics.partner_opportunity"
+      },
+      {
+        "from": "model.nexus_partner_analytics.mart_partner_publishing",
+        "to": "exposure.nexus_partner_analytics.partner_release_health"
+      },
+      {
+        "from": "model.nexus_partner_analytics.mart_resubmission_cost",
+        "to": "exposure.nexus_partner_analytics.partner_opportunity"
+      },
+      {
+        "from": "model.nexus_partner_analytics.mart_title_time_to_shelf",
+        "to": "exposure.nexus_partner_analytics.partner_opportunity"
+      },
+      {
+        "from": "model.nexus_partner_analytics.mart_title_time_to_shelf",
+        "to": "model.nexus_partner_analytics.mart_partner_health"
+      },
+      {
+        "from": "model.nexus_partner_analytics.stg_partners",
+        "to": "model.nexus_partner_analytics.dim_partner"
+      },
+      {
+        "from": "model.nexus_partner_analytics.stg_publications",
+        "to": "model.nexus_partner_analytics.int_title_outcomes"
+      },
+      {
+        "from": "model.nexus_partner_analytics.stg_submissions",
+        "to": "model.nexus_partner_analytics.int_submission_lifecycle"
+      },
+      {
+        "from": "model.nexus_partner_analytics.stg_titles",
+        "to": "model.nexus_partner_analytics.dim_title"
+      },
+      {
+        "from": "model.nexus_partner_analytics.stg_titles",
+        "to": "model.nexus_partner_analytics.int_submission_lifecycle"
+      },
+      {
+        "from": "model.nexus_partner_analytics.stg_titles",
+        "to": "model.nexus_partner_analytics.int_title_outcomes"
+      },
+      {
+        "from": "model.nexus_partner_analytics.stg_titles",
+        "to": "model.nexus_partner_analytics.mart_title_time_to_shelf"
+      },
+      {
+        "from": "seed.nexus_partner_analytics.hypothetical_workflow_weeks",
+        "to": "model.nexus_partner_analytics.mart_workflow_did_demo"
+      },
+      {
+        "from": "seed.nexus_partner_analytics.platform_dbt_model_runs",
+        "to": "model.nexus_partner_analytics.mart_cost_by_model"
+      },
+      {
+        "from": "seed.nexus_partner_analytics.platform_query_attribution",
+        "to": "model.nexus_partner_analytics.mart_cost_by_user"
+      },
+      {
+        "from": "seed.nexus_partner_analytics.platform_warehouse_budget",
+        "to": "model.nexus_partner_analytics.cost_warehouse_daily"
+      },
+      {
+        "from": "seed.nexus_partner_analytics.platform_warehouse_budget",
+        "to": "model.nexus_partner_analytics.mart_cost_budget_vs_actual"
+      },
+      {
+        "from": "seed.nexus_partner_analytics.platform_warehouse_metering",
+        "to": "model.nexus_partner_analytics.cost_warehouse_daily"
+      },
+      {
+        "from": "snapshot.nexus_partner_analytics.partner_tier_history",
+        "to": "model.nexus_partner_analytics.int_partner_tier_asof_submission"
+      },
+      {
+        "from": "source.nexus_partner_analytics.partner_platform.raw_partners",
+        "to": "model.nexus_partner_analytics.stg_partners"
+      },
+      {
+        "from": "source.nexus_partner_analytics.partner_platform.raw_partners",
+        "to": "snapshot.nexus_partner_analytics.partner_tier_history"
+      },
+      {
+        "from": "source.nexus_partner_analytics.partner_platform.raw_publications",
+        "to": "model.nexus_partner_analytics.stg_publications"
+      },
+      {
+        "from": "source.nexus_partner_analytics.partner_platform.raw_submissions",
+        "to": "model.nexus_partner_analytics.stg_submissions"
+      },
+      {
+        "from": "source.nexus_partner_analytics.partner_platform.raw_titles",
+        "to": "model.nexus_partner_analytics.stg_titles"
+      }
+    ]
+  }
+}

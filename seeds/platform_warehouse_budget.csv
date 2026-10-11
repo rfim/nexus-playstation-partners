@@ -1,0 +1,5 @@
+warehouse_name,resource_monitor,credit_quota,frequency,workload
+NEXUS_LOAD_WH,MON_NEXUS_LOAD,10,MONTHLY,Ingestion
+NEXUS_DBT_WH,MON_NEXUS_DBT,15,MONTHLY,dbt transforms
+NEXUS_BI_WH,MON_NEXUS_BI,15,MONTHLY,Reporting / BI
+NEXUS_CI_WH,MON_NEXUS_CI,10,MONTHLY,CI/CD

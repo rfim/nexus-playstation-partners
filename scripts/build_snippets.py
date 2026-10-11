@@ -33,6 +33,14 @@ ITEMS = {
     "tests": ("Fanout assertion", "tests/assert_no_title_fanout.sql", "sql", "A singular dbt test fails if the one-row-per-title model changes its grain."),
     "exposure": ("Dashboard exposure", "models/marts/properties.yml", "yaml", "The dbt exposure links a proposed partner dashboard to its upstream mart."),
     "ci": ("Build on every change", ".github/workflows/ci.yml", "yaml", "GitHub Actions runs dbt build and checks generated site evidence."),
+    "groups": ("Ownership groups", "models/groups.yml", "yaml", "Two dbt groups own every model; dbt_project.yml assigns each layer a group, an access level and a default classification."),
+    "contract": ("Enforced contracts", "models/marts/properties.yml", "yaml", "dim_partner, fct_submission and mart_partner_publishing declare column names, types and constraints; dbt refuses to build a model that drifts from its contract."),
+    "costBudget": ("Budget against actual", "models/platform/mart_cost_budget_vs_actual.sql", "sql", "Month-to-date credits against each resource-monitor quota, a run-rate forecast and a status that follows the monitor's triggers."),
+    "costByModel": ("Cost by dbt model", "models/platform/mart_cost_by_model.sql", "sql", "Each day's dbt warehouse credits split across that day's model runs by execution time; a singular test reconciles the total."),
+    "costReconcile": ("Allocation reconciles", "tests/assert_cost_model_allocation_reconciles.sql", "sql", "Fails the build if allocated model credits drift from the metered dbt warehouse total."),
+    "snowflakeCost": ("Snowflake translation", "docs/snowflake_cost_governance.sql", "sql", "Illustrative production SQL: warehouses, resource monitors and the ACCOUNT_USAGE views the seeds stand in for."),
+    "platformExport": ("Lineage export and rules", "scripts/export_platform.py", "python", "Reads every ref() and source() from the dbt manifest and fails CI if a model reads nothing traceable or a declared input is unused."),
+    "governanceExport": ("Governance export and rules", "scripts/export_governance.py", "python", "Reads the dbt manifest, writes assets/governance.json and fails CI when a model lacks an owner or classification, or a dashboard reads a non-public model."),
 }
 
 

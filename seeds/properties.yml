@@ -14,3 +14,32 @@ seeds:
         data_tests: [not_null]
       - name: first_pass_rate_pct
         data_tests: [not_null]
+  - name: platform_warehouse_budget
+    description: Invented resource-monitor quota per warehouse, mirroring a Snowflake CREDIT_QUOTA assignment. One warehouse per workload.
+    columns:
+      - name: warehouse_name
+        data_tests: [unique, not_null]
+      - name: credit_quota
+        data_tests: [not_null, non_negative]
+  - name: platform_warehouse_metering
+    description: Invented daily credits per warehouse for September 2026, shaped like ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY. Includes one backfill spike on NEXUS_DBT_WH.
+    columns:
+      - name: warehouse_name
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('platform_warehouse_budget')
+                field: warehouse_name
+      - name: credits_used_compute
+        data_tests: [not_null, non_negative]
+  - name: platform_query_attribution
+    description: Invented per-user, per-day attributed credits shaped like ACCOUNT_USAGE.QUERY_ATTRIBUTION_HISTORY. Each workload runs under its own service user.
+    columns:
+      - name: credits_attributed
+        data_tests: [not_null, non_negative]
+  - name: platform_dbt_model_runs
+    description: Invented daily dbt run history, one row per model per scheduled run, as a dbt on-run-end hook would log it.
+    columns:
+      - name: execution_seconds
+        data_tests: [not_null, non_negative]

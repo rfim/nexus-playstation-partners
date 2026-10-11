@@ -1,0 +1,83 @@
+version: 2
+
+models:
+  - name: cost_warehouse_daily
+    description: Daily credits and cost per warehouse up to var('cost_as_of_date'). Compute and cloud-services credits are kept apart, as Snowflake bills them.
+    columns:
+      - name: credits_used
+        data_tests: [not_null, non_negative]
+  - name: mart_cost_budget_vs_actual
+    description: One row per warehouse. Month-to-date credits against the resource-monitor quota, a straight-line forecast to month end, and a status that follows the monitor's notify and suspend triggers.
+    config:
+      access: public
+      contract:
+        enforced: true
+    columns:
+      - name: warehouse_name
+        data_type: varchar
+        constraints:
+          - type: not_null
+          - type: primary_key
+        data_tests: [unique, not_null]
+      - name: workload
+        data_type: varchar
+      - name: resource_monitor
+        data_type: varchar
+      - name: credit_quota
+        data_type: integer
+        constraints:
+          - type: check
+            expression: "credit_quota > 0"
+      - name: credits_used_mtd
+        data_type: double
+      - name: cost_usd_mtd
+        data_type: double
+      - name: pct_of_budget_used
+        data_type: double
+      - name: forecast_credits_month_end
+        data_type: double
+      - name: forecast_pct_of_budget
+        data_type: double
+      - name: budget_status
+        data_type: varchar
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ['ok', 'notify', 'forecast_over', 'suspended']
+  - name: mart_cost_daily
+    description: One row per warehouse per day with cumulative month-to-date credits and a trailing seven-day baseline. Days above var('cost_anomaly_ratio') times the baseline are flagged.
+    config:
+      access: public
+    columns:
+      - name: is_anomaly
+        data_tests: [not_null]
+  - name: mart_cost_by_user
+    description: Month-to-date credits attributed to each service user and role. Attribution excludes idle time, so it is always below metered compute.
+    config:
+      access: public
+    columns:
+      - name: user_name
+        data_tests: [not_null]
+  - name: mart_cost_by_model
+    description: Month-to-date dbt warehouse credits allocated to each model by its share of that day's execution time. The allocation reconciles to the metered NEXUS_DBT_WH total.
+    config:
+      access: public
+    columns:
+      - name: model_name
+        data_tests: [unique, not_null]
+
+exposures:
+  - name: platform_cost_and_lineage
+    label: Platform cost and lineage (synthetic portfolio example)
+    type: dashboard
+    maturity: low
+    description: The platform page of this site. Budget against actual, daily burn and anomalies, cost by user and by dbt model, and the dbt lineage graph. All cost data is invented.
+    url: https://rfim.github.io/nexus-playstation-partners/platform.html
+    depends_on:
+      - ref('mart_cost_budget_vs_actual')
+      - ref('mart_cost_daily')
+      - ref('mart_cost_by_user')
+      - ref('mart_cost_by_model')
+    owner:
+      name: Platform engineering (portfolio example)
+      email: platform@example.invalid

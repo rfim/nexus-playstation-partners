@@ -10,6 +10,10 @@ models:
         data_tests: [not_null]
   - name: mart_workflow_did_demo
     description: Difference-in-differences arithmetic over a separate, entirely invented two-cohort weekly fixture.
+    config:
+      access: protected
+      meta:
+        classification: public
     columns:
       - name: did_pp
         data_tests: [not_null]
@@ -17,9 +21,28 @@ models:
         data_tests: [not_null]
   - name: dim_partner
     description: One row per partner; a synthetic current-state dimension.
+    config:
+      contract:
+        enforced: true
     columns:
       - name: partner_id
+        data_type: varchar
+        constraints:
+          - type: not_null
+          - type: primary_key
         data_tests: [unique, not_null]
+      - name: partner_name
+        data_type: varchar
+        config:
+          meta:
+            classification: partner_confidential
+      - name: region
+        data_type: varchar
+      - name: partner_tier
+        data_type: varchar
+        config:
+          meta:
+            classification: partner_confidential
   - name: dim_title
     description: One row per game or content title.
     columns:
@@ -34,31 +57,108 @@ models:
                 field: partner_id
   - name: fct_submission
     description: One row per publishing review attempt.
+    config:
+      contract:
+        enforced: true
     columns:
       - name: submission_id
+        data_type: varchar
+        constraints:
+          - type: not_null
+          - type: primary_key
         data_tests: [unique, not_null]
       - name: title_id
+        data_type: varchar
+        constraints:
+          - type: not_null
         data_tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('dim_title')
                 field: title_id
+      - name: partner_id
+        data_type: varchar
+        constraints:
+          - type: not_null
+      - name: submitted_at
+        data_type: timestamp
+        constraints:
+          - type: not_null
+      - name: reviewed_at
+        data_type: timestamp
       - name: status
+        data_type: varchar
+        constraints:
+          - type: not_null
+          - type: check
+            expression: "status in ('approved', 'rejected', 'pending')"
         data_tests:
           - accepted_values:
               arguments:
                 values: ['approved', 'rejected', 'pending']
+      - name: build_version
+        data_type: integer
+      - name: return_reason
+        data_type: varchar
+        description: Why a rejected attempt was returned; shared with the submitting partner only.
+        config:
+          meta:
+            classification: partner_confidential
+      - name: attempt_number
+        data_type: bigint
+        constraints:
+          - type: not_null
+          - type: check
+            expression: "attempt_number >= 1"
+      - name: review_hours
+        data_type: bigint
   - name: mart_partner_publishing
     description: Partner-level publishing health. All title outcomes are combined at title grain before this aggregation.
+    config:
+      contract:
+        enforced: true
     columns:
       - name: partner_id
+        data_type: varchar
+        constraints:
+          - type: not_null
+          - type: primary_key
         data_tests: [unique, not_null]
+      - name: partner_name
+        data_type: varchar
+        config:
+          meta:
+            classification: partner_confidential
+      - name: region
+        data_type: varchar
+      - name: titles_submitted
+        data_type: bigint
+        constraints:
+          - type: not_null
+      - name: first_pass_approved_titles
+        data_type: bigint
+      - name: titles_published
+        data_type: bigint
+      - name: published_storefront_regions
+        data_type: bigint
+      - name: submission_attempts
+        data_type: bigint
+      - name: reviewed_attempts
+        data_type: bigint
+      - name: review_hours_total
+        data_type: bigint
       - name: first_pass_approval_pct
+        data_type: double
         description: Approved on attempt one divided by titles with at least one submission, multiplied by 100.
+        constraints:
+          - type: check
+            expression: "first_pass_approval_pct between 0 and 100"
       - name: avg_review_hours
+        data_type: double
         description: Total review hours divided by reviewed attempts.
       - name: avg_publication_lead_days
+        data_type: double
         description: Average days from first submission to first publication among published titles.
 
   - name: mart_title_time_to_shelf
@@ -76,6 +176,9 @@ models:
         description: Days from approval to the clock for approved titles with no storefront event yet.
   - name: mart_resubmission_cost
     description: One row per return reason. Rejected attempts, reviewer hours spent on them, and the days each rejection added before the partner resubmitted.
+    config:
+      meta:
+        classification: internal
     columns:
       - name: return_reason
         data_tests: [unique, not_null]

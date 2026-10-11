@@ -27,6 +27,9 @@ python -m pip install -r requirements.txt
 dbt build --profiles-dir .
 python scripts/export_metrics.py --check
 python scripts/build_snippets.py --check
+python scripts/export_governance.py --check
+python scripts/export_platform.py --check
+python scripts/export_parquet.py --check
 ```
 
 The DuckDB file is created in `target/`. No cloud account is needed. The build runs seeds, staging models, intermediate logic, a timestamp snapshot, a guarded as-of join, dimensions, a submission fact, a partner publishing mart, descriptive diagnostics, a separate causal arithmetic model, generic and singular tests, and an exposure. `semantic/partner_metrics.yml` is a versioned metric definition for discussion, not a deployed semantic layer.
@@ -37,7 +40,43 @@ To view the site locally:
 python -m http.server 8767
 ```
 
-Open http://localhost:8767/. Every architecture block opens source from this repository. GitHub Actions runs the dbt build and checks that the exported site data and snippets match the working files.
+Open http://localhost:8767/. Every architecture block opens source from this repository.
+
+## Governance
+
+dbt enforces the governance shown in section 09:
+
+- **Ownership:** two dbt groups in `models/groups.yml`, `data_platform` for staging and intermediate logic and `partner_analytics` for facts, dimensions and marts. Owners are portfolio placeholders.
+- **Access:** marts are `public`, the consumer interface. Staging, intermediate and the teaching DiD mart are `protected`.
+- **Contracts:** `dim_partner`, `fct_submission` and `mart_partner_publishing` declare every column's name and type plus `not_null`, `primary_key` and `check` constraints. dbt refuses to build a model that drifts from its contract.
+- **Classification:** `public`, `internal` or `partner_confidential`, set per layer in `dbt_project.yml` and overridden per model or column in YAML.
+
+`scripts/export_governance.py` reads `target/manifest.json` and writes `assets/governance.json`. It fails if a model has no owning group, a model or column has an unknown classification, or an exposure reads a model that is not public. The live SQL panel also exposes the catalog as `governance_models` and `governance_columns`.
+
+## Platform cost and lineage
+
+A separate page, [`platform.html`](https://rfim.github.io/nexus-playstation-partners/platform.html), follows the cost-governance pattern of a Snowflake platform: one warehouse per workload, each behind a resource monitor.
+
+- **Cost tracking:** four invented seeds stand in for Snowflake usage data: `platform_warehouse_budget` (monitor quotas), `platform_warehouse_metering` (daily credits, like `ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY`), `platform_query_attribution` (per-user credits, like `QUERY_ATTRIBUTION_HISTORY`) and `platform_dbt_model_runs` (what a dbt on-run-end hook would log). Models in `models/platform/`, owned by the `platform_ops` group, produce budget against actual with a run-rate forecast (`mart_cost_budget_vs_actual`, contract enforced), daily burn with anomaly flags (`mart_cost_daily`), attribution by user (`mart_cost_by_user`) and the build cost of every dbt model (`mart_cost_by_model`). Singular tests check that model allocation reconciles to metered dbt credits and that attribution never exceeds metered compute. The clock (`cost_as_of_date`) and the illustrative credit price (`credit_price_usd`) are dbt vars.
+- **Lineage:** `scripts/export_platform.py` reads every `ref()` and `source()` from `target/manifest.json` and writes the graph to `assets/platform.json`. It fails if a model reads nothing traceable or a declared input is unused. The page lets you select any node to see what it reads, what would break if it changed, and what it costs to build.
+- **Production translation:** `docs/snowflake_cost_governance.sql` shows the warehouses, monitors and `ACCOUNT_USAGE` views the seeds stand in for. It is illustrative and is not run.
+
+The live SQL panel exposes `lineage_nodes` and `lineage_edges`, with presets for cost by model and a recursive impact query.
+
+## Live SQL playground
+
+The **Query the dbt build yourself** panel in section 08 runs [DuckDB-WASM](https://duckdb.org/docs/api/wasm/overview) in the visitor's browser, so the live site needs no server or database account. `scripts/export_parquet.py` writes every staging, intermediate, snapshot, seed and mart table from the local DuckDB build to `assets/data/*.parquet` (about 100 KB) plus a `tables.json` manifest. The page registers each file as a read-only view, and visitors can run any SQL against them. DuckDB-WASM 1.29.0 loads from jsDelivr only when the section scrolls into view.
+
+After changing a model, refresh the files and commit them:
+
+```bash
+dbt build --profiles-dir .
+python scripts/export_governance.py
+python scripts/export_platform.py
+python scripts/export_parquet.py
+```
+
+CI runs `export_parquet.py --check` to confirm the committed Parquet rows match a fresh build. GitHub Actions runs the dbt build and checks that the exported site data and snippets match the working files.
 
 ## Core metric contract
 

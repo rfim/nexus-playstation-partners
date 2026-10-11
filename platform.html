@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b101b">
+  <meta name="description" content="NEXUS platform cost and lineage: warehouse budgets, credit attribution by user and dbt model, and the dbt lineage graph, built from synthetic data on DuckDB.">
+  <title>Platform Cost &amp; Lineage | NEXUS by VIM</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/site.css?v=8">
+  <link rel="stylesheet" href="assets/platform.css?v=1">
+  <script src="assets/vendor/d3.v7.min.js" defer></script>
+  <script src="assets/platform.js?v=1" defer></script>
+</head>
+<body class="platform-page">
+  <a class="skip-link" href="#cost">Skip to platform cost</a>
+  <header id="top" class="site-header">
+    <a class="brand" href="index.html" aria-label="NEXUS, back to the main page"><span class="brand-mark">N<span>·</span></span><span><strong>NEXUS</strong><small>by VIM</small></span></a>
+    <nav aria-label="Primary navigation">
+      <a href="index.html#architecture">Architecture</a><a href="index.html#insights">Results</a><a href="index.html#proof">Code</a><a href="index.html#governance">Governance</a><a href="#cost" aria-current="page">Cost &amp; lineage</a>
+    </nav>
+    <a class="header-cta" href="index.html#contact">Let's talk <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main>
+    <section class="pf-hero" aria-labelledby="pf-title">
+      <div class="shell">
+        <p class="pf-kicker">PLATFORM · COST + LINEAGE</p>
+        <h1 id="pf-title">What every number costs, and <em>where it came from.</em></h1>
+        <p class="pf-lede">Two questions a platform team gets asked every week. Here dbt answers both: cost models read warehouse metering, query attribution and dbt run history, and the lineage graph comes straight from dbt's manifest. The cost data is invented and shaped like Snowflake's usage views, so this runs on DuckDB with no account.</p>
+        <div class="pf-stats" id="pf-stats" aria-live="polite"></div>
+        <p class="pf-clock" id="pf-clock"></p>
+      </div>
+    </section>
+
+    <section id="cost" class="pf-section" aria-labelledby="cost-title">
+      <div class="shell">
+        <div class="section-index"><span>01 / COST TRACKING</span><span>Budget, burn and attribution</span></div>
+        <div class="split-heading"><h2 id="cost-title">Spend against <em>budget.</em></h2><p>Each workload runs on its own warehouse behind its own resource monitor, so one runaway job cannot spend another team's credits. Status follows the monitor's triggers: notify at 75%, suspend at 100%. The forecast is a straight-line run rate to the month end.</p></div>
+
+        <div class="pf-budget" id="pf-budget"></div>
+
+        <figure class="pf-card pf-daily">
+          <div class="pf-card-head"><div><span class="pf-eyebrow">DAILY CREDIT BURN</span><h3>Where the credits went each day</h3></div><div class="pf-legend" id="pf-daily-legend"></div></div>
+          <div class="pf-chart" id="pf-daily-chart" role="img" aria-label="Stacked daily credits by warehouse for September 2026"></div>
+          <figcaption id="pf-daily-note"></figcaption>
+          <details class="pf-table-toggle"><summary>Show as a table</summary><div class="pf-table-wrap" id="pf-daily-table"></div></details>
+        </figure>
+
+        <div class="pf-two">
+          <div class="pf-card">
+            <div class="pf-card-head"><div><span class="pf-eyebrow">ATTRIBUTION BY USER</span><h3>Who spent it</h3></div></div>
+            <p class="pf-note">Each workload logs in as its own service user, so query attribution names a team rather than a shared admin role. Idle time is never attributed, so these add up to less than metered compute.</p>
+            <div class="pf-table-wrap" id="pf-users"></div>
+          </div>
+          <div class="pf-card">
+            <div class="pf-card-head"><div><span class="pf-eyebrow">COST BY DBT MODEL</span><h3>What each model costs to build</h3></div></div>
+            <p class="pf-note">Daily dbt warehouse credits split across that day's models by execution time. A singular test fails the build if the split stops adding up. Select a model to find it in the lineage.</p>
+            <ol class="pf-models" id="pf-models"></ol>
+          </div>
+        </div>
+        <div class="pf-sources"><span>Read the source</span><button type="button" data-snippet="costBudget">Budget model ↗</button><button type="button" data-snippet="costByModel">Model allocation ↗</button><button type="button" data-snippet="costReconcile">Reconciliation test ↗</button><button type="button" data-snippet="snowflakeCost">Snowflake translation ↗</button></div>
+      </div>
+    </section>
+
+    <section id="lineage" class="pf-section pf-lineage" aria-labelledby="lineage-title">
+      <div class="shell">
+        <div class="section-index"><span>02 / LINEAGE</span><span>Every ref() from the dbt manifest</span></div>
+        <div class="split-heading"><h2 id="lineage-title">Trace any number to its <em>source.</em></h2><p>Every source, seed, snapshot, model and dashboard in the project, joined by the <code>ref()</code> and <code>source()</code> calls dbt records. Select a node to light up what it reads and what would break if it changed. CI fails if a model reads nothing traceable or a declared input is unused.</p></div>
+        <div class="pf-card pf-graph-card">
+          <div class="pf-toolbar">
+            <label class="pf-select"><span>Find a node</span><select id="pf-node-select"></select></label>
+            <div class="pf-toggle" role="group" aria-label="Colour nodes by"><button type="button" data-color="layer" aria-pressed="true">Colour by layer</button><button type="button" data-color="cost" aria-pressed="false">Colour by build cost</button></div>
+            <button type="button" class="pf-clear" id="pf-clear">Clear selection</button>
+          </div>
+          <div class="pf-graph-grid">
+            <div class="pf-graph" id="pf-graph" role="img" aria-label="dbt lineage graph"></div>
+            <aside class="pf-node" id="pf-node" aria-live="polite"></aside>
+          </div>
+          <div class="pf-legend pf-graph-legend" id="pf-graph-legend"></div>
+        </div>
+        <div class="pf-sources"><span>Read the source</span><button type="button" data-snippet="platformExport">Lineage export and rules ↗</button><button type="button" data-snippet="groups">Ownership groups ↗</button><a href="index.html?preset=impact#playground">Run an impact query in live SQL ↗</a></div>
+      </div>
+    </section>
+
+    <section class="pf-section pf-translate" aria-labelledby="translate-title">
+      <div class="shell">
+        <div class="section-index"><span>03 / IN PRODUCTION</span><span>The same models on Snowflake</span></div>
+        <div class="split-heading"><h2 id="translate-title">Swap the seeds, keep <em>the models.</em></h2><p>Each invented seed stands in for a real Snowflake source. On a production account the dbt models stay the same and read these instead.</p></div>
+        <div class="pf-map">
+          <div><code>platform_warehouse_metering</code><span>→</span><strong>ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY</strong><small>Daily credits per warehouse; replicates within about 3 hours.</small></div>
+          <div><code>platform_query_attribution</code><span>→</span><strong>ACCOUNT_USAGE.QUERY_ATTRIBUTION_HISTORY</strong><small>Per-query compute credits by user; lags up to about 24 hours.</small></div>
+          <div><code>platform_warehouse_budget</code><span>→</span><strong>Resource monitor CREDIT_QUOTA</strong><small>Mirrored in a reference table, since quotas have no usage view.</small></div>
+          <div><code>platform_dbt_model_runs</code><span>→</span><strong>dbt on-run-end hook</strong><small>Logs each model's execution time from run_results.</small></div>
+          <div><code>dbt manifest.json</code><span>→</span><strong>ACCESS_HISTORY and OBJECT_DEPENDENCIES</strong><small>Adds run-time reads, including those made outside dbt.</small></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="code-dialog" class="code-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description"><div class="dialog-heading"><div><small>SOURCE INSPECTOR</small><h2 id="dialog-title">Working source</h2></div><button type="button" id="dialog-close" aria-label="Close code inspector">×</button></div><p id="dialog-description"></p><div class="dialog-file"><span id="dialog-file"></span><span id="dialog-language"></span></div><pre><code id="dialog-code"></code></pre><a id="dialog-link" href="https://github.com/rfim/nexus-playstation-partners" target="_blank" rel="noopener noreferrer">Open full file on GitHub ↗</a></dialog>
+  <footer class="site-footer"><div class="shell"><span>NEXUS by VIM · independent application case study</span><span>All platform cost data on this page is invented. No PlayStation, Snowflake account or billing data appears here.</span><a href="#top">Back to top ↑</a></div></footer>
+</body>
+</html>
