@@ -4,7 +4,16 @@ An independent Senior Analytics Engineer portfolio by Firman Insan Muhammad (VIM
 
 The hero labels this independent application **“Presented to PlayStation”** and shows the Sony Computer Entertainment heritage image supplied by VIM. Its full-page moving backdrop uses original broken circles, graphic cuts and green light inspired by Persona 6's visual mood. Blue flowing light and vector controller symbols in the architecture preview and accordion are original CSS/SVG animation inspired by the PS5 visual mood. These are not official console footage or UI.
 
-**Live site:** https://rfim.github.io/nexus-playstation-partners/
+**Live site:** https://rfim.github.io/nexus-playstation-partners/ · **dbt workspace:** https://rfim.github.io/nexus-playstation-partners/sql.html
+
+## What's on the site
+
+| Where | What it shows |
+|---|---|
+| **Main page** (`index.html`) | The NEXUS architecture, game-world examples, the Lifepal production story, role-fit walkthroughs, the maths, synthetic results, business potential, working code (08) and dbt governance (09). The nav is Architecture · Built at Lifepal · Results · **dbt workspace**. |
+| **dbt workspace** (`sql.html`) | Live SQL over the whole dbt build, run by DuckDB-WASM in the browser, plus three view tabs: **dbt** (the project's code, governance and build cost), **Lineage** (the dbt graph) and **Airflow** (the hypothetical DAG in an Airflow-style UI). |
+
+`platform.html`, `code.html` and `airflow.html` are the pages the workspace embeds as tabs; opening `platform.html` on its own forwards to the workspace.
 
 ## What is real, and what is an example
 
@@ -18,73 +27,99 @@ The hero labels this independent application **“Presented to PlayStation”** 
 - **Business potential (section 07):** Three synthetic opportunity marts read the same six titles at a fixed clock, `var('opportunity_as_of_date')` (30 Sep 2026). `mart_title_time_to_shelf` shows approved titles not yet on a storefront and their slack before planned release. `mart_resubmission_cost` groups rejected attempts by an invented `return_reason`, with reviewer hours and the days each rejection added. `mart_partner_health` combines a Wilson lower bound on first-pass approval, recency and shelf conversion into an illustrative score in [0, 1]; its equal weights are a discussion starting point, not a validated model, and every partner here is flagged low-sample. The calculator's reviewer-hours and days-added defaults come from these marts; titles per year and uplift are the visitor's assumptions. Singular tests reconcile rejected attempts with the submission fact, keep shelf states consistent and bound every health component.
 - **Stack logos:** AWS architecture icons come from the [official AWS architecture icon package](https://aws.amazon.com/architecture/icons/). The Snowflake logo comes from [Snowflake press resources](https://www.snowflake.com/en/news/). They indicate experience from the CV, not the runtime of this local dbt reference.
 
-## Typography
+## Repository layout
 
-Text uses PlayStation's brand face, SST, when the visitor has it installed. SST is licensed by Sony from Monotype and cannot be redistributed, so everyone else gets Source Sans 3, a free humanist sans close to it, from Google Fonts (`assets/fonts.css`). Code stays monospace.
+```
+models/            dbt models: staging (bronze), intermediate (silver), marts (gold), platform (cost)
+seeds/             synthetic partner data and invented platform-cost inputs
+snapshots/         partner tier history
+macros/            reusable SQL, documented in macros/properties.yml
+tests/             singular dbt tests
+semantic/          metric definitions for discussion (not a deployed semantic layer)
+scripts/           exports that turn the dbt build into the site's data, each with --check
+airflow/           hypothetical Airflow 3 DAG, its tests, export script and recorded run
+assets/            site CSS/JS and generated data (assets/data/*.parquet, *.json)
+docs/              normalisation notes and the illustrative Snowflake cost SQL
+.github/workflows/ CI: dbt-reference and airflow-dag jobs
+```
 
-## Run the analytics reference
+## Run it locally
 
 Use Python 3.12:
 
 ```bash
 python -m pip install -r requirements.txt
 dbt build --profiles-dir .
-python scripts/export_metrics.py --check
-python scripts/build_snippets.py --check
-python scripts/export_governance.py --check
-python scripts/export_platform.py --check
-python scripts/export_parquet.py --check
+python -m http.server 8767        # then open http://localhost:8767/
 ```
 
-The DuckDB file is created in `target/`. No cloud account is needed. The build runs seeds, staging models, intermediate logic, a timestamp snapshot, a guarded as-of join, dimensions, a submission fact, a partner publishing mart, descriptive diagnostics, a separate causal arithmetic model, generic and singular tests, and an exposure. `semantic/partner_metrics.yml` is a versioned metric definition for discussion, not a deployed semantic layer.
+The DuckDB file is created in `target/`. No cloud account is needed. `dbt build` runs 9 seeds, a timestamp snapshot, 23 models across staging, intermediate, marts and platform cost, 99 data tests (generic and singular) and 3 exposures.
 
-To view the site locally:
+### After changing the dbt project
 
-```bash
-python -m http.server 8767
-```
-
-Open http://localhost:8767/. Every architecture block opens source from this repository.
-
-## Governance
-
-dbt enforces the governance shown in section 09:
-
-- **Ownership:** two dbt groups in `models/groups.yml`, `data_platform` for staging and intermediate logic and `partner_analytics` for facts, dimensions and marts. Owners are portfolio placeholders.
-- **Access:** marts are `public`, the consumer interface. Staging, intermediate and the teaching DiD mart are `protected`.
-- **Contracts:** `dim_partner`, `fct_submission` and `mart_partner_publishing` declare every column's name and type plus `not_null`, `primary_key` and `check` constraints. dbt refuses to build a model that drifts from its contract.
-- **Classification:** `public`, `internal` or `partner_confidential`, set per layer in `dbt_project.yml` and overridden per model or column in YAML.
-
-`scripts/export_governance.py` reads `target/manifest.json` and writes `assets/governance.json`. It fails if a model has no owning group, a model or column has an unknown classification, or an exposure reads a model that is not public. The live SQL panel also exposes the catalog as `governance_models` and `governance_columns`.
-
-## Platform cost and lineage
-
-The cost and lineage work, shown in the [dbt workspace](https://rfim.github.io/nexus-playstation-partners/sql.html) (lineage tab, and build cost in the dbt tab), follows the cost-governance pattern of a Snowflake platform: one warehouse per workload, each behind a resource monitor.
-
-- **Cost tracking:** four invented seeds stand in for Snowflake usage data: `platform_warehouse_budget` (monitor quotas), `platform_warehouse_metering` (daily credits, like `ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY`), `platform_query_attribution` (per-user credits, like `QUERY_ATTRIBUTION_HISTORY`) and `platform_dbt_model_runs` (what a dbt on-run-end hook would log). Models in `models/platform/`, owned by the `platform_ops` group, produce budget against actual with a run-rate forecast (`mart_cost_budget_vs_actual`, contract enforced), daily burn with anomaly flags (`mart_cost_daily`), attribution by user (`mart_cost_by_user`) and the build cost of every dbt model (`mart_cost_by_model`). Singular tests check that model allocation reconciles to metered dbt credits and that attribution never exceeds metered compute. The clock (`cost_as_of_date`) and the illustrative credit price (`credit_price_usd`) are dbt vars.
-- **Lineage:** `scripts/export_platform.py` reads every `ref()` and `source()` from `target/manifest.json` and writes the graph to `assets/platform.json`. It fails if a model reads nothing traceable or a declared input is unused. In the lineage tab you can select any node to see what it reads, what would break if it changed, and what it costs to build. `platform.html` renders that graph for the workspace; opened on its own it forwards to the workspace.
-- **Production translation:** `docs/snowflake_cost_governance.sql` shows the warehouses, monitors and `ACCOUNT_USAGE` views the seeds stand in for. It is illustrative and is not run.
-
-The live SQL panel exposes `lineage_nodes` and `lineage_edges`, with presets for cost by model and a recursive impact query.
-
-## Orchestration (hypothetical Airflow)
-
-`airflow/dags/nexus_partner_analytics.py` runs the same build on an Airflow 3 schedule: parse, ingest, snapshot, a dbt build per layer with its own tests, a full test gate, then the site exports and a budget check. It is not deployed; it runs locally with `airflow dags test`, and CI checks that it imports and matches the run design. The dbt workspace's **Airflow** tab, which also holds the Airflow code (so the dbt view stays dbt-only), is laid out like the Airflow UI (Grid, Graph, Code and Details, with per-task Details, Logs and Code) and replays a recorded run, including a simulated test-gate failure. Code across the workspace, including the SQL editor, is syntax-highlighted (SQL with dbt Jinja, Python, YAML). See [airflow/README.md](airflow/README.md).
-
-## Live SQL workspace
-
-The [**Live SQL workspace**](https://rfim.github.io/nexus-playstation-partners/sql.html) (`sql.html`) runs [DuckDB-WASM](https://duckdb.org/docs/api/wasm/overview) in the visitor's browser, so the live site needs no server or database account. `scripts/export_parquet.py` writes the raw sources and every staging, intermediate, snapshot, seed and mart table from the local DuckDB build, plus the governance and lineage catalogs, to `assets/data/*.parquet` with a `tables.json` manifest. The page registers each file as a read-only view; the table browser groups them as Source (raw seeds), Bronze (staging), Silver (intermediate and snapshot), Gold (dimensions, facts and marts), Platform cost, Governance and Lineage, and lists the project's documented macros (`macros/properties.yml`). Visitors can filter by table or column name, insert a column into the query, run any SQL and download results as CSV. Each query, example, table preview or macro opens in its own closable tab with its own results, a History panel lists recent runs, and the whole sidebar can be hidden into a slim rail (Ctrl+B) that reopens it on any panel; open tabs and history are kept in the visitor's browser only. Two **views** open as tabs beside the queries: **Lineage** (the platform page's dbt graph) and **dbt** (`code.html`, a browser over every dbt model, macro, test, script and CI file, exported to `assets/code.json` by `scripts/build_snippets.py`). View tabs take the full workspace width, a **Focus** button fills the window, and first-time visitors land on the dbt tab. Each model file shows its description, governance (layer, materialization, owner, access, contract, classification, tests), the models it reads and is used by, and its build cost this month, and a pinned **Build cost** entry summarises warehouse budgets and cost by model. Selecting a lineage node or model file offers to preview it or run its impact query in a new SQL tab. `sql.html?view=<lineage|dbt>` opens a view directly. `sql.html?preset=<key>` opens a ready-made example, such as `impact` or `catalog`.
-
-After changing a model, refresh the files and commit them:
+The site reads files generated from the build. Regenerate them in this order and commit the results:
 
 ```bash
 dbt build --profiles-dir .
-python scripts/export_governance.py
-python scripts/export_platform.py
-python scripts/export_parquet.py
+python scripts/export_governance.py   # assets/governance.json      ownership, access, contracts, classification
+python scripts/export_platform.py     # assets/platform.json        cost marts and the lineage graph
+python scripts/export_metrics.py      # assets/metrics.json         the main page's charts
+python scripts/export_parquet.py      # assets/data/*.parquet       every table for the SQL workspace
+python scripts/build_snippets.py      # snippets, code.json, airflow_code.json   source shown on the site
 ```
 
-CI runs `export_parquet.py --check` to confirm the committed Parquet rows match a fresh build. GitHub Actions runs the dbt build and checks that the exported site data and snippets match the working files.
+Each script also takes `--check`, which fails if the committed file no longer matches the build. After changing the DAG, also run `airflow/export_dag.py` (see [airflow/README.md](airflow/README.md)).
+
+## The dbt project
+
+**Layers.** Raw seeds sit behind `source()` definitions; staging (bronze) types and standardises them, intermediate (silver) holds title-grain logic, review and publication features and the as-of tier join, and marts (gold) hold dimensions, the submission fact and partner marts. `models/platform/` holds the platform-cost models.
+
+**Governance** (shown in section 09 of the main page and in the dbt tab):
+
+- **Ownership:** three dbt groups in `models/groups.yml`: `data_platform` (staging and intermediate), `partner_analytics` (facts, dimensions and marts) and `platform_ops` (cost models). Owners are portfolio placeholders.
+- **Access:** marts are `public`, the consumer interface. Staging, intermediate, the teaching DiD mart and the internal cost view are `protected`.
+- **Contracts:** `dim_partner`, `fct_submission`, `mart_partner_publishing` and `mart_cost_budget_vs_actual` declare every column's name and type plus `not_null`, `primary_key` and `check` constraints. dbt refuses to build a model that drifts from its contract.
+- **Classification:** `public`, `internal` or `partner_confidential`, set per layer in `dbt_project.yml` and overridden per model or column in YAML.
+- **Rules in CI:** `scripts/export_governance.py` fails if a model has no owning group, a model or column has an unknown classification, or an exposure reads a model that is not public.
+
+**Platform cost and lineage** follow the cost-governance pattern of a Snowflake platform: one warehouse per workload, each behind a resource monitor.
+
+- **Cost tracking:** four invented seeds stand in for Snowflake usage data: `platform_warehouse_budget` (monitor quotas), `platform_warehouse_metering` (daily credits, like `ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY`), `platform_query_attribution` (per-user credits, like `QUERY_ATTRIBUTION_HISTORY`) and `platform_dbt_model_runs` (what a dbt on-run-end hook would log). The models produce budget against actual with a run-rate forecast (`mart_cost_budget_vs_actual`), daily burn with anomaly flags (`mart_cost_daily`), attribution by user (`mart_cost_by_user`) and the build cost of every dbt model (`mart_cost_by_model`). Singular tests check that the model allocation reconciles to metered dbt credits and that attribution never exceeds metered compute. The clock (`cost_as_of_date`) and the illustrative credit price (`credit_price_usd`) are dbt vars.
+- **Lineage:** `scripts/export_platform.py` reads every `ref()` and `source()` from `target/manifest.json`. It fails if a model reads nothing traceable or a declared input is unused.
+- **Production translation:** `docs/snowflake_cost_governance.sql` shows the warehouses, monitors and `ACCOUNT_USAGE` views the seeds stand in for. It is illustrative and is not run.
+
+**Metrics.** `semantic/partner_metrics.yml` is a versioned metric definition for discussion, not a deployed semantic layer.
+
+## Orchestration (hypothetical Airflow)
+
+`airflow/dags/nexus_partner_analytics.py` runs the same build on an Airflow 3 daily schedule: parse, ingest, snapshot, a dbt build per layer with its own tests, a full test gate, then the site exports and a budget check that warns `platform_ops` when a warehouse is forecast over budget. Failures retry with exponential backoff, and nothing publishes unless every test passes.
+
+It is not deployed. A full `airflow dags test` run on Airflow 3.2.2 rebuilt the project from scratch, and `airflow/recorded_run.json` keeps its task timings and logs. CI checks that the DAG imports, matches the run design, and agrees with the graph the site shows. See [airflow/README.md](airflow/README.md) to run it.
+
+## The dbt workspace
+
+[`sql.html`](https://rfim.github.io/nexus-playstation-partners/sql.html) runs [DuckDB-WASM](https://duckdb.org/docs/api/wasm/overview) in the visitor's browser, so the live site needs no server or database account. Nothing a visitor types is sent anywhere.
+
+- **Data:** `scripts/export_parquet.py` writes the raw sources and every staging, intermediate, snapshot, seed, mart and cost table, plus the governance and lineage catalogs, to `assets/data/*.parquet`. The page registers each file as a read-only view.
+- **Tables sidebar:** grouped as Source, Bronze, Silver, Gold, Platform cost, Governance, Lineage and Macros. Filter by table or column name, preview a table, or insert a column into the query. Examples and History panels sit beside it, and the whole sidebar folds into a slim rail (Ctrl+B).
+- **Query tabs:** each query, example, table preview or macro opens in its own closable tab with its own results. The SQL editor is syntax-highlighted as you type, results download as CSV, and open tabs and history stay in the visitor's browser only.
+- **dbt tab:** every dbt model, macro, test, script and CI file, highlighted (SQL with dbt Jinja, YAML, Python). Each model shows its description, governance, the models it reads and is used by, and its build cost; a pinned **Build cost** entry summarises warehouse budgets and cost by model.
+- **Lineage tab:** the dbt graph from the manifest. Select a node to see what it reads, what would break if it changed and what it costs, then open its preview or impact query in a SQL tab.
+- **Airflow tab:** laid out like the Airflow UI, with Overview, Grid, Graph, Code and Details, and Details, Logs and Code for each task instance. **Trigger** replays the recorded run; **Fail the test gate** shows the retries and the gate holding. Its left nav also opens every file in `airflow/`, the DAG's assets and its README. Nothing executes in the browser.
+- **Links:** `sql.html?view=<dbt|lineage|airflow>` opens a view and `sql.html?preset=<key>` opens a ready-made example, such as `impact` or `catalog`.
+
+## CI
+
+GitHub Actions runs two jobs on every push and pull request:
+
+- **dbt-reference** builds and tests the dbt project, then runs every export with `--check` so the site's data, code and catalogs can never drift from the build.
+- **airflow-dag** installs Airflow 3.2.2 with its constraints, runs the DAG integrity tests and checks `assets/airflow.json` against the DAG.
+
+GitHub Pages publishes `main`.
+
+## Typography
+
+Text uses PlayStation's brand face, SST, when the visitor has it installed. SST is licensed by Sony from Monotype and cannot be redistributed, so everyone else gets Source Sans 3, a free humanist sans close to it, from Google Fonts (`assets/fonts.css`). Code stays monospace.
 
 ## Core metric contract
 
