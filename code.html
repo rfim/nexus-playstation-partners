@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Browse the NEXUS dbt project source: models, macros, tests, snapshots, scripts and CI.">
-  <title>Code Browser | NEXUS by VIM</title>
+  <meta name="description" content="Browse the NEXUS dbt project: models, macros, tests, snapshots, scripts and CI, with each model's build cost.">
+  <title>dbt Project | NEXUS by VIM</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="stylesheet" href="assets/site.css?v=8">
-  <link rel="stylesheet" href="assets/code.css?v=2">
-  <script src="assets/code.js?v=2" defer></script>
+  <link rel="stylesheet" href="assets/code.css?v=3">
+  <script src="assets/code.js?v=3" defer></script>
 </head>
 <body class="view-page code-page">
   <main class="code-browser" aria-label="Project source">
@@ -19,7 +19,9 @@
     </aside>
     <section class="code-view" aria-live="polite">
       <div class="code-head"><div><span id="code-folder" class="code-folder"></span><strong id="code-path">Select a file</strong></div><div class="code-actions" id="code-actions"></div></div>
+      <div class="code-cost" id="code-cost" hidden></div>
       <pre class="code-body"><code id="code-text"></code></pre>
+      <div class="code-overview" id="code-overview" hidden></div>
     </section>
   </main>
 </body>

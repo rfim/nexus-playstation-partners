@@ -49,10 +49,10 @@
 @media(max-width:1100px){.pf-budget{grid-template-columns:repeat(2,minmax(0,1fr))}.pf-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:900px){.pf-two{grid-template-columns:minmax(0,1fr)}.pf-node{grid-template-columns:minmax(0,1fr)}.pf-node>*,.pf-node .pf-facts,.pf-node .pf-risk,.pf-node .pf-link{grid-column:1;grid-row:auto}.pf-map>div{grid-template-columns:minmax(0,1fr);gap:.3rem}.pf-map span{display:none}}
 @media(max-width:560px){.pf-budget,.pf-stats{grid-template-columns:minmax(0,1fr)}.pf-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.pf-clear{margin-left:0}}
-/* Embedded as a tab in the SQL workspace: show only the requested section */
+/* Embedded as the SQL workspace's lineage tab: show only the graph */
 .pf-embed body{background:#f4f7fb}
 .pf-embed .site-header,.pf-embed .skip-link,.pf-embed .pf-hero,.pf-embed .site-footer,.pf-embed .pf-translate,.pf-embed .split-heading,.pf-embed .section-index{display:none}
-.pf-embed-cost #lineage,.pf-embed-lineage #cost{display:none}
+.pf-embed-lineage #cost{display:none}
 .pf-embed .pf-section{padding:1rem 0 1.5rem;background:#f4f7fb}
 .pf-embed .shell{width:calc(100% - 2rem)}
 .pf-sql-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin:0 0 .8rem}

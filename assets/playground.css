@@ -84,7 +84,7 @@
 .qviews span{color:#7f9bbd;font-size:.56rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
 .qviews button{padding:.3rem .55rem;border:1px solid #2d4f75;border-radius:999px;background:none;color:#a9c2df;font-size:.64rem;font-weight:800;cursor:pointer;white-space:nowrap}
 .qviews button:hover{border-color:#8ecbff;color:#fff}.qviews button.is-open{border-color:#8ecbff;color:#fff;background:#13294a}
-.qtab-view .qtab-title:before{border-radius:50%}.qtab-view-lineage .qtab-title:before{background:#5aa8ff}.qtab-view-cost .qtab-title:before{background:#1baf7a}.qtab-view-governance .qtab-title:before{background:#9b8cf0}.qtab-view-code .qtab-title:before{background:#d6e9fa}
+.qtab-view .qtab-title:before{border-radius:50%}.qtab-view-lineage .qtab-title:before{background:#5aa8ff}.qtab-view-dbt .qtab-title:before{background:#f28b4b}
 .sql-views{flex:1;min-height:640px;background:#f4f7fb}.sql-views[hidden]{display:none}
 .sql-view-frame{display:block;width:100%;height:calc(100vh - 150px);min-height:640px;border:0;background:#f4f7fb}.sql-view-frame[hidden]{display:none}
 .playground-window.is-view .sql-editor,.playground-window.is-view .sql-output,.playground-window.is-view .sql-actions{display:none}

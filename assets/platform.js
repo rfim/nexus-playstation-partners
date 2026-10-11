@@ -9,9 +9,9 @@
   };
   const usd = (v) => `$${Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const num = (v, digits = 2) => Number(v).toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
-  // Embedded in the SQL workspace (sql.html) as a cost or lineage tab.
+  // Embedded in the SQL workspace (sql.html) as its lineage tab.
   const params = new URLSearchParams(location.search);
-  const EMBED = window.parent !== window && ['cost', 'lineage'].includes(params.get('view')) ? params.get('view') : null;
+  const EMBED = window.parent !== window && params.get('view') === 'lineage' ? 'lineage' : null;
   if (EMBED) document.documentElement.classList.add('pf-embed', `pf-embed-${EMBED}`);
   const toWorkspace = (message) => window.parent.postMessage({ source: 'nexus-platform', ...message }, location.origin);
   window.addEventListener('message', (event) => {
@@ -253,9 +253,7 @@
       button.append(label, bar, el('span', 'pf-model-value', `${usd(r.cost_usd_mtd)} · ${num(r.pct_of_dbt_cost, 1)}%`));
       button.addEventListener('click', () => {
         const node = data.lineage.nodes.find((n) => n.name === r.model_name);
-        if (node && EMBED) {
-          toWorkspace({ type: 'open-view', view: 'lineage', id: node.id });
-        } else if (node) {
+        if (node) {
           document.dispatchEvent(new CustomEvent('lineage:select', { detail: node.id }));
           $('#lineage').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
