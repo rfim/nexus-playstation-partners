@@ -114,6 +114,36 @@ order by table_name;`,
   },
 };
 
+// Table browser structure: the medallion path first, then the platform layers.
+const startsWith = (...prefixes) => (t) => prefixes.some((p) => t.name.startsWith(p));
+const isName = (...names) => (t) => names.includes(t.name);
+const inLayer = (...layers) => (t) => layers.includes(t.layer);
+const TIERS = [
+  { key: "source", label: "Source", note: "raw inputs", match: inLayer("source"), subs: [
+    ["Partner platform", startsWith("raw_")],
+    ["Cost inputs", startsWith("platform_")],
+    ["Teaching fixture", isName("hypothetical_workflow_weeks")],
+  ] },
+  { key: "bronze", label: "Bronze", note: "typed staging", match: inLayer("staging") },
+  { key: "silver", label: "Silver", note: "logic + history", match: inLayer("intermediate", "snapshot"), subs: [
+    ["Intermediate", inLayer("intermediate")],
+    ["Snapshot", inLayer("snapshot")],
+  ] },
+  { key: "gold", label: "Gold", note: "star schema + marts", match: inLayer("marts"), subs: [
+    ["Dimensions", startsWith("dim_")],
+    ["Facts", startsWith("fct_")],
+    ["Marts", startsWith("mart_")],
+  ] },
+  { key: "cost", label: "Platform cost", note: "credits + budget", match: inLayer("platform"), subs: [
+    ["Daily burn", isName("cost_warehouse_daily", "mart_cost_daily")],
+    ["Budget", isName("mart_cost_budget_vs_actual")],
+    ["Attribution", isName("mart_cost_by_user", "mart_cost_by_model")],
+  ] },
+  { key: "governance", label: "Governance", note: "owners + contracts", match: inLayer("governance") },
+  { key: "lineage", label: "Lineage", note: "dbt ref() graph", match: inLayer("lineage") },
+];
+const OPEN_TIERS = new Set(["gold"]);
+
 const root = document.querySelector("#playground");
 if (root) setup(root);
 
@@ -160,14 +190,24 @@ function setup(root) {
 
   fetch("assets/data/tables.json")
     .then((response) => response.json())
-    .then(({ tables }) => renderTables(tables))
+    .then(({ tables, macros }) => renderTables(tables, macros ?? []))
     .catch(() => { tableList.textContent = "Table list unavailable."; });
 
   const filterBox = root.querySelector("#sql-table-filter");
   filterBox?.addEventListener("input", () => {
     const needle = filterBox.value.trim().toLowerCase();
-    for (const button of tableList.querySelectorAll("button")) {
-      button.hidden = needle !== "" && !button.textContent.toLowerCase().includes(needle);
+    for (const section of tableList.querySelectorAll(".tbl-group")) {
+      let matches = 0;
+      for (const item of section.querySelectorAll(".tbl-item")) {
+        const hit = needle === "" || item.dataset.search.includes(needle);
+        item.hidden = !hit;
+        matches += hit ? 1 : 0;
+      }
+      for (const sub of section.querySelectorAll(".tbl-sub")) {
+        sub.hidden = ![...sub.querySelectorAll(".tbl-item")].some((item) => !item.hidden);
+      }
+      section.hidden = matches === 0;
+      section.open = needle ? true : OPEN_TIERS.has(section.dataset.layer);
     }
   });
 
@@ -194,23 +234,145 @@ function setup(root) {
     }
   }
 
-  function renderTables(tables) {
+  function renderTables(tables, macros) {
     tableList.replaceChildren();
-    for (const table of tables) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.title = table.columns.map((c) => `${c.name} ${c.type}`).join("\n");
-      button.innerHTML = `<span></span><small></small>`;
-      button.querySelector("span").textContent = table.name;
-      button.querySelector("small").textContent = `${table.layer} · ${table.rows} rows`;
-      button.addEventListener("click", () => {
-        editor.value = `select *\nfrom ${table.name}\nlimit 50;`;
-        markPreset(null);
-        run();
-      });
-      tableList.append(button);
+    const placed = new Set();
+    for (const tier of TIERS) {
+      const members = tables.filter((t) => !placed.has(t) && tier.match(t));
+      if (!members.length) continue;
+      members.forEach((t) => placed.add(t));
+      const section = tierSection(tier.key, tier.label, tier.note, members.length);
+      const subs = tier.subs ?? [[null, () => true]];
+      const used = new Set();
+      for (const [label, match] of subs) {
+        const group = members.filter((t) => !used.has(t) && match(t));
+        if (!group.length) continue;
+        group.forEach((t) => used.add(t));
+        section.append(subGroup(label, group.map(tableItem)));
+      }
+      const rest = members.filter((t) => !used.has(t));
+      if (rest.length) section.append(subGroup("Other", rest.map(tableItem)));
+      tableList.append(section);
+    }
+    if (macros.length) {
+      const section = tierSection("macros", "Macros", "reusable SQL", macros.length);
+      section.append(subGroup(null, macros.map(macroItem)));
+      tableList.append(section);
     }
     return tables;
+  }
+
+  function tierSection(key, label, note, count) {
+    const section = document.createElement("details");
+    section.className = `tbl-group tbl-tier-${key}`;
+    section.dataset.layer = key;
+    section.open = OPEN_TIERS.has(key);
+    section.innerHTML = "<summary><i></i><span></span><em></em><small></small></summary>";
+    section.querySelector("summary span").textContent = label;
+    section.querySelector("summary em").textContent = note;
+    section.querySelector("summary small").textContent = count;
+    return section;
+  }
+
+  function subGroup(label, items) {
+    const group = document.createElement("div");
+    group.className = "tbl-sub";
+    if (label) {
+      const heading = document.createElement("p");
+      heading.className = "tbl-sub-label";
+      heading.textContent = label;
+      group.append(heading);
+    }
+    group.append(...items);
+    return group;
+  }
+
+  function macroItem(macro) {
+    const item = document.createElement("div");
+    item.className = "tbl-item tbl-macro";
+    item.dataset.search = [macro.name, macro.description, ...macro.arguments].join(" ").toLowerCase();
+    const row = document.createElement("div");
+    row.className = "tbl-row";
+    const show = document.createElement("button");
+    show.type = "button";
+    show.className = "tbl-name";
+    show.title = `Show the source of ${macro.name}`;
+    show.innerHTML = `${macro.name.replace(/_/g, "_<wbr>")}<span class="tbl-args"></span>`;
+    show.querySelector(".tbl-args").textContent = `(${macro.arguments.join(", ")})`;
+    show.addEventListener("click", () => {
+      const pre = document.createElement("pre");
+      pre.className = "sql-macro";
+      pre.textContent = macro.sql;
+      const head = document.createElement("p");
+      head.className = "sql-macro-head";
+      head.textContent = `${macro.path} · ${macro.description || "dbt macro"}`;
+      output.replaceChildren(head, pre);
+      status.textContent = `Macro ${macro.name}: dbt compiles it into model SQL, so it is shown here rather than run.`;
+      if (download) download.disabled = true;
+      lastResult = null;
+    });
+    const note = document.createElement("span");
+    note.className = "tbl-note";
+    note.textContent = macro.description;
+    row.append(show, note);
+    item.append(row);
+    return item;
+  }
+
+  function tableItem(table) {
+    const item = document.createElement("div");
+    item.className = "tbl-item";
+    item.dataset.search = [table.name, ...table.columns.map((c) => c.name)].join(" ").toLowerCase();
+    const row = document.createElement("div");
+    row.className = "tbl-row";
+    const preview = document.createElement("button");
+    preview.type = "button";
+    preview.className = "tbl-name";
+    preview.title = `Preview ${table.name}`;
+    // Identifiers wrap at underscores rather than mid-word.
+    preview.innerHTML = table.name.replace(/_/g, "_<wbr>");
+    preview.addEventListener("click", () => {
+      editor.value = `select *\nfrom ${table.name}\nlimit 50;`;
+      markPreset(null);
+      run();
+    });
+    const toggle = document.createElement("button");
+    toggle.type = "button";
+    toggle.className = "tbl-toggle";
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", `Show columns of ${table.name}`);
+    toggle.textContent = `${table.rows} rows · ${table.columns.length} cols`;
+    row.append(preview, toggle);
+    const columns = document.createElement("ul");
+    columns.className = "tbl-columns";
+    columns.hidden = true;
+    for (const column of table.columns) {
+      const li = document.createElement("li");
+      const insert = document.createElement("button");
+      insert.type = "button";
+      insert.title = `Insert ${column.name} into the query`;
+      insert.innerHTML = "<span></span><small></small>";
+      insert.querySelector("span").textContent = column.name;
+      insert.querySelector("small").textContent = column.type.toLowerCase();
+      insert.addEventListener("click", () => insertText(column.name));
+      li.append(insert);
+      columns.append(li);
+    }
+    toggle.addEventListener("click", () => {
+      const open = columns.hidden;
+      columns.hidden = !open;
+      toggle.setAttribute("aria-expanded", String(open));
+    });
+    item.append(row, columns);
+    return item;
+  }
+
+  function insertText(text) {
+    const { selectionStart: from, selectionEnd: to, value } = editor;
+    editor.value = value.slice(0, from) + text + value.slice(to);
+    editor.focus();
+    editor.selectionStart = editor.selectionEnd = from + text.length;
+    markPreset(null);
   }
 
   function start() {

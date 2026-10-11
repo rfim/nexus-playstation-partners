@@ -134,7 +134,7 @@
     },
     {
       "name": "hypothetical_workflow_weeks",
-      "layer": "seed",
+      "layer": "source",
       "rows": 16,
       "columns": [
         {
@@ -940,6 +940,226 @@
       ]
     },
     {
+      "name": "platform_dbt_model_runs",
+      "layer": "source",
+      "rows": 570,
+      "columns": [
+        {
+          "name": "run_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "run_date",
+          "type": "DATE"
+        },
+        {
+          "name": "model_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "execution_seconds",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR"
+        }
+      ]
+    },
+    {
+      "name": "platform_query_attribution",
+      "layer": "source",
+      "rows": 210,
+      "columns": [
+        {
+          "name": "warehouse_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "user_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "role_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "usage_date",
+          "type": "DATE"
+        },
+        {
+          "name": "query_count",
+          "type": "INTEGER"
+        },
+        {
+          "name": "credits_attributed",
+          "type": "DOUBLE"
+        }
+      ]
+    },
+    {
+      "name": "platform_warehouse_budget",
+      "layer": "source",
+      "rows": 4,
+      "columns": [
+        {
+          "name": "warehouse_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "resource_monitor",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "credit_quota",
+          "type": "INTEGER"
+        },
+        {
+          "name": "frequency",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "workload",
+          "type": "VARCHAR"
+        }
+      ]
+    },
+    {
+      "name": "platform_warehouse_metering",
+      "layer": "source",
+      "rows": 120,
+      "columns": [
+        {
+          "name": "warehouse_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "usage_date",
+          "type": "DATE"
+        },
+        {
+          "name": "credits_used_compute",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "credits_used_cloud_services",
+          "type": "DOUBLE"
+        }
+      ]
+    },
+    {
+      "name": "raw_partners",
+      "layer": "source",
+      "rows": 3,
+      "columns": [
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "region",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_tier",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMP"
+        }
+      ]
+    },
+    {
+      "name": "raw_publications",
+      "layer": "source",
+      "rows": 4,
+      "columns": [
+        {
+          "name": "publication_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "published_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "storefront_region",
+          "type": "VARCHAR"
+        }
+      ]
+    },
+    {
+      "name": "raw_submissions",
+      "layer": "source",
+      "rows": 9,
+      "columns": [
+        {
+          "name": "submission_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "submitted_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "reviewed_at",
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "build_version",
+          "type": "INTEGER"
+        },
+        {
+          "name": "return_reason",
+          "type": "VARCHAR"
+        }
+      ]
+    },
+    {
+      "name": "raw_titles",
+      "layer": "source",
+      "rows": 6,
+      "columns": [
+        {
+          "name": "title_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "partner_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "title_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "platform",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "planned_release_at",
+          "type": "DATE"
+        }
+      ]
+    },
+    {
       "name": "stg_partners",
       "layer": "staging",
       "rows": 3,
@@ -1190,6 +1410,62 @@
           "type": "VARCHAR"
         }
       ]
+    }
+  ],
+  "macros": [
+    {
+      "name": "difference_in_differences",
+      "path": "macros/difference_in_differences.sql",
+      "description": "Two-period difference-in-differences contrast. Identification needs separate design checks.",
+      "arguments": [
+        "treated_pre",
+        "treated_post",
+        "comparison_pre",
+        "comparison_post"
+      ],
+      "sql": "{% macro difference_in_differences(treated_pre, treated_post, comparison_pre, comparison_post) -%}\n    (({{ treated_post }}) - ({{ treated_pre }}))\n    - (({{ comparison_post }}) - ({{ comparison_pre }}))\n{%- endmacro %}"
+    },
+    {
+      "name": "review_hours",
+      "path": "macros/review_hours.sql",
+      "description": "Whole hours between submission and review, so every model measures review time the same way.",
+      "arguments": [
+        "start_time",
+        "end_time"
+      ],
+      "sql": "{% macro review_hours(start_time, end_time) %}\n    date_diff('hour', {{ start_time }}, {{ end_time }})\n{% endmacro %}"
+    },
+    {
+      "name": "safe_ratio",
+      "path": "macros/safe_ratio.sql",
+      "description": "Divides two expressions and returns null instead of failing when the denominator is zero.",
+      "arguments": [
+        "numerator",
+        "denominator"
+      ],
+      "sql": "{% macro safe_ratio(numerator, denominator) -%}\n    ({{ numerator }}) * 1.0 / nullif(({{ denominator }}), 0)\n{%- endmacro %}"
+    },
+    {
+      "name": "test_non_negative",
+      "path": "macros/non_negative.sql",
+      "description": "Generic data test that fails on any negative value in a column.",
+      "arguments": [
+        "model",
+        "column_name"
+      ],
+      "sql": "{% test non_negative(model, column_name) %}\nselect *\nfrom {{ model }}\nwhere {{ column_name }} < 0\n{% endtest %}"
+    },
+    {
+      "name": "wilson_score_bound",
+      "path": "macros/wilson_score_bound.sql",
+      "description": "Lower or upper Wilson score bound for a proportion. Algebra only; it is a valid interval only under a defensible sampling design.",
+      "arguments": [
+        "proportion",
+        "trials",
+        "side",
+        "z"
+      ],
+      "sql": "{% macro wilson_score_bound(proportion, trials, side, z=1.96) -%}\n    {% if side not in ['lower', 'upper'] %}\n        {{ exceptions.raise_compiler_error(\"wilson_score_bound side must be 'lower' or 'upper'\") }}\n    {% endif %}\n    (\n        case when ({{ trials }}) > 0 then\n            (\n                ({{ proportion }}) + ({{ z }} * {{ z }}) / (2.0 * ({{ trials }}))\n                {{ '-' if side == 'lower' else '+' }}\n                {{ z }} * sqrt(\n                    ({{ proportion }}) * (1.0 - ({{ proportion }})) / ({{ trials }})\n                    + ({{ z }} * {{ z }}) / (4.0 * ({{ trials }}) * ({{ trials }}))\n                )\n            ) / (1.0 + ({{ z }} * {{ z }}) / ({{ trials }}))\n        end\n    )\n{%- endmacro %}"
     }
   ]
 }
