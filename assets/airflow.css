@@ -89,3 +89,7 @@
 .afu-doc code{padding:.05rem .3rem;border-radius:4px;background:#edf2f7;font-size:.8em}
 .afu-doc-code{margin:.6rem 0;padding:.8rem .9rem;border-radius:6px;background:#0e213b;color:#d6e9fa;font:400 .74rem/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-x:auto;white-space:pre}
 @media(max-width:900px){.afu-files{grid-template-columns:minmax(0,1fr)}}
+.afu-pane-code{padding:0;border:0;background:none;overflow:visible}
+.afu-pane-code .afu-files{height:100%;min-height:560px}
+.afu-tree-title{margin:0 0 .4rem;color:#017cee;font-size:.68rem;font-weight:800}
+.afu-body.is-wide{grid-template-columns:minmax(0,1fr)}.afu-body.is-wide .afu-panel{display:none}
