@@ -41,6 +41,18 @@
     ],
   };
   RULES.yml = RULES.yaml;
+  RULES.json = [
+    ['key', /"(?:[^"\\]|\\.)*"(?=\s*:)/y],
+    ['str', /"(?:[^"\\]|\\.)*"/y],
+    ['num', /-?\b\d+(?:\.\d+)?\b/y],
+    ['kw', /\b(?:true|false|null)\b/y],
+  ];
+  RULES.md = [
+    ['kw', /^#{1,6} [^\n]*/my],
+    ['str', /`[^`\n]+`/y],
+    ['jinja', /\*\*[^*\n]+\*\*/y],
+    ['com', /^```[^\n]*/my],
+  ];
 
   const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 

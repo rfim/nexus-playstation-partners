@@ -22,15 +22,21 @@
   let panelTab = 'details';
   let timers = [];
   let active = null;
+  let files = [];
+  let codeBase = '';
+  let section = 'dags';
+  let openFile = null;
 
   Promise.all([
     fetch('assets/airflow.json').then((r) => r.json()),
-    fetch('assets/code.json').then((r) => r.json()).catch(() => null),
+    fetch('assets/airflow_code.json').then((r) => r.json()).catch(() => null),
   ]).then(([data, code]) => {
     dag = data;
     byId = Object.fromEntries(dag.tasks.map((t) => [t.task_id, t]));
     order = topoOrder();
-    source = code?.folders.flatMap((f) => f.files).find((f) => f.path === dag.source)?.code ?? '';
+    files = code?.folders ?? [];
+    codeBase = code?.base ?? '';
+    source = files.flatMap((f) => f.files).find((f) => f.path === dag.source)?.code ?? '';
     runs = [recordedRun()];
     selection = { run: 0, task: new URLSearchParams(location.search).get('task') || 'test_gate' };
     renderHeader();
@@ -48,6 +54,119 @@
     if (event.origin !== location.origin || event.data?.source !== 'nexus-sql') return;
     if (dag) handle(event.data); else inbox.push(event.data);
   });
+
+  document.querySelectorAll('.afu-nav [data-section]').forEach((b) => b.addEventListener('click', () => showSection(b.dataset.section)));
+
+  // ---- Sections: Dags, Code, Assets, Docs ------------------------------------
+  function showSection(name, file) {
+    section = name;
+    document.querySelectorAll('.afu-nav [data-section]').forEach((b) => b.classList.toggle('is-active', b.dataset.section === name));
+    $('#afu-dags-section').hidden = name !== 'dags';
+    const host = $('#afu-section');
+    host.hidden = name === 'dags';
+    if (name === 'code') renderCodeSection(host, file);
+    if (name === 'assets') renderAssets(host);
+    if (name === 'docs') renderDocs(host);
+  }
+
+  function crumbs(label) {
+    const c = el('div', 'afu-crumbs');
+    c.append(el('span', '', 'Airflow'), el('b', '', '›'), el('strong', '', label), el('em', 'afu-demo', 'Hypothetical · nothing executes in your browser'));
+    return c;
+  }
+
+  function renderCodeSection(host, wanted) {
+    const all = files.flatMap((f) => f.files);
+    openFile = all.find((f) => f.path === wanted) ?? openFile ?? all.find((f) => f.path === dag.source) ?? all[0];
+    const layout = el('div', 'afu-files');
+    const tree = el('nav', 'afu-tree');
+    tree.setAttribute('aria-label', 'Airflow files');
+    for (const folder of files) {
+      tree.append(el('p', 'afu-tree-folder', folder.folder));
+      for (const f of folder.files) {
+        const b = el('button', `afu-tree-file afu-lang-${f.language}${f.path === openFile.path ? ' is-active' : ''}`, f.path.split('/').pop());
+        b.type = 'button';
+        b.title = f.path;
+        b.addEventListener('click', () => { openFile = f; renderCodeSection(host); });
+        tree.append(b);
+      }
+    }
+    const viewer = el('div', 'afu-code afu-code-file');
+    const head = el('div', 'afu-code-head');
+    const where = el('span');
+    where.append(el('em', '', `${openFile.path.split('/').slice(0, -1).join('/')}/`), el('b', '', openFile.path.split('/').pop()));
+    const gh = el('a', '', 'GitHub ↗');
+    gh.href = codeBase + openFile.path;
+    gh.target = '_blank';
+    gh.rel = 'noopener noreferrer';
+    head.append(where, gh);
+    const pre = el('pre');
+    const lang = openFile.language;
+    const lines = window.NexusHighlight ? window.NexusHighlight.highlightLines(openFile.code.replace(/\n$/, ''), lang) : openFile.code.split('\n');
+    pre.innerHTML = lines.map((l, i) => `<span class="code-line"><span class="code-ln">${i + 1}</span>${l}</span>`).join('');
+    viewer.append(head, pre);
+    layout.append(tree, viewer);
+    host.replaceChildren(crumbs('Code'), el('h1', 'afu-section-title', 'Airflow project code'), layout);
+  }
+
+  function renderAssets(host) {
+    const producers = dag.tasks.filter((t) => t.outlets.length);
+    const list = el('div', 'afu-assets');
+    for (const t of producers) {
+      for (const uri of t.outlets) {
+        const card = el('article', 'afu-asset');
+        card.append(el('span', 'afu-eyebrow', 'ASSET'), el('h2', '', uri));
+        const dl = el('dl', 'afu-kv');
+        dl.append(el('dt', '', 'Updated by'), el('dd', '', `${dag.dag_id} › ${t.task_id}`));
+        dl.append(el('dt', '', 'Last update'), el('dd', '', runs.at(-1)?.tasks[t.task_id]?.state === 'success' ? `${runs.at(-1).run_id}` : 'no successful run yet'));
+        dl.append(el('dt', '', 'Scheduled consumers'), el('dd', '', 'none yet: a downstream DAG could schedule on this asset'));
+        card.append(dl);
+        list.append(card);
+      }
+    }
+    host.replaceChildren(crumbs('Assets'), el('h1', 'afu-section-title', 'Assets'), el('p', 'afu-pane-note', 'Outputs this DAG declares with outlets. Airflow records an asset event each time the producing task succeeds.'), list);
+  }
+
+  function renderDocs(host) {
+    const readme = files.flatMap((f) => f.files).find((f) => f.path.endsWith('README.md'));
+    const doc = el('article', 'afu-doc');
+    doc.innerHTML = markdown(readme?.code ?? 'No README found.');
+    host.replaceChildren(crumbs('Docs'), doc);
+  }
+
+  // Just enough Markdown for the README: headings, lists, code blocks, inline code, bold, links.
+  function markdown(text) {
+    const esc = (t) => t.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+    const inline = (t) => esc(t)
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    const out = [];
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i += 1) {
+      const line = lines[i];
+      if (line.startsWith('```')) {
+        const lang = line.slice(3).trim() || 'text';
+        const body = [];
+        while (++i < lines.length && !lines[i].startsWith('```')) body.push(lines[i]);
+        const code = window.NexusHighlight ? window.NexusHighlight.highlight(body.join('\n'), lang === 'bash' ? 'text' : lang) : esc(body.join('\n'));
+        out.push(`<pre class="afu-doc-code">${code}</pre>`);
+      } else if (/^#{1,3} /.test(line)) {
+        const level = line.match(/^#+/)[0].length;
+        out.push(`<h${level + 1}>${inline(line.replace(/^#+ /, ''))}</h${level + 1}>`);
+      } else if (/^- /.test(line)) {
+        const items = [line];
+        while (i + 1 < lines.length && /^(- |  )/.test(lines[i + 1])) items.push(lines[++i]);
+        const merged = items.join('\n').split(/\n(?=- )/).map((it) => `<li>${inline(it.replace(/^- /, '').replace(/\n\s+/g, ' '))}</li>`);
+        out.push(`<ul>${merged.join('')}</ul>`);
+      } else if (line.trim()) {
+        const para = [line];
+        while (i + 1 < lines.length && lines[i + 1].trim() && !/^(#|- |```)/.test(lines[i + 1])) para.push(lines[++i]);
+        out.push(`<p>${inline(para.join(' '))}</p>`);
+      }
+    }
+    return out.join('');
+  }
 
   document.querySelectorAll('.afu-tabs [data-tab]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.tab)));
   $('#afu-trigger').addEventListener('click', () => (active ? stop() : trigger()));
@@ -222,12 +341,10 @@
     const box = el('div', 'afu-code');
     const head = el('div', 'afu-code-head');
     head.append(el('span', '', path));
-    if (embedded) {
-      const open = el('button', '', 'Open in the dbt view');
-      open.type = 'button';
-      open.addEventListener('click', () => toWorkspace({ type: 'open-view', view: 'dbt', file: dag.source }));
-      head.append(open);
-    }
+    const open = el('button', '', 'Browse all Airflow code');
+    open.type = 'button';
+    open.addEventListener('click', () => showSection('code', path));
+    head.append(open);
     const pre = el('pre');
     const lines = window.NexusHighlight ? window.NexusHighlight.highlightLines(code.replace(/\n$/, ''), lang) : code.split('\n');
     pre.innerHTML = lines.map((l, i) => `<span class="code-line"><span class="code-ln">${i + 1}</span>${l}</span>`).join('');

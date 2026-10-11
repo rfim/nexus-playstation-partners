@@ -7,20 +7,19 @@
   <title>Airflow DAG | NEXUS by VIM</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="stylesheet" href="assets/highlight.css?v=1">
-  <link rel="stylesheet" href="assets/airflow.css?v=4">
-  <script src="assets/highlight.js?v=1" defer></script>
-  <script src="assets/airflow.js?v=5" defer></script>
+  <link rel="stylesheet" href="assets/airflow.css?v=5">
+  <script src="assets/highlight.js?v=2" defer></script>
+  <script src="assets/airflow.js?v=6" defer></script>
 </head>
 <body class="afu">
   <nav class="afu-nav" aria-label="Airflow navigation">
     <span class="afu-logo" title="Airflow (hypothetical)"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 16 L16 3 C21 3 25 7 25 11 Z" fill="#017cee"/><path d="M16 16 L29 16 C29 21 25 25 21 25 Z" fill="#00ad46"/><path d="M16 16 L16 29 C11 29 7 25 7 21 Z" fill="#e43921"/><path d="M16 16 L3 16 C3 11 7 7 11 7 Z" fill="#ffc80a"/></svg></span>
-    <span class="afu-navitem" title="Home (not part of this demo)">⌂<small>Home</small></span>
-    <span class="afu-navitem is-active" title="Dags">◫<small>Dags</small></span>
-    <span class="afu-navitem" title="Assets (not part of this demo)">◇<small>Assets</small></span>
-    <span class="afu-navitem" title="Browse (not part of this demo)">☰<small>Browse</small></span>
-    <span class="afu-navitem" title="Admin (not part of this demo)">⚙<small>Admin</small></span>
+    <button type="button" class="afu-navitem is-active" data-section="dags" title="Dags">◫<small>Dags</small></button>
+    <button type="button" class="afu-navitem" data-section="code" title="Airflow project code">&lt;/&gt;<small>Code</small></button>
+    <button type="button" class="afu-navitem" data-section="assets" title="Assets this DAG updates">◇<small>Assets</small></button>
+    <button type="button" class="afu-navitem" data-section="docs" title="Airflow README">☰<small>Docs</small></button>
   </nav>
-  <main class="afu-main">
+  <main class="afu-main" id="afu-dags-section">
     <div class="afu-crumbs"><span>Dags</span><b>›</b><strong id="afu-dag-crumb">nexus_partner_analytics</strong><em class="afu-demo">Hypothetical · replays a recorded run · nothing executes in your browser</em></div>
     <header class="afu-head">
       <div class="afu-title">
@@ -47,5 +46,6 @@
       <aside class="afu-panel" id="afu-panel" aria-live="polite"></aside>
     </div>
   </main>
+  <main class="afu-main afu-section" id="afu-section" hidden></main>
 </body>
 </html>

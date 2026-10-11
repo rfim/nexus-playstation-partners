@@ -52,7 +52,7 @@ you want to see the graph. CI runs the integrity checks on every push.
 
 ## On the site
 
-The dbt workspace has an **Airflow** tab, laid out like the Airflow UI: a Grid of runs × tasks, the Graph, the highlighted DAG Code and Details, with Details, Logs and Code for every task instance. The graph comes
+The dbt workspace has an **Airflow** tab, laid out like the Airflow UI: a Grid of runs × tasks, the Graph, the highlighted DAG Code and Details, with Details, Logs and Code for every task instance. Its left nav also opens **Code** (a browser over every file in `airflow/`, from `assets/airflow_code.json`), **Assets** (what the DAG's outlets update) and **Docs** (this README). The graph comes
 from `assets/airflow.json`, which `airflow/export_dag.py` writes from the DAG itself (CI
 checks it with `--check`). **Trigger DAG run** replays `airflow/recorded_run.json`, the task
 durations and dbt results captured from a real `airflow dags test` run, along the DAG's

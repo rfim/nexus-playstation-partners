@@ -9,6 +9,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "assets" / "snippets.json"
 CODE_OUTPUT = ROOT / "assets" / "code.json"
+AIRFLOW_OUTPUT = ROOT / "assets" / "airflow_code.json"
+
+# The Airflow tab's own file browser: the orchestration project, kept out of the dbt view.
+AIRFLOW_FOLDERS = (
+    ("dags", ["airflow/dags/*.py"]),
+    ("tests", ["airflow/tests/*.py"]),
+    ("tooling", ["airflow/export_dag.py", "airflow/requirements.txt", "airflow/recorded_run.json"]),
+    ("docs", ["airflow/README.md"]),
+)
 
 # The SQL workspace's code browser: every dbt and pipeline file, by folder.
 CODE_FOLDERS = (
@@ -24,11 +33,10 @@ CODE_FOLDERS = (
     ("seeds", ["seeds/*.yml"]),
     ("semantic", ["semantic/*"]),
     ("scripts", ["scripts/*.py"]),
-    ("airflow", ["airflow/dags/*.py", "airflow/*.py", "airflow/tests/*.py", "airflow/README.md"]),
     ("ci", [".github/workflows/*"]),
     ("docs", ["docs/*"]),
 )
-LANGUAGES = {".sql": "sql", ".yml": "yaml", ".yaml": "yaml", ".py": "python", ".md": "md", ".txt": "text"}
+LANGUAGES = {".sql": "sql", ".yml": "yaml", ".yaml": "yaml", ".py": "python", ".md": "md", ".txt": "text", ".json": "json"}
 BASE = "https://github.com/rfim/nexus-playstation-partners/blob/main/"
 
 ITEMS = {
@@ -81,9 +89,9 @@ def build() -> dict:
     return result
 
 
-def build_code() -> dict:
+def build_code(folder_spec=CODE_FOLDERS) -> dict:
     folders = []
-    for label, patterns in CODE_FOLDERS:
+    for label, patterns in folder_spec:
         paths = sorted({p for pattern in patterns for p in ROOT.glob(pattern) if p.is_file()})
         files = [
             {
@@ -105,12 +113,13 @@ def main() -> None:
     outputs = {
         OUTPUT: json.dumps(build(), indent=2, ensure_ascii=False) + "\n",
         CODE_OUTPUT: json.dumps(build_code(), indent=1, ensure_ascii=False) + "\n",
+        AIRFLOW_OUTPUT: json.dumps(build_code(AIRFLOW_FOLDERS), indent=1, ensure_ascii=False) + "\n",
     }
     if args.check:
         for path, rendered in outputs.items():
             if not path.exists() or path.read_text() != rendered:
                 raise SystemExit(f"assets/{path.name} is stale; run scripts/build_snippets.py")
-        print("snippets.json and code.json match repository source")
+        print("snippets.json, code.json and airflow_code.json match repository source")
     else:
         for path, rendered in outputs.items():
             path.write_text(rendered)
