@@ -24,6 +24,7 @@ CODE_FOLDERS = (
     ("seeds", ["seeds/*.yml"]),
     ("semantic", ["semantic/*"]),
     ("scripts", ["scripts/*.py"]),
+    ("airflow", ["airflow/dags/*.py", "airflow/tests/*.py", "airflow/README.md"]),
     ("ci", [".github/workflows/*"]),
     ("docs", ["docs/*"]),
 )
@@ -53,6 +54,7 @@ ITEMS = {
     "tests": ("Fanout assertion", "tests/assert_no_title_fanout.sql", "sql", "A singular dbt test fails if the one-row-per-title model changes its grain."),
     "exposure": ("Dashboard exposure", "models/marts/properties.yml", "yaml", "The dbt exposure links a proposed partner dashboard to its upstream mart."),
     "ci": ("Build on every change", ".github/workflows/ci.yml", "yaml", "GitHub Actions runs dbt build and checks generated site evidence."),
+    "airflowDag": ("Airflow DAG (hypothetical)", "airflow/dags/nexus_partner_analytics.py", "python", "The same build on an Airflow 3 schedule: ingest, snapshot, layer-by-layer build and test, a test gate, then publish."),
     "groups": ("Ownership groups", "models/groups.yml", "yaml", "Two dbt groups own every model; dbt_project.yml assigns each layer a group, an access level and a default classification."),
     "contract": ("Enforced contracts", "models/marts/properties.yml", "yaml", "dim_partner, fct_submission and mart_partner_publishing declare column names, types and constraints; dbt refuses to build a model that drifts from its contract."),
     "costBudget": ("Budget against actual", "models/platform/mart_cost_budget_vs_actual.sql", "sql", "Month-to-date credits against each resource-monitor quota, a run-rate forecast and a status that follows the monitor's triggers."),
