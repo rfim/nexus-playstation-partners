@@ -1,0 +1,3 @@
+# Install with the matching constraints file (see airflow/README.md).
+apache-airflow==3.2.2
+pytest==8.4.2

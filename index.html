@@ -8,7 +8,7 @@
   <title>NEXUS for PlayStation Partners | VIM · Senior Analytics Engineer</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="stylesheet" href="assets/site.css?v=9">
-  <link rel="stylesheet" href="assets/role-fit.css?v=1">
+  <link rel="stylesheet" href="assets/role-fit.css?v=2">
   <link rel="stylesheet" href="assets/playground.css?v=4">
   <link rel="stylesheet" href="assets/governance.css?v=4">
   <script src="assets/vendor/d3.v7.min.js" defer></script>
@@ -163,9 +163,9 @@
             <div class="fit-proof"><span>INSPECT THE EVIDENCE</span><p>Source and grain tests run in the synthetic dbt build. The monitoring panel illustrates a production response workflow.</p><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/tests/assert_no_title_fanout.sql" target="_blank" rel="noopener noreferrer">Grain test ↗</a><a href="https://github.com/rfim/nexus-playstation-partners/blob/main/.github/workflows/ci.yml" target="_blank" rel="noopener noreferrer">CI workflow ↗</a></div>
           </article>
           <article class="fit-panel" role="tabpanel" id="fit-panel-orchestration" aria-labelledby="fit-tab-orchestration" data-fit-panel="orchestration" hidden>
-            <div class="fit-panel-head"><div><span>02 / ORCHESTRATION</span><h3>A pipeline with <em>a recovery route.</em></h3><p>Make dependencies, retries and safe backfills visible along the NEXUS modelling path.</p></div><span class="fit-panel-status">SCHEDULER DESIGN PREVIEW</span></div>
+            <div class="fit-panel-head"><div><span>02 / ORCHESTRATION</span><h3>A pipeline with <em>a recovery route.</em></h3><p>Make dependencies, retries and safe backfills visible along the NEXUS modelling path.</p></div><span class="fit-panel-status">AIRFLOW DAG · HYPOTHETICAL</span></div>
             <div class="fit-surface"><span class="fit-eyebrow">PROPOSED RUN GRAPH</span><h4>One run, five deliberate checkpoints.</h4><div class="fit-flow" aria-label="Ingest, snapshot, stage, test, then publish"><div><b>Ingest</b><small>source arrival</small></div><i aria-hidden="true"></i><div><b>Snapshot</b><small>partner history</small></div><i aria-hidden="true"></i><div><b>Stage</b><small>types + keys</small></div><i aria-hidden="true"></i><div><b>Test</b><small>dbt gate</small></div><i aria-hidden="true"></i><div><b>Publish</b><small>trusted mart</small></div></div><div class="fit-three"><div><span>RETRY</span><h5>Transient failure?</h5><p>Bound retries and keep downstream models closed.</p></div><div><span>BACKFILL</span><h5>Late partner file?</h5><p>Reprocess the interval and rerun dependent checks.</p></div><div><span>EVIDENCE</span><h5>Ready to release?</h5><p>Expose test status, run ID and model version.</p></div></div></div>
-            <div class="fit-proof"><span>WHAT RUNS TODAY</span><p>The reference builds in GitHub Actions. Airflow, Dagster or Prefect would be a deployment choice, not a claim about this demo.</p><a href="https://github.com/rfim/nexus-playstation-partners/tree/main/.github/workflows" target="_blank" rel="noopener noreferrer">Inspect CI ↗</a></div>
+            <div class="fit-proof"><span>WHAT RUNS TODAY</span><p>The reference builds in GitHub Actions. A hypothetical Airflow 3 DAG runs the same graph on a schedule, with retries and a test gate before publish; it runs locally, not in this demo.</p><button type="button" data-snippet="airflowDag">Airflow DAG ↗</button><a href="https://github.com/rfim/nexus-playstation-partners/tree/main/.github/workflows" target="_blank" rel="noopener noreferrer">Inspect CI ↗</a></div>
           </article>
           <article class="fit-panel" role="tabpanel" id="fit-panel-semantic" aria-labelledby="fit-tab-semantic" data-fit-panel="semantic" hidden>
             <div class="fit-panel-head"><div><span>03 / SEMANTIC LAYER + METRICS</span><h3>One metric. <em>One meaning.</em></h3><p>Turn a business question into a versioned definition that survives dashboard handoffs.</p></div><span class="fit-panel-status">SYNTHETIC REFERENCE DATA</span></div>

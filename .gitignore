@@ -7,3 +7,5 @@ __pycache__/
 *.pyc
 .user.yml
 previews/
+.airflow/
+.venv-airflow/

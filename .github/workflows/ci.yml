@@ -23,3 +23,18 @@ jobs:
           python scripts/export_governance.py --check
           python scripts/export_platform.py --check
           python scripts/export_parquet.py --check
+
+  airflow-dag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Airflow with its constraints
+        run: python -m pip install -r airflow/requirements.txt --constraint https://raw.githubusercontent.com/apache/airflow/constraints-3.2.2/constraints-3.12.txt
+      - name: Check the DAG imports and matches the run design
+        env:
+          AIRFLOW_HOME: ${{ runner.temp }}/airflow
+          AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
+        run: python -m pytest -q airflow/tests
