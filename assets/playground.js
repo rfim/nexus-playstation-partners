@@ -1,6 +1,9 @@
 // Live SQL over the exported dbt models, run by DuckDB-WASM in the visitor's browser.
 const DUCKDB = "https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.0/+esm";
 const MAX_ROWS = 200;
+const MAX_TABS = 12;
+const MAX_HISTORY = 40;
+const STORAGE_KEY = "nexus-sql-workspace-v1";
 
 const PRESETS = {
   scorecard: {
@@ -152,28 +155,47 @@ function setup(root) {
   const runButton = root.querySelector("#sql-run");
   const status = root.querySelector("#sql-status");
   const output = root.querySelector("#sql-output");
-  const tabs = root.querySelector("#sql-presets");
+  const tabStrip = root.querySelector("#sql-tabs");
   const tableList = root.querySelector("#sql-tables");
+  const exampleList = root.querySelector("#sql-examples");
+  const historyList = root.querySelector("#sql-history");
+  const download = root.querySelector("#sql-download");
   let connection = null;
   let starting = null;
-  let lastResult = null;
+  let engineStatus = "Starting DuckDB…";
+
+  // Open query tabs and run history. Only SQL and titles are remembered
+  // between visits (in this browser); results are recomputed on demand.
+  const saved = load();
+  let tabs = saved.tabs;
+  let activeId = saved.activeId;
+  let history = saved.history;
+  let nextId = Math.max(0, ...tabs.map((t) => t.id)) + 1;
+
+  // Sidebar panels: tables, examples, history.
+  root.querySelectorAll("[data-panel]").forEach((button) => {
+    button.addEventListener("click", () => showPanel(button.dataset.panel));
+  });
 
   for (const [key, preset] of Object.entries(PRESETS)) {
     const button = document.createElement("button");
     button.type = "button";
+    button.className = "ex-item";
+    const summary = preset.sql.split("\n").find((line) => line.startsWith("--"))?.replace(/^--\s*/, "") ?? "";
+    button.innerHTML = "<strong></strong><small></small>";
+    button.querySelector("strong").textContent = preset.label;
+    button.querySelector("small").textContent = summary;
+    button.addEventListener("click", () => openTab({ title: preset.label, kind: "example", sql: preset.sql, run: true }));
     button.dataset.preset = key;
-    button.textContent = preset.label;
-    button.setAttribute("aria-pressed", "false");
-    tabs.append(button);
+    exampleList.append(button);
   }
 
-  tabs.addEventListener("click", (event) => {
-    const button = event.target.closest("button[data-preset]");
-    if (!button) return;
-    editor.value = PRESETS[button.dataset.preset].sql;
-    markPreset(button.dataset.preset);
-    run();
+  root.querySelector("#sql-history-clear").addEventListener("click", () => {
+    history = [];
+    save();
+    renderHistory();
   });
+
   runButton.addEventListener("click", run);
   editor.addEventListener("keydown", (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
@@ -181,12 +203,22 @@ function setup(root) {
       run();
     }
   });
-  editor.addEventListener("input", () => markPreset(null));
-  // Other pages can link straight to a preset with ?preset=<key>.
-  const requested = new URLSearchParams(location.search).get("preset");
-  const initial = PRESETS[requested] ? requested : "scorecard";
-  editor.value = PRESETS[initial].sql;
-  markPreset(initial);
+  editor.addEventListener("input", () => {
+    activeTab().sql = editor.value;
+    save();
+  });
+
+  download?.addEventListener("click", () => {
+    const result = activeTab().result;
+    if (!result) return;
+    const csv = [result.columns, ...result.rows.map((row) => row.map((cell) => cell.text))]
+      .map((row) => row.map(csvCell).join(",")).join("\n");
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    link.download = `${activeTab().title.replace(/[^\w.-]+/g, "_")}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  });
 
   fetch("assets/data/tables.json")
     .then((response) => response.json())
@@ -211,27 +243,214 @@ function setup(root) {
     }
   });
 
-  const download = root.querySelector("#sql-download");
-  download?.addEventListener("click", () => {
-    if (!lastResult) return;
-    const csv = [lastResult.columns, ...lastResult.rows].map((row) => row.map(csvCell).join(",")).join("\n");
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-    link.download = "nexus-query.csv";
-    link.click();
-    URL.revokeObjectURL(link.href);
-  });
+  // Other pages can link straight to an example with ?preset=<key>.
+  const requested = new URLSearchParams(location.search).get("preset");
+  if (PRESETS[requested]) {
+    openTab({ title: PRESETS[requested].label, kind: "example", sql: PRESETS[requested].sql, run: true });
+  } else {
+    renderTabs();
+    renderActive();
+    start().catch(() => {});
+  }
+  renderHistory();
 
-  // This page exists to run SQL: start DuckDB straight away, and run a linked preset.
-  if (requested && PRESETS[requested]) run();
-  else start().catch(() => {});
-
-  function markPreset(key) {
-    for (const button of tabs.querySelectorAll("button")) {
-      const active = button.dataset.preset === key;
-      button.classList.toggle("is-active", active);
-      button.setAttribute("aria-pressed", String(active));
+  function load() {
+    const fresh = {
+      tabs: [{ id: 1, title: PRESETS.scorecard.label, kind: "example", sql: PRESETS.scorecard.sql }],
+      activeId: 1,
+      history: [],
+    };
+    try {
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      if (!stored?.tabs?.length) return fresh;
+      const tabsBack = stored.tabs.filter((t) => typeof t.sql === "string").slice(0, MAX_TABS);
+      if (!tabsBack.length) return fresh;
+      return {
+        tabs: tabsBack,
+        activeId: tabsBack.some((t) => t.id === stored.activeId) ? stored.activeId : tabsBack[0].id,
+        history: Array.isArray(stored.history) ? stored.history.slice(0, MAX_HISTORY) : [],
+      };
+    } catch {
+      return fresh;
     }
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        tabs: tabs.map(({ id, title, kind, sql }) => ({ id, title, kind, sql })),
+        activeId,
+        history,
+      }));
+    } catch {
+      // Storage can be unavailable (private mode); tabs still work for this visit.
+    }
+  }
+
+  function activeTab() {
+    return tabs.find((t) => t.id === activeId) ?? tabs[0];
+  }
+
+  function openTab({ title, kind = "query", sql, run: runNow = false }) {
+    let tab = tabs.find((t) => t.title === title && t.sql === sql);
+    if (!tab) {
+      if (tabs.length >= MAX_TABS) {
+        // Drop the oldest tab that is not active to make room.
+        const victim = tabs.find((t) => t.id !== activeId);
+        tabs = tabs.filter((t) => t !== victim);
+      }
+      tab = { id: nextId++, title, kind, sql };
+      tabs.push(tab);
+    }
+    activeId = tab.id;
+    save();
+    renderTabs();
+    renderActive();
+    if (runNow && kind !== "macro") run();
+    else start().catch(() => {});
+    return tab;
+  }
+
+  function newTab() {
+    const used = new Set(tabs.map((t) => t.title));
+    let n = 1;
+    while (used.has(`Query ${n}`)) n += 1;
+    openTab({ title: `Query ${n}`, sql: "-- Write SQL against any table in the sidebar\nselect *\nfrom mart_partner_publishing;\n" });
+    editor.focus();
+  }
+
+  function closeTab(id) {
+    const index = tabs.findIndex((t) => t.id === id);
+    if (index < 0) return;
+    tabs.splice(index, 1);
+    if (!tabs.length) {
+      tabs.push({ id: nextId++, title: "Query 1", kind: "query", sql: "" });
+    }
+    if (activeId === id) activeId = tabs[Math.min(index, tabs.length - 1)].id;
+    save();
+    renderTabs();
+    renderActive();
+  }
+
+  function selectTab(id) {
+    activeId = id;
+    save();
+    renderTabs();
+    renderActive();
+  }
+
+  function renderTabs() {
+    tabStrip.replaceChildren();
+    for (const tab of tabs) {
+      const wrap = document.createElement("div");
+      wrap.className = `qtab qtab-${tab.kind}`;
+      wrap.classList.toggle("is-active", tab.id === activeId);
+      const select = document.createElement("button");
+      select.type = "button";
+      select.className = "qtab-title";
+      select.setAttribute("role", "tab");
+      select.setAttribute("aria-selected", String(tab.id === activeId));
+      select.textContent = tab.title;
+      select.title = tab.title;
+      select.addEventListener("click", () => selectTab(tab.id));
+      select.addEventListener("auxclick", (event) => { if (event.button === 1) closeTab(tab.id); });
+      const close = document.createElement("button");
+      close.type = "button";
+      close.className = "qtab-close";
+      close.setAttribute("aria-label", `Close ${tab.title}`);
+      close.textContent = "×";
+      close.addEventListener("click", () => closeTab(tab.id));
+      wrap.append(select, close);
+      tabStrip.append(wrap);
+    }
+    const add = document.createElement("button");
+    add.type = "button";
+    add.className = "qtab-new";
+    add.setAttribute("aria-label", "New query tab");
+    add.title = "New query tab";
+    add.textContent = "+";
+    add.addEventListener("click", newTab);
+    tabStrip.append(add);
+    tabStrip.querySelector(".is-active")?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+
+  function renderActive() {
+    const tab = activeTab();
+    editor.value = tab.sql;
+    editor.readOnly = tab.kind === "macro";
+    runButton.disabled = tab.kind === "macro";
+    if (tab.error) {
+      const pre = document.createElement("pre");
+      pre.className = "sql-error";
+      pre.textContent = tab.error;
+      output.replaceChildren(pre);
+    } else if (tab.result) {
+      output.replaceChildren(resultTable(tab.result));
+    } else {
+      const empty = document.createElement("p");
+      empty.className = "sql-empty";
+      empty.textContent = tab.kind === "macro"
+        ? "dbt macros compile into model SQL; read the source above."
+        : "Run this tab to see results. Ctrl+Enter runs it from the editor.";
+      output.replaceChildren(empty);
+    }
+    if (download) download.disabled = !tab.result;
+    showStatus();
+  }
+
+  function showStatus() {
+    status.textContent = activeTab().status ?? engineStatus;
+  }
+
+  function showPanel(name) {
+    root.querySelectorAll("[data-panel]").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.panel === name)));
+    root.querySelectorAll("[data-panel-body]").forEach((p) => { p.hidden = p.dataset.panelBody !== name; });
+  }
+
+  function renderHistory() {
+    historyList.replaceChildren();
+    if (!history.length) {
+      const empty = document.createElement("p");
+      empty.className = "sql-hint";
+      empty.textContent = "Queries you run appear here, newest first. They stay in this browser only.";
+      historyList.append(empty);
+      return;
+    }
+    for (const entry of history) {
+      const item = document.createElement("div");
+      item.className = `hist-item${entry.ok ? "" : " is-failed"}`;
+      const open = document.createElement("button");
+      open.type = "button";
+      open.className = "hist-open";
+      open.title = entry.sql;
+      open.innerHTML = "<strong></strong><code></code><small></small>";
+      open.querySelector("strong").textContent = entry.title;
+      open.querySelector("code").textContent = entry.sql.split("\n").filter((l) => l.trim() && !l.trim().startsWith("--")).join(" ").slice(0, 90);
+      const when = new Date(entry.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      open.querySelector("small").textContent = entry.ok ? `${when} · ${entry.rows} row${entry.rows === 1 ? "" : "s"} · ${entry.ms} ms` : `${when} · failed`;
+      open.addEventListener("click", () => openTab({ title: entry.title, sql: entry.sql, kind: entry.kind ?? "query" }));
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "hist-remove";
+      remove.setAttribute("aria-label", "Remove from history");
+      remove.textContent = "×";
+      remove.addEventListener("click", () => {
+        history = history.filter((h) => h !== entry);
+        save();
+        renderHistory();
+      });
+      item.append(open, remove);
+      historyList.append(item);
+    }
+  }
+
+  function remember(tab, entry) {
+    const sql = tab.sql.trim();
+    history = history.filter((h) => h.sql.trim() !== sql);
+    history.unshift({ title: tab.title, kind: tab.kind, sql: tab.sql, at: Date.now(), ...entry });
+    history = history.slice(0, MAX_HISTORY);
+    save();
+    renderHistory();
   }
 
   function renderTables(tables, macros) {
@@ -300,16 +519,11 @@ function setup(root) {
     show.innerHTML = `${macro.name.replace(/_/g, "_<wbr>")}<span class="tbl-args"></span>`;
     show.querySelector(".tbl-args").textContent = `(${macro.arguments.join(", ")})`;
     show.addEventListener("click", () => {
-      const pre = document.createElement("pre");
-      pre.className = "sql-macro";
-      pre.textContent = macro.sql;
-      const head = document.createElement("p");
-      head.className = "sql-macro-head";
-      head.textContent = `${macro.path} · ${macro.description || "dbt macro"}`;
-      output.replaceChildren(head, pre);
-      status.textContent = `Macro ${macro.name}: dbt compiles it into model SQL, so it is shown here rather than run.`;
-      if (download) download.disabled = true;
-      lastResult = null;
+      openTab({
+        title: macro.name,
+        kind: "macro",
+        sql: `-- dbt macro ${macro.name}(${macro.arguments.join(", ")}) · ${macro.path}\n-- ${macro.description}\n-- dbt compiles macros into model SQL, so this tab is for reading, not running.\n\n${macro.sql}\n`,
+      });
     });
     const note = document.createElement("span");
     note.className = "tbl-note";
@@ -332,9 +546,7 @@ function setup(root) {
     // Identifiers wrap at underscores rather than mid-word.
     preview.innerHTML = table.name.replace(/_/g, "_<wbr>");
     preview.addEventListener("click", () => {
-      editor.value = `select *\nfrom ${table.name}\nlimit 50;`;
-      markPreset(null);
-      run();
+      openTab({ title: table.name, kind: "table", sql: `select *\nfrom ${table.name}\nlimit 50;`, run: true });
     });
     const toggle = document.createElement("button");
     toggle.type = "button";
@@ -368,16 +580,20 @@ function setup(root) {
   }
 
   function insertText(text) {
+    const tab = activeTab();
+    if (tab.kind === "macro") return;
     const { selectionStart: from, selectionEnd: to, value } = editor;
     editor.value = value.slice(0, from) + text + value.slice(to);
     editor.focus();
     editor.selectionStart = editor.selectionEnd = from + text.length;
-    markPreset(null);
+    tab.sql = editor.value;
+    save();
   }
 
   function start() {
     starting ??= (async () => {
-      status.textContent = "Starting DuckDB in your browser…";
+      engineStatus = "Starting DuckDB in your browser…";
+      showStatus();
       const duckdb = await import(DUCKDB);
       const bundle = await duckdb.selectBundle(duckdb.getJsDelivrBundles());
       const workerUrl = URL.createObjectURL(
@@ -396,80 +612,87 @@ function setup(root) {
         await conn.query(`create view "${table.name}" as select * from read_parquet('${file}')`);
       }
       const version = (await conn.query("select version() as v")).toArray()[0].v;
-      status.textContent = `DuckDB ${version} ready · ${tables.length} dbt tables loaded`;
+      engineStatus = `DuckDB ${version} ready · ${tables.length} dbt tables loaded`;
+      showStatus();
       connection = conn;
       return conn;
     })();
     starting.catch((error) => {
       starting = null;
-      status.textContent = "DuckDB could not start in this browser.";
-      showError(error);
+      engineStatus = "DuckDB could not start in this browser.";
+      const tab = activeTab();
+      tab.result = null;
+      tab.error = String(error?.message ?? error);
+      tab.status = engineStatus;
+      renderActive();
     });
     return starting;
   }
 
   async function run() {
-    const sql = editor.value.trim();
-    if (!sql) return;
+    const tab = activeTab();
+    const sql = tab.sql.trim();
+    if (!sql || tab.kind === "macro") return;
     runButton.disabled = true;
     try {
       const conn = connection ?? await start();
-      status.textContent = "Running…";
+      tab.status = "Running…";
+      if (tab === activeTab()) showStatus();
       const began = performance.now();
       const result = await conn.query(sql);
       const elapsed = Math.round(performance.now() - began);
-      renderResult(result);
+      tab.result = collect(result);
+      tab.error = null;
       const shown = Math.min(result.numRows, MAX_ROWS);
-      status.textContent = `${result.numRows} row${result.numRows === 1 ? "" : "s"} in ${elapsed} ms`
+      tab.status = `${result.numRows} row${result.numRows === 1 ? "" : "s"} in ${elapsed} ms`
         + (shown < result.numRows ? ` · showing first ${shown}` : "");
+      remember(tab, { ok: true, rows: result.numRows, ms: elapsed });
     } catch (error) {
-      status.textContent = "Query failed";
-      showError(error);
+      tab.result = null;
+      tab.error = String(error?.message ?? error);
+      tab.status = "Query failed";
+      remember(tab, { ok: false });
     } finally {
-      runButton.disabled = false;
+      runButton.disabled = activeTab().kind === "macro";
+      if (tab === activeTab()) renderActive();
     }
   }
 
-  function renderResult(result) {
+  function collect(result) {
     const fields = result.schema.fields;
     const columns = fields.map((field) => field.name);
     const kinds = fields.map((field) => String(field.type).split("<")[0]);
+    const rows = result.toArray().map((row) => columns.map((name, index) => {
+      const value = row[name];
+      return {
+        text: format(value, kinds[index]),
+        num: typeof value === "number" || typeof value === "bigint",
+        nul: value === null || value === undefined,
+      };
+    }));
+    return { columns, rows };
+  }
+
+  function resultTable(result) {
     const table = document.createElement("table");
     const head = table.createTHead().insertRow();
-    for (const name of columns) {
+    for (const name of result.columns) {
       const th = document.createElement("th");
       th.scope = "col";
       th.textContent = name;
       head.append(th);
     }
     const body = table.createTBody();
-    const allRows = result.toArray();
-    lastResult = {
-      columns,
-      rows: allRows.map((row) => columns.map((name, index) => format(row[name], kinds[index]))),
-    };
-    if (download) download.disabled = false;
-    const rows = allRows.slice(0, MAX_ROWS);
-    for (const row of rows) {
+    for (const row of result.rows.slice(0, MAX_ROWS)) {
       const tr = body.insertRow();
-      columns.forEach((name, index) => {
-        const value = row[name];
+      for (const cell of row) {
         const td = tr.insertCell();
-        td.textContent = format(value, kinds[index]);
-        if (typeof value === "number" || typeof value === "bigint") td.className = "num";
-        if (value === null || value === undefined) td.className = "null";
-      });
+        td.textContent = cell.text;
+        if (cell.nul) td.className = "null";
+        else if (cell.num) td.className = "num";
+      }
     }
-    output.replaceChildren(table);
-  }
-
-  function showError(error) {
-    lastResult = null;
-    if (download) download.disabled = true;
-    const pre = document.createElement("pre");
-    pre.className = "sql-error";
-    pre.textContent = String(error?.message ?? error);
-    output.replaceChildren(pre);
+    return table;
   }
 }
 

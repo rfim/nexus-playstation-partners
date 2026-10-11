@@ -8,8 +8,8 @@
   <title>Live SQL Workspace | NEXUS by VIM</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="stylesheet" href="assets/site.css?v=8">
-  <link rel="stylesheet" href="assets/playground.css?v=4">
-  <script src="assets/playground.js?v=6" type="module"></script>
+  <link rel="stylesheet" href="assets/playground.css?v=5">
+  <script src="assets/playground.js?v=7" type="module"></script>
 </head>
 <body class="sql-page">
   <a class="skip-link" href="#sql-editor">Skip to the SQL editor</a>
@@ -30,16 +30,27 @@
       <p><code>dbt build</code> exports the raw sources and every bronze, silver and gold model, plus the platform cost, governance and lineage tables, as Parquet. The project macros are listed too. GitHub Actions rebuilds them and checks that the files match. DuckDB-WASM loads them here, so your SQL runs on your own device and nothing is sent to a server.</p>
     </div>
     <div class="sql-layout">
-      <aside class="playground-tables" aria-label="Tables from the dbt build">
-        <span class="panel-eyebrow">TABLES</span>
-        <label class="visually-hidden" for="sql-table-filter">Filter tables</label>
-        <input id="sql-table-filter" class="sql-filter" type="search" placeholder="Filter tables…" autocomplete="off">
-        <div id="sql-tables">Loading tables…</div>
-        <p class="sql-hint">Select a table name to preview it. Open its columns to insert one into the query.</p>
+      <aside class="playground-tables" aria-label="Workspace sidebar">
+        <div class="side-switch" role="tablist" aria-label="Sidebar">
+          <button type="button" role="tab" data-panel="tables" aria-selected="true">Tables</button><button type="button" role="tab" data-panel="examples" aria-selected="false">Examples</button><button type="button" role="tab" data-panel="history" aria-selected="false">History</button>
+        </div>
+        <div class="side-panel" data-panel-body="tables">
+          <label class="visually-hidden" for="sql-table-filter">Filter tables</label>
+          <input id="sql-table-filter" class="sql-filter" type="search" placeholder="Filter tables or columns…" autocomplete="off">
+          <div id="sql-tables">Loading tables…</div>
+          <p class="sql-hint">Select a table to open it in a tab. Open its columns to insert one into the query.</p>
+        </div>
+        <div class="side-panel" data-panel-body="examples" hidden>
+          <div id="sql-examples" class="ex-list"></div>
+          <p class="sql-hint">Each example opens in its own tab and runs.</p>
+        </div>
+        <div class="side-panel" data-panel-body="history" hidden>
+          <div class="hist-head"><span>Recent runs</span><button type="button" id="sql-history-clear">Clear</button></div>
+          <div id="sql-history" class="hist-list"></div>
+        </div>
       </aside>
       <div class="code-window playground-window">
-        <div class="code-window-top"><span class="window-dots" aria-hidden="true"><i></i><i></i><i></i></span><span>query.sql</span><span>DuckDB</span></div>
-        <div class="code-tabs" id="sql-presets" aria-label="Example queries"></div>
+        <div class="qtabs" id="sql-tabs" role="tablist" aria-label="Open queries"></div>
         <label class="visually-hidden" for="sql-editor">SQL query</label>
         <textarea id="sql-editor" class="sql-editor" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
         <div class="code-footer"><span id="sql-status" role="status" aria-live="polite">Starting DuckDB…</span><span class="sql-actions"><button type="button" id="sql-download" class="sql-secondary" disabled>Download CSV</button><button type="button" id="sql-run" class="sql-run">Run <kbd>Ctrl ↵</kbd></button></span></div>
