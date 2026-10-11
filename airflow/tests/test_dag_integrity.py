@@ -17,7 +17,8 @@ PROJECT = Path(__file__).resolve().parents[2]
 def dag():
     bag = DagBag(dag_folder=str(DAGS), include_examples=False)
     assert bag.import_errors == {}
-    return bag.get_dag("nexus_partner_analytics")
+    # Read the parsed DAG straight from the bag: no metadata database needed.
+    return bag.dags["nexus_partner_analytics"]
 
 
 def test_schedule_and_defaults(dag):
