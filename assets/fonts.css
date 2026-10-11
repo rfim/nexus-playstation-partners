@@ -1,0 +1,6 @@
+/* Typography. PlayStation's brand face is SST (Sony, licensed from Monotype), which
+   cannot be redistributed, so it is requested first for anyone who has it installed and
+   Source Sans 3, a free humanist sans close to it, is served to everyone else. Code keeps
+   its monospace face. */
+:root{--font-ui:"SST","SST W01 Roman","Source Sans 3","Source Sans Pro",system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select,textarea{font-family:var(--font-ui)}

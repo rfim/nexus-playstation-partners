@@ -1,5 +1,5 @@
 /* Airflow-style UI for the hypothetical DAG (light, like the Airflow 3 web UI). */
-.afu{display:flex;min-height:100vh;margin:0;color:#1a202c;background:#f7f8fa;font:400 14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.afu{display:flex;min-height:100vh;margin:0;color:#1a202c;background:#f7f8fa;font:400 14px/1.5 var(--font-ui)}
 .afu-nav{display:flex;flex-direction:column;align-items:center;gap:.3rem;width:62px;padding:.7rem 0;background:#fff;border-right:1px solid #e2e8f0}
 .afu-logo svg{width:30px;height:30px;margin-bottom:.6rem}
 .afu-navitem{display:flex;flex-direction:column;align-items:center;width:52px;padding:.4rem 0;border-radius:8px;color:#718096;font-size:1rem;cursor:default}
@@ -45,7 +45,7 @@
 .afu-node{cursor:pointer}.afu-node-box{fill:#fff;stroke:#cbd5e0}.afu-node:hover .afu-node-box{stroke:#017cee}.afu-node.is-selected .afu-node-box{stroke:#1a202c;stroke-width:2}
 .afu-node-bar{fill:#cbd5e0}.afu-node.afu-s-success .afu-node-bar{fill:#00ad46}.afu-node.afu-s-running .afu-node-bar{fill:#01c0e0}.afu-node.afu-s-failed .afu-node-bar{fill:#e43921}.afu-node.afu-s-up_for_retry .afu-node-bar{fill:#f6b100}.afu-node.afu-s-upstream_failed .afu-node-bar{fill:#f08a24}.afu-node.afu-s-queued .afu-node-bar{fill:#a0aec0}
 .afu-node[class*="afu-s-"]{background:none!important;animation:none}
-.afu-node-name{fill:#1a202c;font:700 11.5px ui-monospace,SFMono-Regular,Menlo,monospace}.afu-node-state{fill:#718096;font:500 10px system-ui,sans-serif}
+.afu-node-name{fill:#1a202c;font:700 11.5px ui-monospace,SFMono-Regular,Menlo,monospace}.afu-node-state{fill:#718096;font:500 10px var(--font-ui)}
 /* Code */
 .afu-code{display:flex;flex-direction:column;height:100%;margin:-.8rem;border-radius:8px;background:#0e213b;overflow:hidden}
 .afu-code-head{display:flex;justify-content:space-between;align-items:center;padding:.55rem .9rem;border-bottom:1px solid #2d4f75;color:#a9c2df;font:600 .74rem ui-monospace,SFMono-Regular,Menlo,monospace}
@@ -72,7 +72,7 @@
 /* Working nav and its sections: Code, Assets, Docs */
 .afu-navitem{border:0;background:none;font:inherit;font-size:1rem;cursor:pointer}.afu-navitem:hover{background:#f0f5ff;color:#017cee}
 .afu-section[hidden],#afu-dags-section[hidden]{display:none}
-.afu-section-title{margin:0;font:700 1.2rem system-ui,sans-serif}
+.afu-section-title{margin:0;font:700 1.2rem var(--font-ui)}
 .afu-files{display:grid;grid-template-columns:240px minmax(0,1fr);gap:.8rem;flex:1;min-height:0}
 .afu-tree{padding:.7rem;border:1px solid #e2e8f0;border-radius:8px;background:#fff;overflow:auto}
 .afu-tree-folder{margin:.5rem 0 .2rem;color:#718096;font:700 .66rem ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;letter-spacing:.06em}.afu-tree-folder:first-child{margin-top:0}
