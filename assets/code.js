@@ -7,15 +7,20 @@
   let base = '';
   let current = null;
   let cost = null;
+  let models = {};
+  let lineage = null;
   const usd = (v) => `$${Number(v).toFixed(2)}`;
 
   Promise.all([
     fetch('assets/code.json').then((r) => r.json()),
     fetch('assets/platform.json').then((r) => r.json()).catch(() => null),
+    fetch('assets/governance.json').then((r) => r.json()).catch(() => null),
   ])
-    .then(([data, platform]) => {
+    .then(([data, platform, governance]) => {
       base = data.base;
       cost = platform?.cost ?? null;
+      lineage = platform?.lineage ?? null;
+      models = Object.fromEntries((governance?.models ?? []).map((m) => [m.name, m]));
       renderTree(data.folders);
       const wanted = new URLSearchParams(location.search).get('file');
       const first = data.folders.flatMap((f) => f.files).find((f) => f.path === wanted)
@@ -90,6 +95,7 @@
     const actions = $('#code-actions');
     actions.replaceChildren();
     const model = file.path.match(/^(?:models\/[^/]+|snapshots)\/(\w+)\.sql$/)?.[1];
+    renderMeta(model);
     renderCostStrip(model);
     if (model && embedded) {
       actions.append(button('Preview output in a SQL tab', () => toWorkspace({ type: 'open-sql', title: model, kind: 'table', sql: `select *\nfrom ${model}\nlimit 50;` })));
@@ -126,8 +132,71 @@
     }));
   }
 
+  function renderMeta(model) {
+    const meta = $('#code-meta');
+    const m = model && models[model];
+    const node = model && lineage?.nodes.find((n) => n.name === model && (n.type === 'model' || n.type === 'snapshot'));
+    meta.hidden = !(m || node);
+    if (meta.hidden) return;
+    meta.replaceChildren();
+    if (m?.description || node?.description) meta.append(text('p', 'meta-desc', m?.description || node.description));
+    const chips = document.createElement('div');
+    chips.className = 'meta-chips';
+    const chip = (label, value, tone = '') => {
+      if (value === undefined || value === null || value === '') return;
+      const c = document.createElement('span');
+      c.className = `meta-chip ${tone}`;
+      c.append(text('small', '', label), text('b', '', value));
+      chips.append(c);
+    };
+    chip('layer', m?.layer ?? node?.layer);
+    chip('materialized', m?.materialized ?? node?.materialized);
+    chip('owner', m?.group ?? node?.group);
+    chip('access', m?.access ?? node?.access, `tone-${m?.access ?? node?.access}`);
+    if (m) chip('contract', m.contract_enforced ? 'enforced' : 'none', m.contract_enforced ? 'tone-contract' : '');
+    chip('class', (m?.classification ?? node?.classification)?.replace('_', ' '), `tone-${m?.classification ?? node?.classification}`);
+    if (m) chip('tests', m.tests);
+    meta.append(chips);
+    if (node && lineage) {
+      const byId = Object.fromEntries(lineage.nodes.map((n) => [n.id, n]));
+      const ups = lineage.edges.filter((e) => e.to === node.id).map((e) => byId[e.from]);
+      const downs = lineage.edges.filter((e) => e.from === node.id).map((e) => byId[e.to]);
+      meta.append(linkRow('Reads', ups), linkRow('Used by', downs));
+    }
+  }
+
+  function linkRow(label, nodes) {
+    const row = document.createElement('div');
+    row.className = 'meta-links';
+    row.append(text('span', 'meta-label', label));
+    if (!nodes.length) row.append(text('em', '', 'nothing yet'));
+    for (const n of nodes) {
+      const file = [...document.querySelectorAll('.code-file')].find((f) => f.dataset.path.endsWith(`/${n.name}.sql`));
+      const item = document.createElement(file ? 'button' : 'span');
+      item.className = `meta-node meta-${n.type}`;
+      item.textContent = n.name;
+      if (file) {
+        item.type = 'button';
+        item.title = `Open ${file.dataset.path}`;
+        item.addEventListener('click', () => file.click());
+      } else {
+        item.title = n.type === 'exposure' ? 'Dashboard (dbt exposure)' : `${n.type}`;
+      }
+      row.append(item);
+    }
+    return row;
+  }
+
+  function text(tag, className, value) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    node.textContent = value;
+    return node;
+  }
+
   function showCost() {
     current = null;
+    $('#code-meta').hidden = true;
     document.querySelectorAll('.code-file').forEach((b) => b.classList.toggle('is-active', b.dataset.path === '#cost'));
     $('#code-folder').textContent = 'platform cost · ';
     $('#code-path').textContent = `month to date at ${cost.as_of_date}`;

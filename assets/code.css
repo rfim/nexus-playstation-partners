@@ -33,3 +33,18 @@
 .ov-models{display:grid;gap:.15rem}.ov-model{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(60px,1fr) 7.5rem;align-items:center;gap:.7rem;padding:.35rem .5rem;border:0;border-radius:6px;background:none;color:#e2efff;text-align:left;cursor:pointer}.ov-model:hover{background:#13294a}
 .ov-name{font:600 .66rem ui-monospace,SFMono-Regular,Menlo,monospace}.ov-bar{position:relative;height:9px}.ov-bar:after{content:"";position:absolute;inset:0 auto 0 0;width:var(--w);border-radius:0 4px 4px 0;background:#eb6834}.ov-value{color:#a8bfd9;font-size:.64rem;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ov-note{margin:1rem 0 0;color:#7f9bbd;font-size:.64rem}
+/* Model header: description, governance chips and lineage links */
+.code-meta{display:grid;gap:.55rem;padding:.8rem 1rem;border-bottom:1px solid #2d4f75;background:linear-gradient(120deg,#102847,#0e213b)}.code-meta[hidden]{display:none}
+.meta-desc{margin:0;max-width:900px;color:#c3d4e8;font-size:.78rem;line-height:1.55}
+.meta-chips{display:flex;flex-wrap:wrap;gap:.35rem}
+.meta-chip{display:inline-flex;align-items:baseline;gap:.35rem;padding:.2rem .55rem;border:1px solid #2d4f75;border-radius:999px;background:#0b1b31}
+.meta-chip small{color:#7f9bbd;font-size:.56rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.meta-chip b{color:#e2efff;font-size:.68rem}
+.meta-chip.tone-public{border-color:#2f7d58}.meta-chip.tone-public b{color:#8adbb9}.meta-chip.tone-protected{border-color:#7a6420}.meta-chip.tone-protected b{color:#f4ca72}
+.meta-chip.tone-contract{border-color:#2f6fbf}.meta-chip.tone-contract b{color:#9fd1ff}.meta-chip.tone-partner_confidential b{color:#ffb48a}
+.meta-links{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem}
+.meta-label{width:4.6rem;color:#7f9bbd;font-size:.58rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+.meta-links em{color:#7f9bbd;font-size:.64rem}
+.meta-node{padding:.18rem .5rem;border:1px solid #2d4f75;border-radius:5px;background:none;color:#d6e9fa;font:600 .64rem ui-monospace,SFMono-Regular,Menlo,monospace}
+button.meta-node{cursor:pointer}button.meta-node:hover{border-color:#8ecbff;background:#13294a}
+.meta-source{color:#a9c2df;border-style:dashed}.meta-exposure{border-color:#7a3b2a;color:#ffb48a}.meta-seed{color:#f4ca72;border-style:dashed}
+.code-body{font-size:.78rem}

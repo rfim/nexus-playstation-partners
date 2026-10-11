@@ -168,6 +168,8 @@ function setup(root) {
   const download = root.querySelector("#sql-download");
   const windowEl = root.querySelector(".playground-window");
   const viewHost = root.querySelector("#sql-views");
+  const layoutEl = root.querySelector(".sql-layout");
+  const focusButton = root.querySelector("#sql-focus");
   const frames = {};
   let connection = null;
   let starting = null;
@@ -180,6 +182,17 @@ function setup(root) {
   let activeId = saved.activeId;
   let history = saved.history;
   let nextId = Math.max(0, ...tabs.map((t) => t.id)) + 1;
+
+  // Focus mode: the workspace fills the window; Esc or the button leaves it.
+  const setFocus = (on) => {
+    document.body.classList.toggle("sql-focus", on);
+    focusButton?.setAttribute("aria-pressed", String(on));
+    if (focusButton) focusButton.textContent = on ? "Exit focus" : "Focus";
+  };
+  focusButton?.addEventListener("click", () => setFocus(!document.body.classList.contains("sql-focus")));
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && document.body.classList.contains("sql-focus")) setFocus(false);
+  });
 
   root.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => openView(button.dataset.view));
@@ -281,7 +294,11 @@ function setup(root) {
 
   function load() {
     const fresh = {
-      tabs: [{ id: 1, title: PRESETS.scorecard.label, kind: "example", sql: PRESETS.scorecard.sql }],
+      // First visit lands on the dbt project, with a ready query beside it.
+      tabs: [
+        { id: 1, title: VIEWS.dbt.label, kind: "view", view: "dbt", sql: "" },
+        { id: 2, title: PRESETS.scorecard.label, kind: "example", sql: PRESETS.scorecard.sql },
+      ],
       activeId: 1,
       history: [],
     };
@@ -457,6 +474,8 @@ function setup(root) {
     const tab = activeTab();
     const isView = tab.kind === "view";
     windowEl.classList.toggle("is-view", isView);
+    // Views bring their own navigation, so they take the full workspace width.
+    layoutEl.classList.toggle("is-view-mode", isView);
     viewHost.hidden = !isView;
     for (const frame of Object.values(frames)) frame.hidden = !isView || frame.dataset.view !== tab.view;
     if (isView) {
