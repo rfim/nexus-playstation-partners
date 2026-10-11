@@ -65,7 +65,7 @@
     for (const folder of folders) {
       const group = document.createElement('details');
       group.className = 'code-group';
-      group.open = folder.folder.startsWith('models/') || folder.folder === 'macros' || folder.folder === 'airflow';
+      group.open = folder.folder.startsWith('models/') || folder.folder === 'macros';
       const summary = document.createElement('summary');
       summary.innerHTML = '<span></span><small></small>';
       summary.querySelector('span').textContent = folder.folder;

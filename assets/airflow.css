@@ -69,3 +69,23 @@
 @media(prefers-reduced-motion:reduce){.afu-s-running{animation:none}}
 @media(max-width:900px){.afu-body{grid-template-columns:minmax(0,1fr)}.afu-nav{display:none}}
 .afu-snippet{white-space:pre;overflow-x:auto;overflow-wrap:normal}
+/* Working nav and its sections: Code, Assets, Docs */
+.afu-navitem{border:0;background:none;font:inherit;font-size:1rem;cursor:pointer}.afu-navitem:hover{background:#f0f5ff;color:#017cee}
+.afu-section[hidden],#afu-dags-section[hidden]{display:none}
+.afu-section-title{margin:0;font:700 1.2rem system-ui,sans-serif}
+.afu-files{display:grid;grid-template-columns:240px minmax(0,1fr);gap:.8rem;flex:1;min-height:0}
+.afu-tree{padding:.7rem;border:1px solid #e2e8f0;border-radius:8px;background:#fff;overflow:auto}
+.afu-tree-folder{margin:.5rem 0 .2rem;color:#718096;font:700 .66rem ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;letter-spacing:.06em}.afu-tree-folder:first-child{margin-top:0}
+.afu-tree-file{display:block;width:100%;padding:.3rem .5rem .3rem 1.2rem;border:0;border-radius:5px;background:none;color:#1a202c;font:500 .74rem ui-monospace,SFMono-Regular,Menlo,monospace;text-align:left;cursor:pointer;position:relative}
+.afu-tree-file:before{content:"";position:absolute;left:.45rem;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:2px;background:#a0aec0}
+.afu-lang-python:before{background:#3fbf8f}.afu-lang-md:before{background:#e87ba4}.afu-lang-json:before{background:#f4ca72}.afu-lang-text:before{background:#a0aec0}
+.afu-tree-file:hover{background:#f0f5ff}.afu-tree-file.is-active{background:#017cee;color:#fff}
+.afu-code-file{margin:0;height:auto;min-height:520px}
+.afu-code-head em{color:#7f9bbd;font-style:normal}.afu-code-head a{color:#d6e9fa;font-size:.72rem;font-weight:700}
+.afu-assets{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:.8rem}
+.afu-asset{padding:1rem;border:1px solid #e2e8f0;border-radius:8px;background:#fff}.afu-asset h2{margin:.2rem 0 .6rem;font:700 .86rem ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}
+.afu-doc{max-width:860px;padding:1.2rem 1.4rem;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:.86rem;line-height:1.65}
+.afu-doc h2{margin:0 0 .6rem;font-size:1.3rem}.afu-doc h3,.afu-doc h4{margin:1.2rem 0 .4rem;font-size:1rem}
+.afu-doc code{padding:.05rem .3rem;border-radius:4px;background:#edf2f7;font-size:.8em}
+.afu-doc-code{margin:.6rem 0;padding:.8rem .9rem;border-radius:6px;background:#0e213b;color:#d6e9fa;font:400 .74rem/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-x:auto;white-space:pre}
+@media(max-width:900px){.afu-files{grid-template-columns:minmax(0,1fr)}}
