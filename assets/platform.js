@@ -9,6 +9,16 @@
   };
   const usd = (v) => `$${Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const num = (v, digits = 2) => Number(v).toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+  // Embedded in the SQL workspace (sql.html) as a cost or lineage tab.
+  const params = new URLSearchParams(location.search);
+  const EMBED = window.parent !== window && ['cost', 'lineage'].includes(params.get('view')) ? params.get('view') : null;
+  if (EMBED) document.documentElement.classList.add('pf-embed', `pf-embed-${EMBED}`);
+  const toWorkspace = (message) => window.parent.postMessage({ source: 'nexus-platform', ...message }, location.origin);
+  window.addEventListener('message', (event) => {
+    if (event.origin !== location.origin || event.data?.source !== 'nexus-sql') return;
+    if (event.data.type === 'lineage-select') document.dispatchEvent(new CustomEvent('lineage:select', { detail: event.data.id }));
+  });
+
   const dayLabel = (iso) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' });
 
   // Categorical slots in fixed order; colour follows the entity, never its rank.
@@ -243,7 +253,9 @@
       button.append(label, bar, el('span', 'pf-model-value', `${usd(r.cost_usd_mtd)} · ${num(r.pct_of_dbt_cost, 1)}%`));
       button.addEventListener('click', () => {
         const node = data.lineage.nodes.find((n) => n.name === r.model_name);
-        if (node) {
+        if (node && EMBED) {
+          toWorkspace({ type: 'open-view', view: 'lineage', id: node.id });
+        } else if (node) {
           document.dispatchEvent(new CustomEvent('lineage:select', { detail: node.id }));
           $('#lineage').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -398,6 +410,37 @@
         const risk = el('p', 'pf-risk');
         risk.append(el('b', '', '!'), document.createTextNode(`Feeds ${downDash.join(', ')}`));
         parts.push(risk);
+      }
+      if (EMBED) {
+        const actions = el('div', 'pf-sql-actions');
+        const table = n.type === 'source' ? n.name.split('.').pop() : n.name;
+        if (n.type !== 'exposure') {
+          const preview = el('button', 'pf-sql-button', 'Preview in a SQL tab');
+          preview.type = 'button';
+          preview.addEventListener('click', () => toWorkspace({ type: 'open-sql', title: table, kind: 'table', sql: `select *\nfrom ${table}\nlimit 50;` }));
+          actions.append(preview);
+        }
+        const impact = el('button', 'pf-sql-button', 'Impact query in a SQL tab');
+        impact.type = 'button';
+        impact.addEventListener('click', () => toWorkspace({
+          type: 'open-sql',
+          title: `Impact: ${table}`,
+          kind: 'example',
+          sql: `-- Everything downstream of ${n.name}, walking the dbt lineage graph.
+with recursive downstream(node_id, hops) as (
+  select node_id, 0 from lineage_nodes where name = '${n.name}'
+  union
+  select e.to_node, d.hops + 1
+  from downstream d join lineage_edges e on e.from_node = d.node_id
+)
+select n.name, n.type, n.layer, n.owning_group, n.cost_usd_mtd, min(d.hops) as hops
+from downstream d join lineage_nodes n using (node_id)
+where d.hops > 0
+group by all
+order by hops, n.name;`,
+        }));
+        actions.append(impact);
+        parts.push(actions);
       }
       const a = el('a', 'pf-link', 'Open source ↗');
       a.href = n.url;
