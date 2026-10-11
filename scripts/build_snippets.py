@@ -24,7 +24,7 @@ CODE_FOLDERS = (
     ("seeds", ["seeds/*.yml"]),
     ("semantic", ["semantic/*"]),
     ("scripts", ["scripts/*.py"]),
-    ("airflow", ["airflow/dags/*.py", "airflow/tests/*.py", "airflow/README.md"]),
+    ("airflow", ["airflow/dags/*.py", "airflow/*.py", "airflow/tests/*.py", "airflow/README.md"]),
     ("ci", [".github/workflows/*"]),
     ("docs", ["docs/*"]),
 )

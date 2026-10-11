@@ -65,7 +65,7 @@ The live SQL panel exposes `lineage_nodes` and `lineage_edges`, with presets for
 
 ## Orchestration (hypothetical Airflow)
 
-`airflow/dags/nexus_partner_analytics.py` runs the same build on an Airflow 3 schedule: parse, ingest, snapshot, a dbt build per layer with its own tests, a full test gate, then the site exports and a budget check. It is not deployed; it runs locally with `airflow dags test`, and CI checks that it imports and matches the run design. See [airflow/README.md](airflow/README.md).
+`airflow/dags/nexus_partner_analytics.py` runs the same build on an Airflow 3 schedule: parse, ingest, snapshot, a dbt build per layer with its own tests, a full test gate, then the site exports and a budget check. It is not deployed; it runs locally with `airflow dags test`, and CI checks that it imports and matches the run design. The dbt workspace's **Airflow** tab shows the real task graph and replays a recorded run, including a simulated test-gate failure. See [airflow/README.md](airflow/README.md).
 
 ## Live SQL workspace
 

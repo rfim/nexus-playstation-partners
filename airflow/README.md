@@ -49,3 +49,19 @@ A full `dags test` run rebuilds the project from scratch (parse, 9 seeds, snapsh
 layer builds, 99 tests at the gate), regenerates the site exports and logs the budget
 warning for `NEXUS_BI_WH`. `airflow standalone` starts the UI on http://localhost:8080 if
 you want to see the graph. CI runs the integrity checks on every push.
+
+## On the site
+
+The dbt workspace has an **Airflow** tab and an **Airflow** sidebar panel. The graph comes
+from `assets/airflow.json`, which `airflow/export_dag.py` writes from the DAG itself (CI
+checks it with `--check`). **Trigger DAG run** replays `airflow/recorded_run.json`, the task
+durations and dbt results captured from a real `airflow dags test` run, along the DAG's
+dependencies; **Fail the test gate** shows the retries and that nothing publishes when tests
+fail. Nothing executes in the browser.
+
+After changing the DAG, refresh the export with Airflow installed:
+
+```bash
+.venv-airflow/bin/python airflow/export_dag.py
+```
+
