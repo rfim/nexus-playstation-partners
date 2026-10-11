@@ -37,4 +37,6 @@ jobs:
         env:
           AIRFLOW_HOME: ${{ runner.temp }}/airflow
           AIRFLOW__CORE__LOAD_EXAMPLES: 'False'
-        run: python -m pytest -q airflow/tests
+        run: |
+          python -m pytest -q airflow/tests
+          python airflow/export_dag.py --check

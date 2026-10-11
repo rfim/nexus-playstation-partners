@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The NEXUS Airflow DAG: task graph, a replay of a recorded run, and each task's command and log.">
+  <title>Airflow DAG | NEXUS by VIM</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="assets/site.css?v=9">
+  <link rel="stylesheet" href="assets/airflow.css?v=2">
+  <script src="assets/airflow.js?v=4" defer></script>
+</head>
+<body class="view-page af-page">
+  <main class="af" aria-label="Airflow DAG">
+    <header class="af-head">
+      <div>
+        <p class="af-kicker"><i aria-hidden="true"></i>AIRFLOW 3 · HYPOTHETICAL ORCHESTRATION</p>
+        <h1 id="af-dag">nexus_partner_analytics</h1>
+        <div class="af-meta" id="af-meta"></div>
+      </div>
+      <div class="af-controls">
+        <button type="button" id="af-trigger" class="af-trigger">▶ Trigger DAG run</button>
+        <label class="af-check"><input type="checkbox" id="af-fail"> Fail the test gate</label>
+        <label class="af-speed">Speed <select id="af-speed"><option value="1">1× (recorded)</option><option value="4" selected>4×</option><option value="12">12×</option></select></label>
+        <button type="button" id="af-source" class="af-source">DAG source ↗</button>
+      </div>
+    </header>
+    <section class="af-run" aria-live="polite"><span class="af-run-state" id="af-run-state">No run yet</span><span id="af-run-note">Replays a recorded <code>airflow dags test</code> run along the DAG's dependencies. Nothing executes in your browser.</span></section>
+    <div class="af-body">
+      <div class="af-graph-wrap"><div class="af-graph" id="af-graph" role="img" aria-label="Airflow task graph"></div><div class="af-legend" id="af-legend"></div></div>
+      <aside class="af-side">
+        <div class="af-task" id="af-task"></div>
+        <div class="af-log"><div class="af-log-head">Run log</div><pre id="af-log"></pre></div>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>

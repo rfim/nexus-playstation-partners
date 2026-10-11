@@ -117,3 +117,20 @@ body.sql-focus .sql-output{max-height:none}
 .sql-layout.is-view-mode .side-rail{display:none}
 .sql-layout.is-view-mode.is-side-hidden{grid-template-columns:minmax(0,1fr)}
 @media(max-width:900px){.sql-layout.is-side-hidden{grid-template-columns:minmax(0,1fr)}.side-rail{flex-direction:row;position:static}.side-rail button{writing-mode:horizontal-tb;transform:none}}
+/* Airflow: a teal accent wherever it appears, so it stands out */
+.side-switch{grid-template-columns:repeat(4,1fr)}
+.side-switch .side-airflow{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;color:#0f6f5b}
+.side-switch .side-airflow i,.qview-airflow i,.af-card-kicker i{width:7px;height:7px;border-radius:50%;background:#19c39b;animation:afdot 1.8s ease-out infinite}
+.side-switch .side-airflow[aria-selected="true"]{background:#e3f8f2;color:#064e40;box-shadow:inset 0 0 0 1px #19c39b}
+.qview-airflow{display:inline-flex;align-items:center;gap:.35rem;border-color:#19c39b!important;color:#9ff0dc!important}.qview-airflow.is-open{background:#0b3d36!important;color:#fff!important}
+.qtab-view-airflow .qtab-title:before{background:#19c39b;border-radius:50%}
+.rail-airflow{color:#0f6f5b!important}
+.af-card{display:grid;gap:.2rem;margin-bottom:.6rem;padding:.8rem .85rem;border-radius:10px;color:#e6fff9;background:linear-gradient(120deg,#062a2f,#0b3d46)}
+.af-card-kicker{display:flex;align-items:center;gap:.4rem;color:#5fe0c8;font-size:.56rem;font-weight:850;letter-spacing:.12em}
+.af-card strong{font:800 .78rem ui-monospace,SFMono-Regular,Menlo,monospace}.af-card small{color:#9fd9cb;font-size:.62rem}
+.af-card-actions{display:flex;gap:.35rem;margin-top:.4rem}.af-card-actions button{flex:1;padding:.4rem .5rem;border:1px solid #5fe0c8;border-radius:7px;background:none;color:#e6fff9;font-size:.66rem;font-weight:800;cursor:pointer}
+.af-card-actions button:first-child{border-color:#19c39b;background:#19c39b;color:#04221d}
+.af-side-task{display:flex;justify-content:space-between;align-items:center;width:100%;padding:.3rem .5rem .3rem .9rem;border:0;border-radius:6px;background:none;cursor:pointer;text-align:left}
+.af-side-task:hover{background:#e9f8f4}.af-side-task span{color:#17233d;font:600 .68rem ui-monospace,SFMono-Regular,Menlo,monospace}.af-side-task small{color:#6a7c92;font-size:.6rem}
+@keyframes afdot{0%{box-shadow:0 0 0 0 rgba(25,195,155,.7)}70%{box-shadow:0 0 0 6px rgba(25,195,155,0)}100%{box-shadow:0 0 0 0 rgba(25,195,155,0)}}
+@media(prefers-reduced-motion:reduce){.side-switch .side-airflow i,.qview-airflow i,.af-card-kicker i{animation:none}}

@@ -9,6 +9,7 @@ const STORAGE_KEY = "nexus-sql-workspace-v1";
 const VIEWS = {
   lineage: { label: "Lineage", src: "platform.html?view=lineage", hint: "dbt lineage graph · select a node, then query it in a new tab" },
   dbt: { label: "dbt", src: "code.html", hint: "dbt project · every model, macro, test and script, with each model's build cost" },
+  airflow: { label: "Airflow", src: "airflow.html", hint: "Airflow DAG · trigger a replay of the recorded run, or inspect any task" },
 };
 
 const PRESETS = {
@@ -203,7 +204,10 @@ function setup(root) {
     if (event.origin !== location.origin || event.data?.source !== "nexus-platform") return;
     const { type, title, kind, sql, view, id } = event.data;
     if (type === "open-sql" && typeof sql === "string") openTab({ title, kind: kind ?? "query", sql, run: true });
-    if (type === "open-view" && VIEWS[view]) openView(view, id ? { type: "lineage-select", id } : null);
+    if (type === "open-view" && VIEWS[view]) {
+      const { file } = event.data;
+      openView(view, id ? { type: "lineage-select", id } : file ? { type: "code-open", path: file } : null);
+    }
   });
 
   // The sidebar can be tucked into a slim rail; Ctrl/Cmd+B toggles it.
@@ -227,6 +231,42 @@ function setup(root) {
   try {
     if (localStorage.getItem(`${STORAGE_KEY}-sidebar`) === "hidden") setSidebar(false);
   } catch { /* storage unavailable */ }
+
+  // Airflow panel in the sidebar: the DAG at a glance, opening the Airflow tab.
+  const airflowList = root.querySelector("#sql-airflow");
+  if (airflowList) {
+    fetch("assets/airflow.json").then((r) => r.json()).then((af) => {
+      root.querySelector("#sql-airflow-schedule").textContent = `${af.schedule} · ${af.tasks.length} tasks · retries ${af.retries}`;
+      const stage = (t) => (t.group === "transform" ? "Stage + test" : t.group === "publish" ? "Publish"
+        : t.task_id === "test_gate" ? "Test gate" : t.task_id === "check_budgets" ? "Budget check" : "Ingest");
+      const order = ["Ingest", "Stage + test", "Test gate", "Publish", "Budget check"];
+      const recorded = Object.fromEntries(af.recorded_run.tasks.map((t) => [t.task_id, t]));
+      for (const name of order) {
+        const group = document.createElement("div");
+        group.className = "af-side-group";
+        const heading = document.createElement("p");
+        heading.className = "tbl-sub-label";
+        heading.textContent = name;
+        group.append(heading);
+        const tasks = af.tasks.filter((t) => stage(t) === name)
+          .sort((a, b) => (recorded[a.task_id]?.offset_s ?? 0) - (recorded[b.task_id]?.offset_s ?? 0));
+        for (const t of tasks) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "af-side-task";
+          button.innerHTML = "<span></span><small></small>";
+          button.querySelector("span").textContent = t.task_id.split(".").pop();
+          button.querySelector("small").textContent = recorded[t.task_id] ? `${recorded[t.task_id].duration_s}s` : "";
+          button.title = t.command ?? t.task_id;
+          button.addEventListener("click", () => openView("airflow", { type: "airflow-select", task: t.task_id }));
+          group.append(button);
+        }
+        airflowList.append(group);
+      }
+    }).catch(() => { airflowList.textContent = "Airflow DAG unavailable."; });
+    root.querySelector("#sql-airflow-open")?.addEventListener("click", () => openView("airflow"));
+    root.querySelector("#sql-airflow-run")?.addEventListener("click", () => openView("airflow", { type: "airflow-trigger" }));
+  }
 
   // Sidebar panels: tables, examples, history.
   root.querySelectorAll("[data-panel]").forEach((button) => {

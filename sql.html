@@ -8,8 +8,8 @@
   <title>Live SQL Workspace | NEXUS by VIM</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="stylesheet" href="assets/site.css?v=9">
-  <link rel="stylesheet" href="assets/playground.css?v=9">
-  <script src="assets/playground.js?v=11" type="module"></script>
+  <link rel="stylesheet" href="assets/playground.css?v=10">
+  <script src="assets/playground.js?v=12" type="module"></script>
 </head>
 <body class="sql-page">
   <a class="skip-link" href="#sql-editor">Skip to the SQL editor</a>
@@ -35,10 +35,11 @@
         <button type="button" data-rail-panel="tables" title="Tables">Tables</button>
         <button type="button" data-rail-panel="examples" title="Examples">Examples</button>
         <button type="button" data-rail-panel="history" title="History">History</button>
+        <button type="button" data-rail-panel="airflow" title="Airflow" class="rail-airflow">Airflow</button>
       </nav>
       <aside class="playground-tables" aria-label="Workspace sidebar">
         <div class="side-top"><div class="side-switch" role="tablist" aria-label="Sidebar">
-          <button type="button" role="tab" data-panel="tables" aria-selected="true">Tables</button><button type="button" role="tab" data-panel="examples" aria-selected="false">Examples</button><button type="button" role="tab" data-panel="history" aria-selected="false">History</button>
+          <button type="button" role="tab" data-panel="tables" aria-selected="true">Tables</button><button type="button" role="tab" data-panel="examples" aria-selected="false">Examples</button><button type="button" role="tab" data-panel="history" aria-selected="false">History</button><button type="button" role="tab" data-panel="airflow" aria-selected="false" class="side-airflow"><i aria-hidden="true"></i>Airflow</button>
         </div><button type="button" class="side-hide" id="sql-side-hide" title="Hide sidebar (Ctrl+B)" aria-label="Hide sidebar">«</button></div>
         <div class="side-panel" data-panel-body="tables">
           <label class="visually-hidden" for="sql-table-filter">Filter tables</label>
@@ -50,13 +51,23 @@
           <div id="sql-examples" class="ex-list"></div>
           <p class="sql-hint">Each example opens in its own tab and runs.</p>
         </div>
+        <div class="side-panel" data-panel-body="airflow" hidden>
+          <div class="af-card">
+            <span class="af-card-kicker"><i aria-hidden="true"></i>AIRFLOW 3 · HYPOTHETICAL</span>
+            <strong>nexus_partner_analytics</strong>
+            <small id="sql-airflow-schedule">Loading the DAG…</small>
+            <div class="af-card-actions"><button type="button" id="sql-airflow-run">▶ Replay a run</button><button type="button" id="sql-airflow-open">Open DAG</button></div>
+          </div>
+          <div id="sql-airflow"></div>
+          <p class="sql-hint">Select a task to inspect it in the Airflow tab.</p>
+        </div>
         <div class="side-panel" data-panel-body="history" hidden>
           <div class="hist-head"><span>Recent runs</span><button type="button" id="sql-history-clear">Clear</button></div>
           <div id="sql-history" class="hist-list"></div>
         </div>
       </aside>
       <div class="code-window playground-window">
-        <div class="qbar"><div class="qtabs" id="sql-tabs" role="tablist" aria-label="Open tabs"></div><div class="qviews" role="group" aria-label="Open a view"><span>Views</span><button type="button" data-view="dbt" class="qview-dbt">dbt project</button><button type="button" data-view="lineage">Lineage</button><button type="button" id="sql-focus" class="qfocus" aria-pressed="false" title="Fill the window (Esc to exit)">Focus</button></div></div>
+        <div class="qbar"><div class="qtabs" id="sql-tabs" role="tablist" aria-label="Open tabs"></div><div class="qviews" role="group" aria-label="Open a view"><span>Views</span><button type="button" data-view="dbt" class="qview-dbt">dbt project</button><button type="button" data-view="airflow" class="qview-airflow"><i aria-hidden="true"></i>Airflow</button><button type="button" data-view="lineage">Lineage</button><button type="button" id="sql-focus" class="qfocus" aria-pressed="false" title="Fill the window (Esc to exit)">Focus</button></div></div>
         <div id="sql-views" class="sql-views" hidden></div>
         <label class="visually-hidden" for="sql-editor">SQL query</label>
         <textarea id="sql-editor" class="sql-editor" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
