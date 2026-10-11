@@ -14,7 +14,7 @@
 .sql-workspace{width:min(calc(100% - 3rem),1500px);margin-inline:auto;padding:2.2rem 0 3rem}
 .sql-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.9fr);gap:2.5rem;align-items:end;margin-bottom:1.4rem}
 .sql-kicker{margin:0 0 .6rem;color:#1769c6;font-size:.66rem;font-weight:850;letter-spacing:.14em}
-.sql-intro h1{margin:0;font-size:clamp(2.1rem,4vw,3.4rem);line-height:1.05;letter-spacing:-.05em}.sql-intro h1 em{font-family:Georgia,serif;font-weight:400;color:var(--blue2)}
+.sql-intro h1{margin:0;font-size:clamp(2.1rem,4vw,3.4rem);line-height:1.05;letter-spacing:-.05em}.sql-intro h1 em{font-family:var(--font-ui);font-weight:400;color:var(--blue2)}
 .sql-intro>p{margin:0;color:#5b6e84;font-size:.82rem;line-height:1.65}.sql-intro code{padding:.05rem .3rem;border-radius:4px;background:#dfe9f5;font-size:.76rem}
 .sql-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:1rem;align-items:stretch}.sql-layout>*{min-width:0}
 .sql-layout .playground-tables{display:flex;flex-direction:column;max-height:calc(100vh - 120px);position:sticky;top:1rem}

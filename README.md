@@ -18,6 +18,10 @@ The hero labels this independent application **“Presented to PlayStation”** 
 - **Business potential (section 07):** Three synthetic opportunity marts read the same six titles at a fixed clock, `var('opportunity_as_of_date')` (30 Sep 2026). `mart_title_time_to_shelf` shows approved titles not yet on a storefront and their slack before planned release. `mart_resubmission_cost` groups rejected attempts by an invented `return_reason`, with reviewer hours and the days each rejection added. `mart_partner_health` combines a Wilson lower bound on first-pass approval, recency and shelf conversion into an illustrative score in [0, 1]; its equal weights are a discussion starting point, not a validated model, and every partner here is flagged low-sample. The calculator's reviewer-hours and days-added defaults come from these marts; titles per year and uplift are the visitor's assumptions. Singular tests reconcile rejected attempts with the submission fact, keep shelf states consistent and bound every health component.
 - **Stack logos:** AWS architecture icons come from the [official AWS architecture icon package](https://aws.amazon.com/architecture/icons/). The Snowflake logo comes from [Snowflake press resources](https://www.snowflake.com/en/news/). They indicate experience from the CV, not the runtime of this local dbt reference.
 
+## Typography
+
+Text uses PlayStation's brand face, SST, when the visitor has it installed. SST is licensed by Sony from Monotype and cannot be redistributed, so everyone else gets Source Sans 3, a free humanist sans close to it, from Google Fonts (`assets/fonts.css`). Code stays monospace.
+
 ## Run the analytics reference
 
 Use Python 3.12:
