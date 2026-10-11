@@ -21,7 +21,7 @@
   <header id="top" class="site-header">
     <a class="brand" href="#top" aria-label="NEXUS, back to top"><span class="brand-mark">N<span>·</span></span><span><strong>NEXUS</strong><small>by VIM</small></span></a>
     <nav aria-label="Primary navigation">
-      <a href="#architecture">Architecture</a><a href="#featured-game">Game examples</a><a href="#story">Built at Lifepal</a><a href="#role-fit">Role fit</a><a href="#insights">Results</a><a href="#proof">Code</a><a href="#governance">Governance</a><a href="sql.html">Live SQL</a><a href="platform.html">Cost &amp; lineage</a>
+      <a href="#architecture">Architecture</a><a href="#story">Built at Lifepal</a><a href="#insights">Results</a><a href="sql.html" class="nav-workspace">dbt workspace</a>
     </nav>
     <a class="header-cta" href="#contact">Let's talk <span aria-hidden="true">↗</span></a>
   </header>
@@ -319,7 +319,7 @@ dbt build --profiles-dir .</code></pre><p>dbt runs the seeds, models, snapshot a
             <aside class="gov-detail" id="gov-detail" aria-live="polite"></aside>
           </div>
         </div>
-        <p class="data-note">Owners are portfolio placeholders with <code>example.invalid</code> addresses. dbt access levels govern which models other dbt projects may reference; warehouse grants would add reader permissions in production. <a class="gov-sql-link" href="sql.html?preset=catalog">Query this catalog in live SQL ↗</a> <a class="gov-sql-link" href="platform.html">Platform cost and lineage →</a></p>
+        <p class="data-note">Owners are portfolio placeholders with <code>example.invalid</code> addresses. dbt access levels govern which models other dbt projects may reference; warehouse grants would add reader permissions in production. <a class="gov-sql-link" href="sql.html?preset=catalog">Query this catalog in live SQL ↗</a> <a class="gov-sql-link" href="sql.html?view=lineage">Lineage and build cost in the dbt workspace →</a></p>
       </div>
     </section>
     <section id="conversation" class="conversation section-pad" aria-labelledby="conversation-title"><div class="shell"><div class="section-index"><span>10 / PULL UP A CHAIR</span><span>The decisions behind the model</span></div><div class="split-heading"><h2 id="conversation-title">What would we discuss <em>first?</em></h2><p>The most useful metric is the one a partner team trusts and acts on. I would start with definitions and workflow, then adapt deployment and dashboard details to the team's environment.</p></div><div class="conversation-grid"><article><span>01 / GRAIN</span><h3>What counts as a title?</h3><p>A title, submission attempt and storefront publication are different things. Keeping those grains separate prevents a second review or region from quietly inflating a KPI.</p></article><article><span>02 / MEANING</span><h3>When is “approved” final?</h3><p>Agree with partner operations on status semantics, late corrections and calendar cutoffs before a dashboard becomes a source of truth.</p></article><article><span>03 / OWNERSHIP</span><h3>Who acts on a failed test?</h3><p>Tests, exposures and documentation matter when someone owns the follow-up. The synthetic workflow shows the checks; production would need thresholds and response paths agreed with the team.</p></article></div></div></section>
