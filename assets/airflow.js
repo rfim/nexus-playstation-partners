@@ -75,19 +75,21 @@
     return c;
   }
 
-  function renderCodeSection(host, wanted) {
+  // A file browser over every Airflow file: used by the DAG's Code tab and the Code nav section.
+  function fileBrowser(rerender) {
     const all = files.flatMap((f) => f.files);
-    openFile = all.find((f) => f.path === wanted) ?? openFile ?? all.find((f) => f.path === dag.source) ?? all[0];
+    openFile ??= all.find((f) => f.path === dag.source) ?? all[0];
     const layout = el('div', 'afu-files');
     const tree = el('nav', 'afu-tree');
     tree.setAttribute('aria-label', 'Airflow files');
+    tree.append(el('p', 'afu-tree-title', `${all.length} files in airflow/`));
     for (const folder of files) {
       tree.append(el('p', 'afu-tree-folder', folder.folder));
       for (const f of folder.files) {
         const b = el('button', `afu-tree-file afu-lang-${f.language}${f.path === openFile.path ? ' is-active' : ''}`, f.path.split('/').pop());
         b.type = 'button';
         b.title = f.path;
-        b.addEventListener('click', () => { openFile = f; renderCodeSection(host); });
+        b.addEventListener('click', () => { openFile = f; rerender(); });
         tree.append(b);
       }
     }
@@ -101,12 +103,16 @@
     gh.rel = 'noopener noreferrer';
     head.append(where, gh);
     const pre = el('pre');
-    const lang = openFile.language;
-    const lines = window.NexusHighlight ? window.NexusHighlight.highlightLines(openFile.code.replace(/\n$/, ''), lang) : openFile.code.split('\n');
+    const lines = window.NexusHighlight ? window.NexusHighlight.highlightLines(openFile.code.replace(/\n$/, ''), openFile.language) : openFile.code.split('\n');
     pre.innerHTML = lines.map((l, i) => `<span class="code-line"><span class="code-ln">${i + 1}</span>${l}</span>`).join('');
     viewer.append(head, pre);
     layout.append(tree, viewer);
-    host.replaceChildren(crumbs('Code'), el('h1', 'afu-section-title', 'Airflow project code'), layout);
+    return layout;
+  }
+
+  function renderCodeSection(host, wanted) {
+    if (wanted) openFile = files.flatMap((f) => f.files).find((f) => f.path === wanted) ?? openFile;
+    host.replaceChildren(crumbs('Code'), el('h1', 'afu-section-title', 'Airflow project code'), fileBrowser(() => renderCodeSection(host)));
   }
 
   function renderAssets(host) {
@@ -227,9 +233,11 @@
   function render() {
     const pane = $('#afu-pane');
     pane.className = `afu-pane afu-pane-${tab}`;
+    // Code reads best at full width; the task panel returns on the other tabs.
+    $('.afu-body').classList.toggle('is-wide', tab === 'code');
     if (tab === 'grid') pane.replaceChildren(gridPane());
     if (tab === 'graph') pane.replaceChildren(graphPane());
-    if (tab === 'code') pane.replaceChildren(codePane(source, 'python', dag.source));
+    if (tab === 'code') pane.replaceChildren(fileBrowser(() => render()));
     if (tab === 'details') pane.replaceChildren(detailsPane());
     if (tab === 'overview') pane.replaceChildren(overviewPane());
     renderPanel();
@@ -334,21 +342,6 @@
     }
     const box = el('div', 'afu-graph');
     box.append(el('p', 'afu-pane-note', `Run ${run.run_id} · ${LABEL[run.state]}`), svg);
-    return box;
-  }
-
-  function codePane(code, lang, path) {
-    const box = el('div', 'afu-code');
-    const head = el('div', 'afu-code-head');
-    head.append(el('span', '', path));
-    const open = el('button', '', 'Browse all Airflow code');
-    open.type = 'button';
-    open.addEventListener('click', () => showSection('code', path));
-    head.append(open);
-    const pre = el('pre');
-    const lines = window.NexusHighlight ? window.NexusHighlight.highlightLines(code.replace(/\n$/, ''), lang) : code.split('\n');
-    pre.innerHTML = lines.map((l, i) => `<span class="code-line"><span class="code-ln">${i + 1}</span>${l}</span>`).join('');
-    box.append(head, pre);
     return box;
   }
 
