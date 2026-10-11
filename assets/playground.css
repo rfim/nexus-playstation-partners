@@ -90,3 +90,17 @@
 .playground-window.is-view .sql-editor,.playground-window.is-view .sql-output,.playground-window.is-view .sql-actions{display:none}
 @media(max-width:700px){.qbar{flex-direction:column}.qviews{padding:.4rem .5rem;border-left:0;border-top:1px solid #1d3a5c;overflow-x:auto}}
 .playground-window.is-view .code-footer{display:none}
+/* Views use the whole workspace: the SQL sidebar steps aside */
+.sql-layout.is-view-mode{grid-template-columns:minmax(0,1fr)}
+.sql-layout.is-view-mode .playground-tables{display:none}
+.sql-view-frame{height:calc(100vh - 110px);min-height:720px}
+.qview-dbt{border-color:#f28b4b!important;color:#ffd2b5!important}.qview-dbt.is-open{background:#3a2316!important;color:#fff!important}
+.qfocus{margin-left:.35rem;border-style:dashed!important}
+/* Focus mode: the workspace window fills the screen */
+body.sql-focus{overflow:hidden}
+body.sql-focus .playground-window{position:fixed;inset:0;z-index:60;border-radius:0}
+body.sql-focus .sql-layout{display:block}
+body.sql-focus .playground-tables{display:none}
+body.sql-focus .sql-view-frame{height:calc(100vh - 44px);min-height:0}
+body.sql-focus .sql-editor{min-height:35vh}
+body.sql-focus .sql-output{max-height:none}
