@@ -27,6 +27,7 @@ python -m pip install -r requirements.txt
 dbt build --profiles-dir .
 python scripts/export_metrics.py --check
 python scripts/build_snippets.py --check
+python scripts/export_governance.py --check
 python scripts/export_parquet.py --check
 ```
 
@@ -40,6 +41,17 @@ python -m http.server 8767
 
 Open http://localhost:8767/. Every architecture block opens source from this repository.
 
+## Governance
+
+dbt enforces the governance shown in section 09:
+
+- **Ownership:** two dbt groups in `models/groups.yml`, `data_platform` for staging and intermediate logic and `partner_analytics` for facts, dimensions and marts. Owners are portfolio placeholders.
+- **Access:** marts are `public`, the consumer interface. Staging, intermediate and the teaching DiD mart are `protected`.
+- **Contracts:** `dim_partner`, `fct_submission` and `mart_partner_publishing` declare every column's name and type plus `not_null`, `primary_key` and `check` constraints. dbt refuses to build a model that drifts from its contract.
+- **Classification:** `public`, `internal` or `partner_confidential`, set per layer in `dbt_project.yml` and overridden per model or column in YAML.
+
+`scripts/export_governance.py` reads `target/manifest.json` and writes `assets/governance.json`. It fails if a model has no owning group, a model or column has an unknown classification, or an exposure reads a model that is not public. The live SQL panel also exposes the catalog as `governance_models` and `governance_columns`.
+
 ## Live SQL playground
 
 The **Query the dbt build yourself** panel in section 08 runs [DuckDB-WASM](https://duckdb.org/docs/api/wasm/overview) in the visitor's browser, so the live site needs no server or database account. `scripts/export_parquet.py` writes every staging, intermediate, snapshot, seed and mart table from the local DuckDB build to `assets/data/*.parquet` (about 100 KB) plus a `tables.json` manifest. The page registers each file as a read-only view, and visitors can run any SQL against them. DuckDB-WASM 1.29.0 loads from jsDelivr only when the section scrolls into view.
@@ -48,6 +60,7 @@ After changing a model, refresh the files and commit them:
 
 ```bash
 dbt build --profiles-dir .
+python scripts/export_governance.py
 python scripts/export_parquet.py
 ```
 

@@ -57,6 +57,20 @@ order by shelf_status, days_to_planned_release_as_of;`,
 from mart_partner_health
 order by health_score desc;`,
   },
+  governance: {
+    label: "Governance",
+    sql: `-- Ownership, access and contracts, exported from the dbt manifest.
+-- For each public model: who owns it, is it contracted, and how many
+-- partner-confidential columns and enforced constraints does it carry?
+select g.model, g.owning_group, g.contract_enforced, g.exposures,
+       count(*) filter (where c.classification = 'partner_confidential') as confidential_columns,
+       sum(len(c.constraints)) as constraints
+from governance_models g
+join governance_columns c using (model)
+where g.access = 'public'
+group by all
+order by g.contract_enforced desc, g.model;`,
+  },
   tables: {
     label: "All tables",
     sql: `select table_name, count(*) as columns
@@ -103,6 +117,12 @@ function setup(root) {
     }
   });
   editor.addEventListener("input", () => markPreset(null));
+  // Other sections can hand the playground a query to run.
+  document.addEventListener("playground:run", (event) => {
+    editor.value = event.detail.sql;
+    markPreset(null);
+    run();
+  });
   editor.value = PRESETS.scorecard.sql;
   markPreset("scorecard");
 

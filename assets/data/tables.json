@@ -453,31 +453,31 @@
         },
         {
           "name": "titles_submitted",
-          "type": "HUGEINT"
+          "type": "BIGINT"
         },
         {
           "name": "first_pass_approved_titles",
-          "type": "HUGEINT"
+          "type": "BIGINT"
         },
         {
           "name": "titles_published",
-          "type": "HUGEINT"
+          "type": "BIGINT"
         },
         {
           "name": "published_storefront_regions",
-          "type": "HUGEINT"
+          "type": "BIGINT"
         },
         {
           "name": "submission_attempts",
-          "type": "HUGEINT"
+          "type": "BIGINT"
         },
         {
           "name": "reviewed_attempts",
-          "type": "HUGEINT"
+          "type": "BIGINT"
         },
         {
           "name": "review_hours_total",
-          "type": "HUGEINT"
+          "type": "BIGINT"
         },
         {
           "name": "first_pass_approval_pct",
@@ -853,6 +853,88 @@
         {
           "name": "planned_release_at",
           "type": "DATE"
+        }
+      ]
+    },
+    {
+      "name": "governance_models",
+      "layer": "governance",
+      "rows": 18,
+      "columns": [
+        {
+          "name": "model",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "layer",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "owning_group",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "owner",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "access",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "contract_enforced",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "classification",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "data_tests",
+          "type": "BIGINT"
+        },
+        {
+          "name": "materialized",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "upstream",
+          "type": "VARCHAR[]"
+        },
+        {
+          "name": "exposures",
+          "type": "VARCHAR[]"
+        }
+      ]
+    },
+    {
+      "name": "governance_columns",
+      "layer": "governance",
+      "rows": 169,
+      "columns": [
+        {
+          "name": "model",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "column_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "data_type",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "classification",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "constraints",
+          "type": "VARCHAR[]"
+        },
+        {
+          "name": "tests",
+          "type": "VARCHAR[]"
         }
       ]
     }

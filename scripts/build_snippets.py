@@ -33,6 +33,9 @@ ITEMS = {
     "tests": ("Fanout assertion", "tests/assert_no_title_fanout.sql", "sql", "A singular dbt test fails if the one-row-per-title model changes its grain."),
     "exposure": ("Dashboard exposure", "models/marts/properties.yml", "yaml", "The dbt exposure links a proposed partner dashboard to its upstream mart."),
     "ci": ("Build on every change", ".github/workflows/ci.yml", "yaml", "GitHub Actions runs dbt build and checks generated site evidence."),
+    "groups": ("Ownership groups", "models/groups.yml", "yaml", "Two dbt groups own every model; dbt_project.yml assigns each layer a group, an access level and a default classification."),
+    "contract": ("Enforced contracts", "models/marts/properties.yml", "yaml", "dim_partner, fct_submission and mart_partner_publishing declare column names, types and constraints; dbt refuses to build a model that drifts from its contract."),
+    "governanceExport": ("Governance export and rules", "scripts/export_governance.py", "python", "Reads the dbt manifest, writes assets/governance.json and fails CI when a model lacks an owner or classification, or a dashboard reads a non-public model."),
 }
 
 

@@ -20,4 +20,5 @@ jobs:
         run: |
           python scripts/export_metrics.py --check
           python scripts/build_snippets.py --check
+          python scripts/export_governance.py --check
           python scripts/export_parquet.py --check

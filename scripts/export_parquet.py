@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATABASE = ROOT / "target" / "nexus_partner_analytics.duckdb"
 OUTPUT = ROOT / "assets" / "data"
 MANIFEST = OUTPUT / "tables.json"
+GOVERNANCE = (ROOT / "assets" / "governance.json").as_posix()
 
 # Raw seeds stay behind the staging layer, as they do in dbt.
 LAYERS = (
@@ -26,31 +27,46 @@ LAYERS = (
 )
 
 
+# The governance catalog exported from the dbt manifest, flattened for SQL.
+_MODELS = f"(select unnest(models) as m from read_json('{GOVERNANCE}'))"
+GOVERNANCE_TABLES = {
+    "governance_models": f"""
+        select m.name as model, m.layer, m."group" as owning_group, m.owner, m.access,
+               m.contract_enforced, m.classification, m.tests as data_tests,
+               m.materialized, m.upstream, m.exposures
+        from {_MODELS} order by m.layer, m.name""",
+    "governance_columns": f"""
+        select model, c.name as column_name, c.data_type, c.classification,
+               c.constraints, c.tests
+        from (select m.name as model, unnest(m.columns) as c from {_MODELS})""",
+}
+
+
 def _layer(name: str) -> str | None:
     return next((layer for prefix, layer in LAYERS if name.startswith(prefix)), None)
 
 
-def _tables(con) -> list[dict]:
+def _relations(con) -> list[tuple[str, str, str]]:
+    """(name, layer, select) for every table the playground exposes."""
     names = [row[0] for row in con.execute(
         "select table_name from information_schema.tables "
         "where table_schema = 'main' order by table_name"
     ).fetchall()]
+    relations = [(n, _layer(n), f'select * from main."{n}"') for n in names if _layer(n)]
+    relations += [(n, "governance", sql) for n, sql in GOVERNANCE_TABLES.items()]
+    return relations
+
+
+def _tables(con, relations) -> list[dict]:
     tables = []
-    for name in names:
-        layer = _layer(name)
-        if layer is None:
-            continue
-        columns = con.execute(
-            "select column_name, data_type from information_schema.columns "
-            "where table_schema = 'main' and table_name = ? order by ordinal_position",
-            [name],
-        ).fetchall()
-        rows = con.execute(f'select count(*) from main."{name}"').fetchone()[0]
+    for name, layer, sql in relations:
+        columns = con.execute(f"describe ({sql})").fetchall()
+        rows = con.execute(f"select count(*) from ({sql})").fetchone()[0]
         tables.append({
             "name": name,
             "layer": layer,
             "rows": rows,
-            "columns": [{"name": c, "type": t} for c, t in columns],
+            "columns": [{"name": c[0], "type": c[1]} for c in columns],
         })
     return tables
 
@@ -64,22 +80,23 @@ def main() -> None:
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     with duckdb.connect(str(DATABASE), read_only=True) as con:
-        tables = _tables(con)
+        relations = _relations(con)
+        tables = _tables(con, relations)
         rendered = _manifest(tables)
         if args.check:
             stale = [] if MANIFEST.exists() and MANIFEST.read_text() == rendered else ["tables.json"]
-            for table in tables:
-                path = OUTPUT / f"{table['name']}.parquet"
+            for name, _, sql in relations:
+                path = OUTPUT / f"{name}.parquet"
                 if not path.exists():
                     stale.append(path.name)
                     continue
                 diff = con.execute(f"""
                     select count(*) from (
-                        (select * from main."{table['name']}" except all
+                        (select * from ({sql}) except all
                          select * from read_parquet('{path.as_posix()}'))
                         union all
                         (select * from read_parquet('{path.as_posix()}') except all
-                         select * from main."{table['name']}")
+                         select * from ({sql}))
                     )
                 """).fetchone()[0]
                 if diff:
@@ -91,9 +108,9 @@ def main() -> None:
         OUTPUT.mkdir(parents=True, exist_ok=True)
         for old in OUTPUT.glob("*.parquet"):
             old.unlink()
-        for table in tables:
-            path = OUTPUT / f"{table['name']}.parquet"
-            con.execute(f"""copy (select * from main."{table['name']}") to '{path.as_posix()}' (format parquet)""")
+        for name, _, sql in relations:
+            path = OUTPUT / f"{name}.parquet"
+            con.execute(f"copy ({sql}) to '{path.as_posix()}' (format parquet)")
         MANIFEST.write_text(rendered)
         print(f"Wrote {len(tables)} tables to {OUTPUT}")
 

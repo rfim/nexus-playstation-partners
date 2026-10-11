@@ -1,0 +1,19 @@
+version: 2
+
+# Ownership boundaries. Owners are portfolio placeholders; in production each
+# group maps to a team with an on-call path for failed tests and contract changes.
+groups:
+  - name: data_platform
+    owner:
+      name: Data platform (portfolio example)
+      email: platform@example.invalid
+    config:
+      meta:
+        responsibility: Typed staging and reusable intermediate logic; no consumer reads these directly.
+  - name: partner_analytics
+    owner:
+      name: Partner analytics (portfolio example)
+      email: portfolio@example.invalid
+    config:
+      meta:
+        responsibility: Curated facts, dimensions and marts that dashboards and partner teams consume.

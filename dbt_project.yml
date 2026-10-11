@@ -13,12 +13,27 @@ clean-targets: ["target", "dbt_packages"]
 
 models:
   nexus_partner_analytics:
+    # Governance: every model has an owning group, an access level and a data
+    # classification. Public models are the consumer interface; the most-read
+    # ones also carry enforced contracts in models/marts/properties.yml.
     staging:
       +materialized: view
+      +group: data_platform
+      +access: protected
+      +meta:
+        classification: internal
     intermediate:
       +materialized: view
+      +group: data_platform
+      +access: protected
+      +meta:
+        classification: internal
     marts:
       +materialized: table
+      +group: partner_analytics
+      +access: public
+      +meta:
+        classification: partner_confidential
 
 vars:
   # Fixed clock for the synthetic opportunity marts, so the exported site data stays deterministic.

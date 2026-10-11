@@ -1,0 +1,1883 @@
+{
+  "summary": {
+    "models": 18,
+    "public_models": 8,
+    "contracts_enforced": 3,
+    "data_tests": 76,
+    "exposures": 2,
+    "groups": 2
+  },
+  "groups": [
+    {
+      "name": "data_platform",
+      "owner": "Data platform (portfolio example)",
+      "email": "platform@example.invalid",
+      "responsibility": "Typed staging and reusable intermediate logic; no consumer reads these directly.",
+      "models": 9
+    },
+    {
+      "name": "partner_analytics",
+      "owner": "Partner analytics (portfolio example)",
+      "email": "portfolio@example.invalid",
+      "responsibility": "Curated facts, dimensions and marts that dashboards and partner teams consume.",
+      "models": 9
+    }
+  ],
+  "models": [
+    {
+      "name": "int_partner_review_features",
+      "layer": "intermediate",
+      "description": "One row per submission with partner review history available at submission time. The current review duration remains the observed label.",
+      "materialized": "view",
+      "group": "data_platform",
+      "owner": "Data platform (portfolio example)",
+      "access": "protected",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 3,
+      "upstream": [
+        "int_submission_lifecycle"
+      ],
+      "sources": [],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "submission_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "title_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "submitted_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "reviewed_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "status",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "attempt_number",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "review_hours",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "prior_partner_review_count",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "non_negative"
+          ]
+        },
+        {
+          "name": "prior_partner_avg_review_hours",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_partner_review_features.sql"
+    },
+    {
+      "name": "int_partner_tier_asof_submission",
+      "layer": "intermediate",
+      "description": "Partner tier valid at submission time; events before the first snapshot capture remain unknown.",
+      "materialized": "view",
+      "group": "data_platform",
+      "owner": "Data platform (portfolio example)",
+      "access": "protected",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 4,
+      "upstream": [
+        "int_submission_lifecycle"
+      ],
+      "sources": [],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "submission_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "submitted_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "tier_at_submission",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "tier_valid_from",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "tier_valid_to",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "tier_history_available",
+          "data_type": "integer",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "accepted_values"
+          ]
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_partner_tier_asof_submission.sql"
+    },
+    {
+      "name": "int_submission_lifecycle",
+      "layer": "intermediate",
+      "description": "Review attempts ordered within each title. One row per submission.",
+      "materialized": "view",
+      "group": "data_platform",
+      "owner": "Data platform (portfolio example)",
+      "access": "protected",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 3,
+      "upstream": [
+        "stg_submissions",
+        "stg_titles"
+      ],
+      "sources": [],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "submission_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "title_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "submitted_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "reviewed_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "status",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "build_version",
+          "data_type": "integer",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "return_reason",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "attempt_number",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "review_hours",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "non_negative"
+          ]
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_submission_lifecycle.sql"
+    },
+    {
+      "name": "int_title_outcomes",
+      "layer": "intermediate",
+      "description": "One row per title; submission and publication streams are aggregated separately before joining to prevent fanout.",
+      "materialized": "view",
+      "group": "data_platform",
+      "owner": "Data platform (portfolio example)",
+      "access": "protected",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 5,
+      "upstream": [
+        "int_submission_lifecycle",
+        "stg_publications",
+        "stg_titles"
+      ],
+      "sources": [],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "title_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "planned_release_at",
+          "data_type": "date",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "submission_attempts",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "reviewed_attempts",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "review_hours_total",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "first_pass_approved",
+          "data_type": "integer",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "ever_approved",
+          "data_type": "integer",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "published_regions",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "first_submitted_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "first_published_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "publication_lead_days",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "non_negative"
+          ]
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_title_outcomes.sql"
+    },
+    {
+      "name": "int_title_publication_features",
+      "layer": "intermediate",
+      "description": "One row per approved title. Partner history is calculated separately at first submission and at approval, using only titles published strictly before each point. Current publication remains an observed outcome.",
+      "materialized": "view",
+      "group": "data_platform",
+      "owner": "Data platform (portfolio example)",
+      "access": "protected",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 7,
+      "upstream": [
+        "int_submission_lifecycle",
+        "int_title_outcomes"
+      ],
+      "sources": [],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "title_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "first_submitted_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "planned_release_at",
+          "data_type": "date",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "approved_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "approval_attempt_number",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "prior_partner_published_titles",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "non_negative"
+          ]
+        },
+        {
+          "name": "prior_partner_avg_handoff_hours",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "prior_partner_published_at_submission",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "non_negative"
+          ]
+        },
+        {
+          "name": "prior_partner_avg_lead_days_at_submission",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "first_published_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "published_regions",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "observed_handoff_hours",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "non_negative"
+          ]
+        },
+        {
+          "name": "publication_lead_days",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "non_negative"
+          ]
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/intermediate/int_title_publication_features.sql"
+    },
+    {
+      "name": "dim_partner",
+      "layer": "marts",
+      "description": "One row per partner; a synthetic current-state dimension.",
+      "materialized": "table",
+      "group": "partner_analytics",
+      "owner": "Partner analytics (portfolio example)",
+      "access": "public",
+      "contract_enforced": true,
+      "classification": "partner_confidential",
+      "tests": 3,
+      "upstream": [
+        "stg_partners"
+      ],
+      "sources": [],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [
+            "not_null",
+            "primary_key"
+          ],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "partner_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "region",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "partner_tier",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/dim_partner.sql"
+    },
+    {
+      "name": "dim_title",
+      "layer": "marts",
+      "description": "One row per game or content title.",
+      "materialized": "table",
+      "group": "partner_analytics",
+      "owner": "Partner analytics (portfolio example)",
+      "access": "public",
+      "contract_enforced": false,
+      "classification": "partner_confidential",
+      "tests": 5,
+      "upstream": [
+        "stg_titles"
+      ],
+      "sources": [],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "title_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": [
+            "not_null",
+            "relationships"
+          ]
+        },
+        {
+          "name": "title_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "platform",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "planned_release_at",
+          "data_type": "date",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/dim_title.sql"
+    },
+    {
+      "name": "fct_submission",
+      "layer": "marts",
+      "description": "One row per publishing review attempt.",
+      "materialized": "table",
+      "group": "partner_analytics",
+      "owner": "Partner analytics (portfolio example)",
+      "access": "public",
+      "contract_enforced": true,
+      "classification": "partner_confidential",
+      "tests": 7,
+      "upstream": [
+        "int_submission_lifecycle"
+      ],
+      "sources": [],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "submission_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [
+            "not_null",
+            "primary_key"
+          ],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "title_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [
+            "not_null"
+          ],
+          "tests": [
+            "not_null",
+            "relationships"
+          ]
+        },
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [
+            "not_null"
+          ],
+          "tests": []
+        },
+        {
+          "name": "submitted_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [
+            "not_null"
+          ],
+          "tests": []
+        },
+        {
+          "name": "reviewed_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "status",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [
+            "not_null",
+            "check"
+          ],
+          "tests": [
+            "accepted_values"
+          ]
+        },
+        {
+          "name": "build_version",
+          "data_type": "integer",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "return_reason",
+          "data_type": "varchar",
+          "description": "Why a rejected attempt was returned; shared with the submitting partner only.",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "attempt_number",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [
+            "not_null",
+            "check"
+          ],
+          "tests": []
+        },
+        {
+          "name": "review_hours",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/fct_submission.sql"
+    },
+    {
+      "name": "mart_partner_health",
+      "layer": "marts",
+      "description": "One row per partner. An illustrative health score in [0, 1] from three equally weighted components (Wilson lower bound on first-pass approval, recency, shelf conversion). Weights are a discussion starting point, not a validated model; low-sample partners are flagged and should not be ranked.",
+      "materialized": "table",
+      "group": "partner_analytics",
+      "owner": "Partner analytics (portfolio example)",
+      "access": "public",
+      "contract_enforced": false,
+      "classification": "partner_confidential",
+      "tests": 4,
+      "upstream": [
+        "dim_partner",
+        "int_submission_lifecycle",
+        "int_title_outcomes",
+        "mart_title_time_to_shelf"
+      ],
+      "sources": [],
+      "exposures": [
+        "partner_opportunity"
+      ],
+      "columns": [
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "partner_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "titles_submitted",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "first_pass_approved_titles",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "first_pass_rate",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "first_pass_wilson_lower",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "first_pass_wilson_upper",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "titles_approved",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "titles_published",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "titles_awaiting_shelf",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "days_since_last_submission",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "recency_component",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "shelf_conversion_component",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "health_score",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": [
+            "not_null"
+          ]
+        },
+        {
+          "name": "is_low_sample",
+          "data_type": "boolean",
+          "description": "True when the partner has fewer submitted titles than var('health_min_titles').",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_partner_health.sql"
+    },
+    {
+      "name": "mart_partner_publishing",
+      "layer": "marts",
+      "description": "Partner-level publishing health. All title outcomes are combined at title grain before this aggregation.",
+      "materialized": "table",
+      "group": "partner_analytics",
+      "owner": "Partner analytics (portfolio example)",
+      "access": "public",
+      "contract_enforced": true,
+      "classification": "partner_confidential",
+      "tests": 2,
+      "upstream": [
+        "dim_partner",
+        "int_title_outcomes"
+      ],
+      "sources": [],
+      "exposures": [
+        "partner_release_health"
+      ],
+      "columns": [
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [
+            "not_null",
+            "primary_key"
+          ],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "partner_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "region",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "titles_submitted",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [
+            "not_null"
+          ],
+          "tests": []
+        },
+        {
+          "name": "first_pass_approved_titles",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "titles_published",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "published_storefront_regions",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "submission_attempts",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "reviewed_attempts",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "review_hours_total",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "first_pass_approval_pct",
+          "data_type": "double",
+          "description": "Approved on attempt one divided by titles with at least one submission, multiplied by 100.",
+          "classification": "partner_confidential",
+          "constraints": [
+            "check"
+          ],
+          "tests": []
+        },
+        {
+          "name": "avg_review_hours",
+          "data_type": "double",
+          "description": "Total review hours divided by reviewed attempts.",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "avg_publication_lead_days",
+          "data_type": "double",
+          "description": "Average days from first submission to first publication among published titles.",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_partner_publishing.sql"
+    },
+    {
+      "name": "mart_partner_statistical_diagnostics",
+      "layer": "marts",
+      "description": "Descriptive partner and overall summaries; Wilson calculations are teaching examples, not intervals inferred from a random sample.",
+      "materialized": "table",
+      "group": "partner_analytics",
+      "owner": "Partner analytics (portfolio example)",
+      "access": "public",
+      "contract_enforced": false,
+      "classification": "partner_confidential",
+      "tests": 4,
+      "upstream": [
+        "int_partner_tier_asof_submission",
+        "int_submission_lifecycle",
+        "int_title_outcomes"
+      ],
+      "sources": [],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "titles_submitted",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": [
+            "not_null"
+          ]
+        },
+        {
+          "name": "first_pass_approved_titles",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "first_pass_approval_pct",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "wilson_lower_pct",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "wilson_upper_pct",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "titles_published",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "titles_without_publication",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "reviewed_attempts",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "mean_review_hours",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "q1_review_hours",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "median_review_hours",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "q3_review_hours",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "p90_review_hours",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "observed_publication_leads",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "mean_lead_days",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "median_lead_days",
+          "data_type": "double",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "submission_events",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "tier_history_covered_events",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_partner_statistical_diagnostics.sql"
+    },
+    {
+      "name": "mart_resubmission_cost",
+      "layer": "marts",
+      "description": "One row per return reason. Rejected attempts, reviewer hours spent on them, and the days each rejection added before the partner resubmitted.",
+      "materialized": "table",
+      "group": "partner_analytics",
+      "owner": "Partner analytics (portfolio example)",
+      "access": "public",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 4,
+      "upstream": [
+        "int_submission_lifecycle"
+      ],
+      "sources": [],
+      "exposures": [
+        "partner_opportunity"
+      ],
+      "columns": [
+        {
+          "name": "return_reason",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "rejected_attempts",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": [
+            "not_null"
+          ]
+        },
+        {
+          "name": "titles_affected",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "partners_affected",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "reviewer_hours",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "avg_days_added",
+          "data_type": "double",
+          "description": "Mean days from the rejected submission to the next submission of the same title.",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "rejections_without_resubmission",
+          "data_type": "hugeint",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "share_of_rejected_attempts",
+          "data_type": "double",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_resubmission_cost.sql"
+    },
+    {
+      "name": "mart_title_time_to_shelf",
+      "layer": "marts",
+      "description": "One row per title at a fixed clock, var('opportunity_as_of_date'). Shows whether an approved title has reached a storefront, how long it has waited and how much slack remains before its planned release. Events after the clock are treated as unobserved.",
+      "materialized": "table",
+      "group": "partner_analytics",
+      "owner": "Partner analytics (portfolio example)",
+      "access": "public",
+      "contract_enforced": false,
+      "classification": "partner_confidential",
+      "tests": 5,
+      "upstream": [
+        "int_submission_lifecycle",
+        "int_title_outcomes",
+        "stg_titles"
+      ],
+      "sources": [],
+      "exposures": [
+        "partner_opportunity"
+      ],
+      "columns": [
+        {
+          "name": "title_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": [
+            "not_null",
+            "unique"
+          ]
+        },
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "title_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "as_of_date",
+          "data_type": "date",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "planned_release_at",
+          "data_type": "date",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "approved_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "first_published_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "shelf_status",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": [
+            "accepted_values",
+            "not_null"
+          ]
+        },
+        {
+          "name": "approval_buffer_days",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "days_waiting_as_of",
+          "data_type": "bigint",
+          "description": "Days from approval to the clock for approved titles with no storefront event yet.",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "days_to_planned_release_as_of",
+          "data_type": "bigint",
+          "description": "",
+          "classification": "partner_confidential",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_title_time_to_shelf.sql"
+    },
+    {
+      "name": "mart_workflow_did_demo",
+      "layer": "marts",
+      "description": "Difference-in-differences arithmetic over a separate, entirely invented two-cohort weekly fixture.",
+      "materialized": "table",
+      "group": "partner_analytics",
+      "owner": "Partner analytics (portfolio example)",
+      "access": "protected",
+      "contract_enforced": false,
+      "classification": "public",
+      "tests": 3,
+      "upstream": [],
+      "sources": [],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "treated_pre_pct",
+          "data_type": "double",
+          "description": "",
+          "classification": "public",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "treated_post_pct",
+          "data_type": "double",
+          "description": "",
+          "classification": "public",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "comparison_pre_pct",
+          "data_type": "double",
+          "description": "",
+          "classification": "public",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "comparison_post_pct",
+          "data_type": "double",
+          "description": "",
+          "classification": "public",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "did_pp",
+          "data_type": "double",
+          "description": "",
+          "classification": "public",
+          "constraints": [],
+          "tests": [
+            "not_null"
+          ]
+        },
+        {
+          "name": "pre_period_placebo_pp",
+          "data_type": "double",
+          "description": "",
+          "classification": "public",
+          "constraints": [],
+          "tests": [
+            "not_null"
+          ]
+        },
+        {
+          "name": "pretrend_slope_gap_pp_per_week",
+          "data_type": "double",
+          "description": "",
+          "classification": "public",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "pre_post_mean_week_gap",
+          "data_type": "double",
+          "description": "",
+          "classification": "public",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "effect_if_1pp_week_drift",
+          "data_type": "double",
+          "description": "",
+          "classification": "public",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/marts/mart_workflow_did_demo.sql"
+    },
+    {
+      "name": "stg_partners",
+      "layer": "staging",
+      "description": "",
+      "materialized": "view",
+      "group": "data_platform",
+      "owner": "Data platform (portfolio example)",
+      "access": "protected",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 0,
+      "upstream": [],
+      "sources": [
+        "partner_platform.raw_partners"
+      ],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "partner_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "region",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "partner_tier",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "updated_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/stg_partners.sql"
+    },
+    {
+      "name": "stg_publications",
+      "layer": "staging",
+      "description": "",
+      "materialized": "view",
+      "group": "data_platform",
+      "owner": "Data platform (portfolio example)",
+      "access": "protected",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 1,
+      "upstream": [],
+      "sources": [
+        "partner_platform.raw_publications"
+      ],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "publication_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "title_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "published_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "storefront_region",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/stg_publications.sql"
+    },
+    {
+      "name": "stg_submissions",
+      "layer": "staging",
+      "description": "",
+      "materialized": "view",
+      "group": "data_platform",
+      "owner": "Data platform (portfolio example)",
+      "access": "protected",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 1,
+      "upstream": [],
+      "sources": [
+        "partner_platform.raw_submissions"
+      ],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "submission_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "title_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "submitted_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "reviewed_at",
+          "data_type": "timestamp",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "status",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "build_version",
+          "data_type": "integer",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "return_reason",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/stg_submissions.sql"
+    },
+    {
+      "name": "stg_titles",
+      "layer": "staging",
+      "description": "",
+      "materialized": "view",
+      "group": "data_platform",
+      "owner": "Data platform (portfolio example)",
+      "access": "protected",
+      "contract_enforced": false,
+      "classification": "internal",
+      "tests": 2,
+      "upstream": [],
+      "sources": [
+        "partner_platform.raw_titles"
+      ],
+      "exposures": [],
+      "columns": [
+        {
+          "name": "title_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "partner_id",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "title_name",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "platform",
+          "data_type": "varchar",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        },
+        {
+          "name": "planned_release_at",
+          "data_type": "date",
+          "description": "",
+          "classification": "internal",
+          "constraints": [],
+          "tests": []
+        }
+      ],
+      "source_url": "https://github.com/rfim/nexus-playstation-partners/blob/main/models/staging/stg_titles.sql"
+    }
+  ],
+  "exposures": [
+    {
+      "name": "partner_opportunity",
+      "label": "Partner opportunity (synthetic portfolio example)",
+      "type": "dashboard",
+      "maturity": "low",
+      "owner": "VIM portfolio example",
+      "depends_on": [
+        "mart_partner_health",
+        "mart_resubmission_cost",
+        "mart_title_time_to_shelf"
+      ]
+    },
+    {
+      "name": "partner_release_health",
+      "label": "Partner release health (synthetic portfolio example)",
+      "type": "dashboard",
+      "maturity": "low",
+      "owner": "VIM portfolio example",
+      "depends_on": [
+        "mart_partner_publishing"
+      ]
+    }
+  ]
+}
