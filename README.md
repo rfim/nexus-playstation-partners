@@ -63,9 +63,9 @@ A separate page, [`platform.html`](https://rfim.github.io/nexus-playstation-part
 
 The live SQL panel exposes `lineage_nodes` and `lineage_edges`, with presets for cost by model and a recursive impact query.
 
-## Live SQL playground
+## Live SQL workspace
 
-The **Query the dbt build yourself** panel in section 08 runs [DuckDB-WASM](https://duckdb.org/docs/api/wasm/overview) in the visitor's browser, so the live site needs no server or database account. `scripts/export_parquet.py` writes every staging, intermediate, snapshot, seed and mart table from the local DuckDB build to `assets/data/*.parquet` (about 100 KB) plus a `tables.json` manifest. The page registers each file as a read-only view, and visitors can run any SQL against them. DuckDB-WASM 1.29.0 loads from jsDelivr only when the section scrolls into view.
+The [**Live SQL workspace**](https://rfim.github.io/nexus-playstation-partners/sql.html) (`sql.html`) runs [DuckDB-WASM](https://duckdb.org/docs/api/wasm/overview) in the visitor's browser, so the live site needs no server or database account. `scripts/export_parquet.py` writes every staging, intermediate, snapshot, seed and mart table from the local DuckDB build, plus the governance and lineage catalogs, to `assets/data/*.parquet` with a `tables.json` manifest. The page registers each file as a read-only view; visitors can filter the table list, run any SQL and download results as CSV. `sql.html?preset=<key>` opens a ready-made example, such as `impact` or `catalog`.
 
 After changing a model, refresh the files and commit them:
 
