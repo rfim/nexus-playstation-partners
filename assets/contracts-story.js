@@ -149,6 +149,30 @@ rules:
 
   let timer = null;
 
+  // The real files behind each step, the same for every use case: this is the
+  // pipeline that runs. A string ending in "/" takes every file in that folder.
+  const STEP_FILES = [
+    ['contracts/partners.yml', 'contracts/finance.yml'],
+    ['contracts/contract_plan.py', 'contracts/compile.py'],
+    ['contracts/validate.py', 'contracts/gx/expectations/'],
+    ['tests/contracts/'],
+    ['contracts/reconcile.py'],
+    ['airflow/dags/nexus_partner_analytics.py', '.github/workflows/ci.yml'],
+  ];
+  const STEP_NOTES = [
+    'The stakeholder contracts. These are the only files people edit.',
+    'Routing decides each rule\'s engine; compile.py writes the dbt tests and GX suites.',
+    'The GX runner and every generated expectation suite.',
+    'Every dbt test generated from the contracts. dbt build runs them with the project\'s own tests.',
+    'Joins dbt and GX results, checks each reconcile chain and writes the verdicts.',
+    'Where the sign-off runs: the daily Airflow DAG and the CI workflow. A held contract fails both.',
+  ];
+  let extraFiles = null;
+  const loadExtra = () => (extraFiles ??= Promise.all(
+    ['assets/airflow_code.json', 'assets/code.json'].map((u) => fetch(u).then((r) => r.json()).catch(() => ({ folders: [] }))),
+  ).then((sets) => sets.flatMap((d) => d.folders.flatMap((f) => f.files))));
+  const langOf = (f) => (f.language === 'markdown' ? 'md' : f.language === 'yml' ? 'yaml' : f.language);
+
   function mount(data) {
     clearTimeout(timer);
     const all = cases(data);
@@ -199,7 +223,56 @@ rules:
     [prev, play, next].forEach((b) => { b.type = 'button'; });
     controls.append(prev, play, next, badLabel);
 
-    root.append(head, intro, stage, progress, panel, controls);
+    // Full source for the current step, opened on demand.
+    const code = el('details', 'gxs-code');
+    const codeSummary = el('summary');
+    const codeBody = el('div', 'gxs-code-body');
+    code.append(codeSummary, codeBody);
+    let codeFile = {};
+    const ownFiles = [
+      ...(data?.contracts ?? []).map((c) => ({ path: c.path, language: 'yaml', code: c.source })),
+      ...(data?.files ?? []),
+    ];
+    function filesFor(i, extra = []) {
+      const pool = [...ownFiles, ...extra];
+      return STEP_FILES[i].flatMap((want) => (want.endsWith('/')
+        ? pool.filter((f) => f.path.startsWith(want)).sort((a, b) => a.path.localeCompare(b.path))
+        : pool.filter((f) => f.path === want).slice(0, 1)));
+    }
+    function renderCode() {
+      const i = step;
+      const draw = (files) => {
+        if (i !== step) return;
+        codeSummary.textContent = `Full code for step ${i + 1} · ${STATIONS[i].title} (${files.length} file${files.length === 1 ? '' : 's'})`;
+        if (!code.open) return;
+        const chosen = files.find((f) => f.path === codeFile[i]) ?? files[0];
+        const chips = el('div', 'gxs-code-files');
+        files.forEach((f) => {
+          const b = el('button', `gxs-code-chip${f === chosen ? ' is-active' : ''}`, f.path);
+          b.type = 'button';
+          b.addEventListener('click', () => { codeFile[i] = f.path; renderCode(); });
+          chips.append(b);
+        });
+        const viewer = el('div', 'gxc-code');
+        const headEl = el('div', 'gxc-code-head');
+        const gh = el('a', '', 'GitHub ↗');
+        gh.href = `https://github.com/rfim/nexus-playstation-partners/blob/main/${chosen?.path ?? ''}`;
+        gh.target = '_blank'; gh.rel = 'noopener noreferrer';
+        headEl.append(el('span', '', chosen ? `${chosen.path} · ${chosen.code.replace(/\n$/, '').split('\n').length} lines` : 'Loading…'), gh);
+        const pre = el('pre');
+        if (chosen) {
+          const lines = window.NexusHighlight ? window.NexusHighlight.highlightLines(chosen.code.replace(/\n$/, ''), langOf(chosen)) : chosen.code.split('\n');
+          pre.innerHTML = lines.map((l, n) => `<span class="code-line"><span class="code-ln">${n + 1}</span>${l}</span>`).join('');
+        }
+        viewer.append(headEl, pre);
+        codeBody.replaceChildren(el('p', 'gxs-note', STEP_NOTES[i]), chips, viewer);
+      };
+      if (STEP_FILES[i].some((w) => w.startsWith('airflow/') || w.startsWith('.github/'))) loadExtra().then((extra) => draw(filesFor(i, extra)));
+      else draw(filesFor(i));
+    }
+    code.addEventListener('toggle', () => { if (code.open) pause(); renderCode(); });
+
+    root.append(head, intro, stage, progress, panel, controls, code);
 
     let tokens = [];
 
@@ -309,6 +382,7 @@ rules:
       const title = el('p', 'gxs-step-title');
       title.append(el('span', 'gxs-step-n', `Step ${step + 1} of 6`), el('strong', '', `${STATIONS[step].title} · ${current.subtitles[step]}`));
       panel.replaceChildren(title, el('p', 'gxs-step-text', s.text), example(s.example));
+      renderCode();
       prev.disabled = step === 0;
       next.disabled = step === 5;
       play.textContent = playing ? '❚❚ Pause' : step === 5 ? '↺ Replay' : '▶ Play';
