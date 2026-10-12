@@ -7,12 +7,12 @@ const STORAGE_KEY = "nexus-sql-workspace-v1";
 // Views that open as tabs beside the queries. Each is a page of this site,
 // embedded once and kept alive while its tab is open.
 // Bumped whenever a view page changes, so an open workspace never shows a stale copy.
-const VIEW_VERSION = "16";
+const VIEW_VERSION = "17";
 const VIEWS = {
   lineage: { label: "Lineage", src: `platform.html?view=lineage&v=${VIEW_VERSION}`, hint: "dbt lineage graph · select a node, then query it in a new tab" },
   dbt: { label: "dbt", src: `code.html?v=${VIEW_VERSION}`, hint: "dbt project · every model, macro, test and script, with each model's build cost" },
   airflow: { label: "Airflow", src: `airflow.html?v=${VIEW_VERSION}`, hint: "Airflow DAG · trigger a replay of the recorded run, or inspect any task" },
-  contracts: { label: "Contracts", src: `contracts.html?v=${VIEW_VERSION}`, hint: "Stakeholder contracts · each rule runs in dbt or Great Expectations, reconciled at the end of the day" },
+  contracts: { label: "Contracts → GX + dbt tests", src: `contracts.html?v=${VIEW_VERSION}`, hint: "Stakeholder contracts · each rule runs in dbt or Great Expectations, reconciled at the end of the day" },
 };
 
 const PRESETS = {

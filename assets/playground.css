@@ -53,7 +53,7 @@
 @media(max-width:900px){.sql-layout{grid-template-columns:minmax(0,1fr)}}
 /* Query tabs: one per open query, closable, with a new-tab button */
 .qtabs{display:flex;align-items:stretch;gap:1px;overflow-x:auto;background:#081627;border-bottom:1px solid #2d4f75;scrollbar-width:thin}
-.qtab{display:flex;align-items:center;flex:0 0 auto;max-width:230px;border-right:1px solid #1d3a5c;background:#0b1b31;color:#a9c2df}
+.qtab{display:flex;align-items:center;flex:0 0 auto;max-width:260px;border-right:1px solid #1d3a5c;background:#0b1b31;color:#a9c2df}
 .qtab.is-active{background:#0e213b;color:#fff;box-shadow:inset 0 2px 0 #f4ca72}
 .qtab-title{min-width:0;padding:.6rem .2rem .6rem .8rem;border:0;background:none;color:inherit;font:700 .68rem ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .qtab-title:before{content:"";display:inline-block;width:7px;height:7px;margin-right:.45rem;border-radius:2px;background:#5aa8ff;vertical-align:1px}
@@ -129,3 +129,5 @@ body.sql-focus .sql-output{max-height:none}
 .playground-window.is-view .sql-editor-wrap{display:none}
 .qview-contracts{display:inline-flex;align-items:center;gap:.35rem;border-color:#ff8a4c!important;color:#ffd0b3!important}.qview-contracts.is-open{background:#3d1d0c!important;color:#fff!important}
 .qview-contracts b{padding:0 .3rem;border-radius:4px;background:#ff6310;color:#fff;font-size:.54rem;letter-spacing:.04em}
+.qview-contracts .qview-arrow,.qview-contracts .qview-plus{color:#ff9b66;font-weight:900}
+.qview-contracts b.qview-dbt-b{background:#5a5fd0}

@@ -11,7 +11,7 @@ The hero labels this independent application **“Presented to PlayStation”** 
 | Where | What it shows |
 |---|---|
 | **Main page** (`index.html`) | The NEXUS architecture, game-world examples, the Lifepal production story, role-fit walkthroughs, the maths, synthetic results, business potential, working code (08) and dbt governance (09). The nav is Architecture · Built at Lifepal · Results · **dbt workspace**. |
-| **dbt workspace** (`sql.html`) | Live SQL over the whole dbt build, run by DuckDB-WASM in the browser, plus four view tabs: **dbt** (the project's code, governance and build cost), **Lineage** (the dbt graph), **Airflow** (the hypothetical DAG in an Airflow-style UI) and **Contracts** (stakeholder data contracts checked by dbt and Great Expectations, with the end-of-day sign-off). |
+| **dbt workspace** (`sql.html`) | Live SQL over the whole dbt build, run by DuckDB-WASM in the browser, plus four view tabs: **dbt** (the project's code, governance and build cost), **Lineage** (the dbt graph), **Airflow** (the hypothetical DAG in an Airflow-style UI) and **Contracts → GX + dbt tests** (stakeholder YAML contracts compiled into Great Expectations and dbt tests, with the end-of-day sign-off). |
 
 `platform.html`, `code.html`, `airflow.html` and `contracts.html` are the pages the workspace embeds as tabs; opening `platform.html` on its own forwards to the workspace.
 
@@ -120,7 +120,7 @@ It is not deployed. A full `airflow dags test` run on Airflow 3.2.2 rebuilt the 
 - **dbt tab:** every dbt model, macro, test, script and CI file, highlighted (SQL with dbt Jinja, YAML, Python). Each model shows its description, governance, the models it reads and is used by, and its build cost; a pinned **Build cost** entry summarises warehouse budgets and cost by model.
 - **Lineage tab:** the dbt graph from the manifest. Select a node to see what it reads, what would break if it changed and what it costs, then open its preview or impact query in a SQL tab.
 - **Airflow tab:** laid out like the Airflow UI, with Overview, Grid, Graph, Code and Details, and Details, Logs and Code for each task instance. **Trigger** replays the recorded run; **Fail the test gate** shows the retries and the gate holding. Its left nav also opens every file in `airflow/`, the DAG's assets and its README. Nothing executes in the browser.
-- **Contracts tab:** the end-of-day sign-off for each stakeholder, then each contract's rules with the engine that ran them, why it was chosen, the generated dbt test or GX expectation, and the result. A dbt rule's test query runs in a new SQL tab, and each reconcile chain can be recomputed there. Its Code section holds the YAML, the compiler and every generated file.
+- **Contracts → GX + dbt tests tab:** the end-of-day sign-off for each stakeholder, then each contract's rules with the engine that ran them, why it was chosen, the generated dbt test or GX expectation, and the result. A dbt rule's test query runs in a new SQL tab, and each reconcile chain can be recomputed there. Its Code section holds the YAML, the compiler and every generated file.
 - **Links:** `sql.html?view=<dbt|lineage|airflow|contracts>` opens a view and `sql.html?preset=<key>` opens a ready-made example, such as `impact`, `catalog` or `contracts`.
 
 ## CI
