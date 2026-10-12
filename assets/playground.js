@@ -7,7 +7,7 @@ const STORAGE_KEY = "nexus-sql-workspace-v1";
 // Views that open as tabs beside the queries. Each is a page of this site,
 // embedded once and kept alive while its tab is open.
 // Bumped whenever a view page changes, so an open workspace never shows a stale copy.
-const VIEW_VERSION = "17";
+const VIEW_VERSION = "18";
 const VIEWS = {
   lineage: { label: "Lineage", src: `platform.html?view=lineage&v=${VIEW_VERSION}`, hint: "dbt lineage graph · select a node, then query it in a new tab" },
   dbt: { label: "dbt", src: `code.html?v=${VIEW_VERSION}`, hint: "dbt project · every model, macro, test and script, with each model's build cost" },

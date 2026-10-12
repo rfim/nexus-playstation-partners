@@ -206,7 +206,8 @@
     });
     dag.append(chain);
 
-    host.replaceChildren(crumbs('End-of-day sign-off'), head, flow, cards, policy, dag);
+    const story = window.ContractsStory ? window.ContractsStory.mount(data) : flow;
+    host.replaceChildren(crumbs('End-of-day sign-off'), head, story, cards, policy, dag);
   }
 
   // ---- One contract: rules, YAML, reconciliation ------------------------------
