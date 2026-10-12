@@ -533,7 +533,7 @@
       later(rec?.duration_s ?? 1, () => {
         ti.duration = rec?.duration_s ?? 1;
         if (run.failGate && id === 'test_gate') {
-          logTo(run, id, 'Done. PASS=98 WARN=0 ERROR=1 SKIP=0 TOTAL=99');
+          logTo(run, id, 'Done. PASS=104 WARN=1 ERROR=1 SKIP=0 NO-OP=0 TOTAL=106');
           logTo(run, id, 'Failure in test assert_no_title_fanout [simulated]');
           if (ti.tries <= t.retries) {
             ti.state = 'up_for_retry';

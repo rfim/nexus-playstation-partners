@@ -1,0 +1,108 @@
+# Data contract: what Finance relies on for the monthly warehouse chargeback.
+# Stakeholders own this file; contracts/compile.py turns each rule into a dbt test
+# or a Great Expectations expectation, whichever is cheaper to run (see README.md).
+contract: finance
+title: Warehouse cost chargeback
+version: 2.1.0
+stakeholder: Finance (FP&A), monthly chargeback and budget forecast
+consumer: Platform cost dashboard (dbt exposure platform_cost_and_lineage)
+owner_group: platform_ops
+sla:
+  refreshed_by: "06:30 UTC"
+  signed_off_by: "23:00 UTC"
+  breach: A failed error rule stops the chargeback file going to Finance until it is fixed.
+
+datasets:
+  - name: billing_export
+    kind: file
+    path: seeds/platform_warehouse_metering.csv
+    description: The warehouse metering export, checked as delivered and before it is loaded.
+  - name: mart_cost_budget_vs_actual
+    kind: model
+  - name: mart_cost_by_model
+    kind: model
+  - name: mart_cost_daily
+    kind: model
+
+rules:
+  - id: F-01
+    dataset: billing_export
+    check: columns_match
+    columns: [warehouse_name, usage_date, credits_used_compute, credits_used_cloud_services]
+    description: The export keeps the agreed column layout.
+  - id: F-02
+    dataset: billing_export
+    check: unique_combination
+    columns: [warehouse_name, usage_date]
+    description: One metering row per warehouse per day, so nothing is billed twice.
+  - id: F-03
+    dataset: billing_export
+    check: between
+    column: credits_used_compute
+    min: 0
+    max: 5
+    description: Daily compute credits are never negative or implausibly large.
+  - id: F-04
+    dataset: billing_export
+    check: row_count
+    min: 100
+    max: 130
+    description: A full month for four warehouses arrived, not a partial file.
+  - id: F-05
+    dataset: billing_export
+    check: sum
+    column: credits_used_compute
+    min: 0
+    max: 60
+    description: Monthly compute stays under the 60-credit contract ceiling.
+  - id: F-06
+    dataset: mart_cost_budget_vs_actual
+    check: unique
+    column: warehouse_name
+    description: Each warehouse is charged back once.
+  - id: F-07
+    dataset: mart_cost_budget_vs_actual
+    check: accepted_values
+    column: budget_status
+    values: [ok, notify, forecast_over, suspended]
+    description: Budget status uses the resource monitor's vocabulary.
+  - id: F-08
+    dataset: mart_cost_budget_vs_actual
+    check: expression
+    expression: "abs(cost_usd_mtd - credits_used_mtd * {{ var('credit_price_usd') }}) <= 0.01"
+    description: Dollars equal credits times the contracted credit price.
+  - id: F-09
+    dataset: mart_cost_budget_vs_actual
+    check: expression
+    expression: forecast_pct_of_budget <= 100
+    severity: warn
+    description: No warehouse is forecast to overrun its monthly budget. A warning, not a stop.
+  - id: F-10
+    dataset: mart_cost_by_model
+    check: reconciles
+    left: sum(pct_of_dbt_cost)
+    right: {value: 100}
+    tolerance: 0.5
+    description: Model cost shares add up to the whole dbt bill.
+  - id: F-11
+    dataset: mart_cost_daily
+    check: accepted_values
+    column: is_anomaly
+    values: [false]
+    mostly: 0.95
+    description: At least 95% of warehouse-days burn within the normal range.
+
+reconcile:
+  - id: R-F1
+    title: The billing export landed whole
+    tolerance: 0.0001
+    measures:
+      - {label: "Billing export (file, GX)", rule: F-05}
+      - {label: Loaded table, sql: "select sum(credits_used_compute) from platform_warehouse_metering"}
+  - id: R-F2
+    title: Reported spend equals billed spend, month to date
+    tolerance: 0.01
+    measures:
+      - {label: Billed credits, sql: "select sum(credits_used_compute + credits_used_cloud_services) from platform_warehouse_metering where usage_date <= date '{{ var('cost_as_of_date') }}'"}
+      - {label: Daily burn model, sql: "select sum(credits_used) from mart_cost_daily"}
+      - {label: Budget vs actual, sql: "select sum(credits_used_mtd) from mart_cost_budget_vs_actual"}

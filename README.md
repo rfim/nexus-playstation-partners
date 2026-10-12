@@ -11,9 +11,9 @@ The hero labels this independent application **“Presented to PlayStation”** 
 | Where | What it shows |
 |---|---|
 | **Main page** (`index.html`) | The NEXUS architecture, game-world examples, the Lifepal production story, role-fit walkthroughs, the maths, synthetic results, business potential, working code (08) and dbt governance (09). The nav is Architecture · Built at Lifepal · Results · **dbt workspace**. |
-| **dbt workspace** (`sql.html`) | Live SQL over the whole dbt build, run by DuckDB-WASM in the browser, plus three view tabs: **dbt** (the project's code, governance and build cost), **Lineage** (the dbt graph) and **Airflow** (the hypothetical DAG in an Airflow-style UI). |
+| **dbt workspace** (`sql.html`) | Live SQL over the whole dbt build, run by DuckDB-WASM in the browser, plus four view tabs: **dbt** (the project's code, governance and build cost), **Lineage** (the dbt graph), **Airflow** (the hypothetical DAG in an Airflow-style UI) and **Contracts** (stakeholder data contracts checked by dbt and Great Expectations, with the end-of-day sign-off). |
 
-`platform.html`, `code.html` and `airflow.html` are the pages the workspace embeds as tabs; opening `platform.html` on its own forwards to the workspace.
+`platform.html`, `code.html`, `airflow.html` and `contracts.html` are the pages the workspace embeds as tabs; opening `platform.html` on its own forwards to the workspace.
 
 ## What is real, and what is an example
 
@@ -34,7 +34,8 @@ models/            dbt models: staging (bronze), intermediate (silver), marts (g
 seeds/             synthetic partner data and invented platform-cost inputs
 snapshots/         partner tier history
 macros/            reusable SQL, documented in macros/properties.yml
-tests/             singular dbt tests
+tests/             singular dbt tests; tests/contracts/ is generated from the contracts
+contracts/         stakeholder data contracts (YAML), their compiler, GX runner, reconciler and GX suites
 semantic/          metric definitions for discussion (not a deployed semantic layer)
 scripts/           exports that turn the dbt build into the site's data, each with --check
 airflow/           hypothetical Airflow 3 DAG, its tests, export script and recorded run
@@ -53,14 +54,18 @@ dbt build --profiles-dir .
 python -m http.server 8767        # then open http://localhost:8767/
 ```
 
-The DuckDB file is created in `target/`. No cloud account is needed. `dbt build` runs 9 seeds, a timestamp snapshot, 23 models across staging, intermediate, marts and platform cost, 99 data tests (generic and singular) and 3 exposures.
+The DuckDB file is created in `target/`. No cloud account is needed. `dbt build` runs 9 seeds, a timestamp snapshot, 23 models across staging, intermediate, marts and platform cost, 106 data tests (generic, singular and 7 generated from the stakeholder contracts) and 3 exposures. `requirements.txt` also installs Great Expectations for the contract checks.
 
 ### After changing the dbt project
 
 The site reads files generated from the build. Regenerate them in this order and commit the results:
 
 ```bash
+python contracts/compile.py           # tests/contracts/*.sql, contracts/gx/expectations/*.json  (after a contract changes)
+python contracts/validate.py --scope files
 dbt build --profiles-dir .
+python contracts/validate.py --scope models
+python contracts/reconcile.py         # assets/contracts.json       end-of-day contract sign-off
 python scripts/export_governance.py   # assets/governance.json      ownership, access, contracts, classification
 python scripts/export_platform.py     # assets/platform.json        cost marts and the lineage graph
 python scripts/export_metrics.py      # assets/metrics.json         the main page's charts
@@ -68,7 +73,7 @@ python scripts/export_parquet.py      # assets/data/*.parquet       every table 
 python scripts/build_snippets.py      # snippets, code.json, airflow_code.json   source shown on the site
 ```
 
-Each script also takes `--check`, which fails if the committed file no longer matches the build. After changing the DAG, also run `airflow/export_dag.py` (see [airflow/README.md](airflow/README.md)).
+`compile.py`, `reconcile.py` and each export script also take `--check`, which fails if the committed file no longer matches the build. After changing the DAG, also run `airflow/export_dag.py` (see [airflow/README.md](airflow/README.md)).
 
 ## The dbt project
 
@@ -88,11 +93,20 @@ Each script also takes `--check`, which fails if the committed file no longer ma
 - **Lineage:** `scripts/export_platform.py` reads every `ref()` and `source()` from `target/manifest.json`. It fails if a model reads nothing traceable or a declared input is unused.
 - **Production translation:** `docs/snowflake_cost_governance.sql` shows the warehouses, monitors and `ACCOUNT_USAGE` views the seeds stand in for. It is illustrative and is not run.
 
+## Stakeholder data contracts (dbt + Great Expectations)
+
+Each stakeholder owns a YAML contract stating what they rely on: `contracts/partners.yml` covers the partner scorecard and `contracts/finance.yml` the warehouse chargeback. Nobody writes the tests by hand. `contracts/compile.py` routes each rule to the cheaper engine:
+
+- **Great Expectations** for rules on a delivered file (the partner submission feed, the billing export), checked before the file loads, and for tolerance or distribution rules (`mostly`, mean, sum, row count).
+- **dbt** for set-based SQL on a model (unique, accepted values, ranges, expressions, cross-model totals). It writes a singular test into `tests/contracts/`, which runs inside `dbt build`. A rule that matches a test the project already has links to that test rather than running it twice.
+
+Of the 24 rules, 13 run in Great Expectations, 7 as generated dbt tests and 4 reuse existing dbt tests. `contracts/validate.py` runs the GX suites. At the end of the day, `contracts/reconcile.py` joins both engines' results and checks each contract's reconcile chains: the same number measured from the delivered file through the loaded table to the mart must agree. Each contract is then signed off, signed off with warnings, or held. A held contract fails CI and the DAG, so nothing publishes. On the current data Partners is signed off, and Finance is signed off with one warning: `NEXUS_BI_WH` is forecast at 122.8% of its budget. See [contracts/README.md](contracts/README.md).
+
 **Metrics.** `semantic/partner_metrics.yml` is a versioned metric definition for discussion, not a deployed semantic layer.
 
 ## Orchestration (hypothetical Airflow)
 
-`airflow/dags/nexus_partner_analytics.py` runs the same build on an Airflow 3 daily schedule: parse, ingest, snapshot, a dbt build per layer with its own tests, a full test gate, then the site exports and a budget check that warns `platform_ops` when a warehouse is forecast over budget. Failures retry with exponential backoff, and nothing publishes unless every test passes.
+`airflow/dags/nexus_partner_analytics.py` runs the same build on an Airflow 3 daily schedule: parse, Great Expectations on the delivered files, ingest, snapshot, a dbt build per layer with its own tests, a full test gate, the contract sign-off, then the site exports and a budget check that warns `platform_ops` when a warehouse is forecast over budget. Failures retry with exponential backoff, and nothing publishes unless every test passes and the contracts are signed off.
 
 It is not deployed. A full `airflow dags test` run on Airflow 3.2.2 rebuilt the project from scratch, and `airflow/recorded_run.json` keeps its task timings and logs. CI checks that the DAG imports, matches the run design, and agrees with the graph the site shows. See [airflow/README.md](airflow/README.md) to run it.
 
@@ -100,19 +114,20 @@ It is not deployed. A full `airflow dags test` run on Airflow 3.2.2 rebuilt the 
 
 [`sql.html`](https://rfim.github.io/nexus-playstation-partners/sql.html) runs [DuckDB-WASM](https://duckdb.org/docs/api/wasm/overview) in the visitor's browser, so the live site needs no server or database account. Nothing a visitor types is sent anywhere.
 
-- **Data:** `scripts/export_parquet.py` writes the raw sources and every staging, intermediate, snapshot, seed, mart and cost table, plus the governance and lineage catalogs, to `assets/data/*.parquet`. The page registers each file as a read-only view.
-- **Tables sidebar:** grouped as Source, Bronze, Silver, Gold, Platform cost, Governance, Lineage and Macros. Filter by table or column name, preview a table, or insert a column into the query. Examples and History panels sit beside it, and the whole sidebar folds into a slim rail (Ctrl+B).
+- **Data:** `scripts/export_parquet.py` writes the raw sources and every staging, intermediate, snapshot, seed, mart and cost table, plus the governance and lineage catalogs and the contract results (`contract_rules`, `contract_reconciliation`), to `assets/data/*.parquet`. The page registers each file as a read-only view.
+- **Tables sidebar:** grouped as Source, Bronze, Silver, Gold, Platform cost, Governance, Lineage, Contracts and Macros. Filter by table or column name, preview a table, or insert a column into the query. Examples and History panels sit beside it, and the whole sidebar folds into a slim rail (Ctrl+B).
 - **Query tabs:** each query, example, table preview or macro opens in its own closable tab with its own results. The SQL editor is syntax-highlighted as you type, results download as CSV, and open tabs and history stay in the visitor's browser only.
 - **dbt tab:** every dbt model, macro, test, script and CI file, highlighted (SQL with dbt Jinja, YAML, Python). Each model shows its description, governance, the models it reads and is used by, and its build cost; a pinned **Build cost** entry summarises warehouse budgets and cost by model.
 - **Lineage tab:** the dbt graph from the manifest. Select a node to see what it reads, what would break if it changed and what it costs, then open its preview or impact query in a SQL tab.
 - **Airflow tab:** laid out like the Airflow UI, with Overview, Grid, Graph, Code and Details, and Details, Logs and Code for each task instance. **Trigger** replays the recorded run; **Fail the test gate** shows the retries and the gate holding. Its left nav also opens every file in `airflow/`, the DAG's assets and its README. Nothing executes in the browser.
-- **Links:** `sql.html?view=<dbt|lineage|airflow>` opens a view and `sql.html?preset=<key>` opens a ready-made example, such as `impact` or `catalog`.
+- **Contracts tab:** the end-of-day sign-off for each stakeholder, then each contract's rules with the engine that ran them, why it was chosen, the generated dbt test or GX expectation, and the result. A dbt rule's test query runs in a new SQL tab, and each reconcile chain can be recomputed there. Its Code section holds the YAML, the compiler and every generated file.
+- **Links:** `sql.html?view=<dbt|lineage|airflow|contracts>` opens a view and `sql.html?preset=<key>` opens a ready-made example, such as `impact`, `catalog` or `contracts`.
 
 ## CI
 
 GitHub Actions runs two jobs on every push and pull request:
 
-- **dbt-reference** builds and tests the dbt project, then runs every export with `--check` so the site's data, code and catalogs can never drift from the build.
+- **dbt-reference** checks the delivered files with Great Expectations, builds and tests the dbt project, signs off the stakeholder contracts (failing if a contract is held or its generated tests drift), then runs every export with `--check` so the site's data, code and catalogs can never drift from the build.
 - **airflow-dag** installs Airflow 3.2.2 with its constraints, runs the DAG integrity tests and checks `assets/airflow.json` against the DAG.
 
 GitHub Pages publishes `main`.

@@ -1,0 +1,83 @@
+{
+  "name": "partners__partner_submission_feed",
+  "id": null,
+  "expectations": [
+    {
+      "type": "expect_table_columns_to_match_ordered_list",
+      "kwargs": {
+        "column_list": [
+          "submission_id",
+          "title_id",
+          "submitted_at",
+          "reviewed_at",
+          "status",
+          "build_version",
+          "return_reason"
+        ]
+      },
+      "meta": {
+        "rule": "P-01"
+      },
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_match_regex",
+      "kwargs": {
+        "column": "submission_id",
+        "regex": "^S\\d{3}$"
+      },
+      "meta": {
+        "rule": "P-02"
+      },
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "status",
+        "value_set": [
+          "approved",
+          "rejected",
+          "pending"
+        ]
+      },
+      "meta": {
+        "rule": "P-03"
+      },
+      "severity": "critical"
+    },
+    {
+      "type": "expect_table_row_count_to_be_between",
+      "kwargs": {
+        "min_value": 1,
+        "max_value": 5000
+      },
+      "meta": {
+        "rule": "P-04"
+      },
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "build_version",
+        "min_value": 1.0,
+        "max_value": 20.0
+      },
+      "meta": {
+        "rule": "P-05"
+      },
+      "severity": "critical"
+    }
+  ],
+  "meta": {
+    "contract": "partners",
+    "contract_version": "1.3.0",
+    "dataset": "partner_submission_feed",
+    "dataset_kind": "file",
+    "path": "seeds/raw_submissions.csv",
+    "generated_from": "contracts/partners.yml",
+    "great_expectations_version": "1.24.0"
+  },
+  "notes": null
+}

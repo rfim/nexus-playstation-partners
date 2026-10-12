@@ -1,0 +1,27 @@
+{
+  "name": "partners__fct_submission",
+  "id": null,
+  "expectations": [
+    {
+      "type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "review_hours",
+        "mostly": 0.95,
+        "max_value": 72.0
+      },
+      "meta": {
+        "rule": "P-09"
+      },
+      "severity": "critical"
+    }
+  ],
+  "meta": {
+    "contract": "partners",
+    "contract_version": "1.3.0",
+    "dataset": "fct_submission",
+    "dataset_kind": "model",
+    "generated_from": "contracts/partners.yml",
+    "great_expectations_version": "1.24.0"
+  },
+  "notes": null
+}

@@ -127,3 +127,5 @@ body.sql-focus .sql-output{max-height:none}
 .sql-editor-wrap .sql-editor::selection{background:rgba(90,168,255,.35);color:transparent}
 .sql-editor-wrap .sql-editor[readonly]{background:transparent;color:transparent}
 .playground-window.is-view .sql-editor-wrap{display:none}
+.qview-contracts{display:inline-flex;align-items:center;gap:.35rem;border-color:#ff8a4c!important;color:#ffd0b3!important}.qview-contracts.is-open{background:#3d1d0c!important;color:#fff!important}
+.qview-contracts b{padding:0 .3rem;border-radius:4px;background:#ff6310;color:#fff;font-size:.54rem;letter-spacing:.04em}

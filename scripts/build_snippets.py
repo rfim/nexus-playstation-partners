@@ -30,6 +30,7 @@ CODE_FOLDERS = (
     ("snapshots", ["snapshots/*"]),
     ("macros", ["macros/*"]),
     ("tests", ["tests/*"]),
+    ("tests/contracts", ["tests/contracts/*"]),
     ("seeds", ["seeds/*.yml"]),
     ("semantic", ["semantic/*"]),
     ("scripts", ["scripts/*.py"]),
