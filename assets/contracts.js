@@ -62,7 +62,7 @@
 
   function crumbs(...parts) {
     const c = el('div', 'gxc-crumbs');
-    c.append(el('span', '', 'Data contracts'));
+    c.append(el('span', '', 'Contracts → Great Expectations + dbt tests'));
     parts.forEach((p) => c.append(el('b', '', '›'), el('strong', '', p)));
     c.append(el('em', 'gxc-demo', `Synthetic data · results from the CI build · business date ${data.business_date}`));
     return c;

@@ -12,10 +12,10 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300..900;1,300..900&display=swap">
   <link rel="stylesheet" href="assets/fonts.css?v=1">
   <link rel="stylesheet" href="assets/site.css?v=10">
-  <link rel="stylesheet" href="assets/playground.css?v=13">
+  <link rel="stylesheet" href="assets/playground.css?v=14">
   <link rel="stylesheet" href="assets/highlight.css?v=2">
   <script src="assets/highlight.js?v=2"></script>
-  <script src="assets/playground.js?v=17" type="module"></script>
+  <script src="assets/playground.js?v=18" type="module"></script>
 </head>
 <body class="sql-page">
   <a class="skip-link" href="#sql-editor">Skip to the SQL editor</a>
@@ -62,7 +62,7 @@
         </div>
       </aside>
       <div class="code-window playground-window">
-        <div class="qbar"><div class="qtabs" id="sql-tabs" role="tablist" aria-label="Open tabs"></div><div class="qviews" role="group" aria-label="Open a view"><span>Views</span><button type="button" data-view="dbt" class="qview-dbt">dbt project</button><button type="button" data-view="airflow" class="qview-airflow"><i aria-hidden="true"></i>Airflow</button><button type="button" data-view="lineage">Lineage</button><button type="button" data-view="contracts" class="qview-contracts"><b aria-hidden="true">GX</b>Contracts</button><button type="button" id="sql-focus" class="qfocus" aria-pressed="false" title="Fill the window (Esc to exit)">Focus</button></div></div>
+        <div class="qbar"><div class="qtabs" id="sql-tabs" role="tablist" aria-label="Open tabs"></div><div class="qviews" role="group" aria-label="Open a view"><span>Views</span><button type="button" data-view="dbt" class="qview-dbt">dbt project</button><button type="button" data-view="airflow" class="qview-airflow"><i aria-hidden="true"></i>Airflow</button><button type="button" data-view="lineage">Lineage</button><button type="button" data-view="contracts" class="qview-contracts" title="Stakeholder contracts compiled to Great Expectations and dbt tests">Contracts<span class="qview-arrow" aria-hidden="true">→</span><b>GX</b><span class="qview-plus" aria-hidden="true">+</span><b class="qview-dbt-b">dbt tests</b></button><button type="button" id="sql-focus" class="qfocus" aria-pressed="false" title="Fill the window (Esc to exit)">Focus</button></div></div>
         <div id="sql-views" class="sql-views" hidden></div>
         <label class="visually-hidden" for="sql-editor">SQL query</label>
         <div class="sql-editor-wrap"><pre class="sql-highlight" aria-hidden="true"><code id="sql-highlight"></code></pre><textarea id="sql-editor" class="sql-editor" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea></div>
