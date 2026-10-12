@@ -149,99 +149,98 @@ rules:
 
   let timer = null;
 
-  // The real files behind each step, the same for every use case: this is the
-  // pipeline that runs. A string ending in "/" takes every file in that folder.
-  const STEP_FILES = [
-    ['contracts/partners.yml', 'contracts/finance.yml'],
-    ['contracts/contract_plan.py', 'contracts/compile.py'],
-    ['contracts/validate.py', 'contracts/gx/expectations/'],
-    ['tests/contracts/'],
-    ['contracts/reconcile.py'],
-    ['airflow/dags/nexus_partner_analytics.py', '.github/workflows/ci.yml'],
-  ];
-  const STEP_NOTES = [
-    'The stakeholder contracts. These are the only files people edit.',
-    'Routing decides each rule\'s engine; compile.py writes the dbt tests and GX suites.',
-    'The GX runner and every generated expectation suite.',
-    'Every dbt test generated from the contracts. dbt build runs them with the project\'s own tests.',
-    'Joins dbt and GX results, checks each reconcile chain and writes the verdicts.',
-    'Where the sign-off runs: the daily Airflow DAG and the CI workflow. A held contract fails both.',
-  ];
-  // Story words → repository code, per step. `find` is text on the line to mark;
-  // story labels are per use case (playstation, royalties, certification).
-  const TRANSLATE = [
-    [
-      { story: { playstation: 'Partner Success owns the contract', royalties: 'Finance and the partners agree the contract', certification: 'Partner and publishing QA agree the checklist' },
-        code: 'Who owns the contract. A royalties or certification contract would be one more YAML file like this.', file: 'contracts/partners.yml', find: 'stakeholder:' },
-      { story: { playstation: 'The partner submission feed', royalties: 'The PS Store sales file', certification: 'The uploaded build package' },
-        code: 'A dataset with kind: file is checked as delivered, before it loads.', file: 'contracts/partners.yml', find: 'kind: file', span: 3 },
-      { story: { playstation: 'P-03: only known statuses', royalties: 'currency in USD, EUR, GBP, JPY', certification: 'age rating present for every region' },
-        code: 'One rule: a check, its column and the allowed values.', file: 'contracts/partners.yml', find: '- id: P-03', span: 5 },
-      { story: { playstation: 'P-09: 95% of reviews within 72h', royalties: 'valid SKU, mostly 99%', certification: 'size under the limit' },
-        code: 'A rule with a tolerance: mostly is the share of rows that must pass.', file: 'contracts/partners.yml', find: '- id: P-09', span: 6 },
-      { story: { playstation: 'R-P1: feed = scorecard', royalties: 'store file = loaded sales = royalty mart', certification: 'same build from submission to store' },
-        code: 'A reconcile chain: the same measure at every hop, within a tolerance.', file: 'contracts/partners.yml', find: '- id: R-P1', span: 7 },
-    ],
-    [
-      { story: { playstation: 'P-02 on the delivered feed', royalties: 'transaction_id unique in the store file', certification: 'checks on submission' },
-        code: 'Rule 1: a file that is not loaded yet goes to Great Expectations.', file: 'contracts/contract_plan.py', find: 'if dataset["kind"] == "file":', span: 2 },
-      { story: { playstation: 'P-09, mostly 95%', royalties: 'valid SKU, mostly 99%', certification: 'size under a limit' },
-        code: 'Rule 2: a tolerance or distribution goes to Great Expectations.', file: 'contracts/contract_plan.py', find: 'elif rule.get("mostly") is not None', span: 2 },
-      { story: { playstation: 'P-12 titles add up across models', royalties: 'every SKU maps to a title', certification: 'testing on devkits' },
-        code: 'Rule 3: set-based SQL on a model becomes a dbt test.', file: 'contracts/contract_plan.py', find: 'engine, reason = "dbt", "set_based"' },
-      { story: { playstation: 'P-06 already tested by the project', royalties: 'a check Finance already runs', certification: 'a check QA already runs' },
-        code: 'If the same dbt test exists, the contract links to it instead of testing twice.', file: 'contracts/contract_plan.py', find: 'engine, reason = "dbt_existing", "reuse"' },
-      { story: { default: 'Nobody writes the tests by hand' },
-        code: 'compile.py writes one dbt test per dbt rule and one GX suite per dataset.', file: 'contracts/compile.py', find: 'files[DBT_TESTS', span: 4 },
-    ],
-    [
-      { story: { playstation: 'raw_submissions.csv as delivered', royalties: 'the store sales file as delivered', certification: 'the package as uploaded' },
-        code: 'The file is read straight from disk, before dbt seed loads it.', file: 'contracts/validate.py', find: 'asset = files.add_csv_asset', span: 2 },
-      { story: { default: 'Run every check on it' },
-        code: 'Great Expectations validates the batch against the generated suite.', file: 'contracts/validate.py', find: 'validation = batch.validate(suite)' },
-      { story: { playstation: 'P-03: status in the allowed set', royalties: 'currency in the allowed set', certification: 'age rating for each region' },
-        code: 'The generated expectation for an accepted-values rule.', file: 'partners__partner_submission_feed.json', find: '"expect_column_values_to_be_in_set"', span: 9 },
-      { story: { playstation: 'A bad feed never loads', royalties: 'A resent file never loads', certification: 'A broken package goes back' },
-        code: 'An error-severity failure exits non-zero, so the DAG stops before ingest.', file: 'contracts/validate.py', find: 'sys.exit("Blocking expectations failed', span: 1 },
-    ],
-    [
-      { story: { playstation: 'P-08: no review before submission', royalties: 'no sale before release', certification: 'save data survives suspend and resume' },
-        code: 'A row-level rule: any row returned is a failure.', file: 'contract_partners_p08.sql', find: 'where not (', span: 1 },
-      { story: { playstation: 'P-12: titles add up across models', royalties: 'every sale belongs to a partner title', certification: 'every trophy can be unlocked' },
-        code: 'A cross-model check: two totals that must agree.', file: 'contract_partners_p12.sql', find: 'with contract_side as (', span: 9 },
-      { story: { playstation: 'F-08: dollars = credits x price', royalties: 'royalty = net sales x revenue share', certification: 'price matches the agreed SKU' },
-        code: 'A formula check against a dbt var, the contracted price.', file: 'contract_finance_f08.sql', find: 'where not (', span: 1 },
-      { story: { playstation: 'F-09: forecast over budget is a warning', royalties: 'a late file is a warning, not a stop', certification: 'a minor issue is noted, not a fail' },
-        code: "severity='warn': reported, but dbt build still passes.", file: 'contract_finance_f09.sql', find: "severity='warn'" },
-    ],
-    [
-      { story: { playstation: 'Feed → loaded → fact → scorecard', royalties: 'Store file → loaded → royalty mart', certification: 'Submitted → certified → on the store' },
-        code: 'Each reconcile chain is checked measure by measure.', file: 'contracts/reconcile.py', find: 'def _reconcile(', span: 1 },
-      { story: { playstation: 'The count GX saw in the feed', royalties: 'The total GX saw in the file', certification: 'The checksum seen at submission' },
-        code: 'A measure can be the value Great Expectations observed on the delivered file.', file: 'contracts/reconcile.py', find: 'value, source = rules[m["rule"]]["value"]' },
-      { story: { default: 'The same number in the warehouse' },
-        code: 'Or a SQL query against the dbt build.', file: 'contracts/reconcile.py', find: 'value, source = _num(con.execute(sql)' },
-      { story: { default: 'Must agree within tolerance' },
-        code: 'The spread across every hop must be within the tolerance.', file: 'contracts/reconcile.py', find: 'status = "match" if spread', span: 1 },
-      { story: { default: 'Signed off, with warnings, or held' },
-        code: 'One verdict per contract from both engines and the chains.', file: 'contracts/reconcile.py', find: 'verdict = "held" if failed', span: 1 },
-    ],
-    [
-      { story: { default: 'Check the delivery at the door' },
-        code: 'The DAG runs the GX file check before the load.', file: 'airflow/dags/nexus_partner_analytics.py', find: 'task_id="validate_contract_files"', span: 3 },
-      { story: { playstation: 'Sign off the partner scorecard', royalties: 'Sign off the royalty statements', certification: 'Approve the release' },
-        code: 'After the test gate, the reconciler gives the daily sign-off.', file: 'airflow/dags/nexus_partner_analytics.py', find: 'task_id="reconcile_contracts"', span: 4 },
-      { story: { playstation: 'The portal waits for the sign-off', royalties: 'No statement goes out unsigned', certification: 'Nothing ships unapproved' },
-        code: 'Publishing is downstream of the sign-off, so a held contract stops it.', file: 'airflow/dags/nexus_partner_analytics.py', find: 'test_gate >> signoff >> publish' },
-      { story: { default: 'Every change is checked the same way' },
-        code: 'CI runs the same sign-off on every push and fails if a contract is held.', file: '.github/workflows/ci.yml', find: 'contracts/reconcile.py --check' },
-    ],
+  // For each step, short excerpts of the real code (at most 70 lines per step)
+  // showing how a YAML rule becomes a GX expectation, a dbt test and the
+  // reconcile logic. Excerpts are cut from the files by anchor text, so they
+  // stay true to the code. `notes` pin explanations to lines; `story` says
+  // what the excerpt means in each use case.
+  const MAX_LINES = 70;
+  const YAML = 'contracts/partners.yml';
+  const PLAN = 'contracts/contract_plan.py';
+  const DAG = 'airflow/dags/nexus_partner_analytics.py';
+  const STEP_CODE = [
+    { intro: 'A contract is a short YAML file the stakeholder owns. Four kinds of entry do all the work.',
+      panes: [
+        { label: 'Who owns it', file: YAML, find: 'contract: partners', count: 7,
+          story: { playstation: 'Partner Success, for the partner scorecard', royalties: 'Finance and the partners, for royalty statements', certification: 'Partner and publishing QA, for the release checklist' },
+          notes: [['stakeholder:', 'Who owns the contract and signs it off.'], ['owner_group:', 'The dbt group alerted when it breaks.']] },
+        { label: 'A rule on a delivered file', file: YAML, find: '- id: P-03', count: 6,
+          story: { playstation: 'P-03: partners only send known statuses', royalties: 'Currency must be USD, EUR, GBP or JPY', certification: 'An age rating for every region' },
+          notes: [['dataset:', 'partner_submission_feed is a delivered file, so this is checked before it loads.'], ['values:', 'The only values allowed.']] },
+        { label: 'A rule with a tolerance', file: YAML, find: '- id: P-09', count: 7,
+          story: { playstation: 'P-09: 95% of reviews within 72 hours', royalties: '99% of sales have a valid SKU', certification: 'Build size under the limit' },
+          notes: [['mostly:', 'At least 95% of rows must pass, not every row.']] },
+        { label: 'A rule on a warehouse model', file: YAML, find: '- id: P-08', count: 5,
+          story: { playstation: 'P-08: no review before submission', royalties: 'No sale before the release date', certification: 'Save data survives suspend and resume' },
+          notes: [['expression:', 'Plain SQL that must be true for every row.']] },
+        { label: 'A reconcile chain', file: YAML, find: '- id: R-P1', count: 8,
+          story: { playstation: 'R-P1: feed = loaded = fact = scorecard', royalties: 'Store file = loaded sales = royalty mart', certification: 'Submitted = certified = on the store' },
+          notes: [['tolerance:', 'How far the numbers may differ.'], ['rule: P-04', 'First hop: the row count GX saw in the delivered file.'], ['from fct_submission', 'Later hops: SQL on the warehouse.']] },
+      ] },
+    { intro: 'Four lines of routing decide, for every rule, the cheapest place to check it. A compiler then writes the files.',
+      panes: [
+        { label: 'route(): pick the engine', file: PLAN, find: 'def route(', count: 19,
+          story: { playstation: 'P-03 and P-09 → GX, P-08 → dbt, P-06 → reused', royalties: 'Store-file checks and SKU ≥ 99% → GX; SKU maps to a title → dbt', certification: 'Submission checks → GX; devkit tests → dbt' },
+          notes: [['if dataset["kind"] == "file"', 'Delivered file → Great Expectations: dbt cannot test what is not loaded yet.'], ['elif rule.get("mostly")', 'Tolerance or distribution → Great Expectations, which has these built in.'], ['engine, reason = "dbt", "set_based"', 'Anything else is SQL on a model → a dbt test.'], ['reused = existing.get(', 'If the project already runs the same test, reuse it.']] },
+        { label: 'compile.py: write the files', file: 'contracts/compile.py', find: 'def render()', count: 9,
+          notes: [['files[DBT_TESTS', 'One dbt test file per dbt rule.'], ['files[GX_SUITES', 'One GX suite file per dataset.']] },
+      ] },
+    { intro: 'One YAML rule, followed from the contract to the check that runs on the delivered file.',
+      panes: [
+        { label: 'The YAML rule', file: YAML, find: '- id: P-03', count: 6,
+          story: { playstation: 'Only known statuses in the partner feed', royalties: 'Only known currencies in the store sales file', certification: 'An age rating for every region in the package' },
+          notes: [['check: accepted_values', 'What must hold, in plain words.']] },
+        { arrow: 'contract_plan.py maps it to a Great Expectations class', label: 'YAML → Python', file: PLAN, find: 'return gxe.ExpectColumnValuesToBeInSet', before: 1, count: 2,
+          notes: [['ExpectColumnValuesToBeInSet', 'accepted_values becomes this expectation.']] },
+        { arrow: 'saved in the generated suite', label: 'The expectation (JSON)', file: 'contracts/gx/expectations/partners__partner_submission_feed.json', find: '"expect_column_values_to_be_in_set"', before: 1, count: 15,
+          notes: [['"value_set"', 'The allowed values, copied from the YAML.'], ['"severity"', 'critical: a failure stops the load.']] },
+        { arrow: 'validate.py runs it on the file as delivered', label: 'Run the suite', file: 'contracts/validate.py', find: 'if meta["dataset_kind"] == "file":', count: 9,
+          notes: [['add_csv_asset', 'Read the CSV as delivered, before dbt seed loads it.'], ['batch.validate(suite)', 'Run every expectation in the suite.']] },
+        { label: '…and stop a bad file', file: 'contracts/validate.py', find: 'if blocking:', count: 2,
+          notes: [['sys.exit', 'A non-zero exit: Airflow and CI stop here.']] },
+      ] },
+    { intro: 'A rule on a warehouse model becomes a dbt test: a query that returns the rows breaking the rule.',
+      panes: [
+        { label: 'The YAML rule', file: YAML, find: '- id: P-08', count: 5,
+          story: { playstation: 'No review finishes before the build was submitted', royalties: 'No sale is dated before the title\'s release', certification: 'Save data survives suspend and resume' },
+          notes: [['expression:', 'Must be true for every row.']] },
+        { arrow: 'contract_plan.py turns it into a failing-rows query', label: 'YAML → SQL', file: PLAN, find: 'if check == "expression":', count: 2,
+          notes: [['where not (', 'Select the rows where the rule is false.']] },
+        { arrow: 'written as a dbt test in tests/contracts/', label: 'The dbt test', file: 'tests/contracts/contract_partners_p08.sql', find: '-- Generated', count: 8,
+          notes: [["severity='error'", 'error holds the contract; warn only reports.'], ["ref('fct_submission')", 'dbt resolves the model, so lineage and run order work.'], ['where not (', 'Zero rows returned means the test passes.']] },
+        { label: 'A cross-model rule', file: YAML, find: '- id: P-12', count: 6,
+          story: { playstation: 'Titles on the scorecard add up to titles submitted', royalties: 'Every sale belongs to a partner title', certification: 'Every trophy can be unlocked' },
+          notes: [['right:', 'The total it must agree with, from another model.']] },
+        { arrow: 'becomes', label: 'The dbt test', file: 'tests/contracts/contract_partners_p12.sql', find: 'with contract_side as (', count: 9,
+          notes: [['contract_side as', 'The total on the scorecard.'], ['reference_side as', 'The same total from the fact table.'], ['abs(c.value - r.value) > 0', 'Any difference is a failing row.']] },
+      ] },
+    { intro: 'At the end of the day the same number is measured at every hop. The chains and both engines\' results give one verdict.',
+      panes: [
+        { label: 'The YAML chain', file: YAML, find: '- id: R-P1', count: 8,
+          story: { playstation: 'Feed = loaded table = fact = scorecard', royalties: 'Store file = loaded sales = royalty mart', certification: 'Submitted = certified = on the store' },
+          notes: [['rule: P-04', 'Measured by GX on the delivered file.'], ['sql:', 'Measured with SQL in the warehouse.']] },
+        { arrow: 'reconcile.py measures every hop', label: '_reconcile(): one chain', file: 'contracts/reconcile.py', find: 'def _reconcile(', count: 13,
+          notes: [['if "rule" in m:', 'A file hop: the value GX observed.'], ['con.execute(sql)', 'A warehouse hop: run the SQL on the dbt build.'], ['spread = round(max(values) - min(values)', 'How far apart the hops are.'], ['status = "match"', 'Within tolerance means the chain matches.']] },
+        { arrow: 'then one verdict per contract', label: 'The verdict', file: 'contracts/reconcile.py', find: 'failed = [r["id"]', count: 3,
+          notes: [['failed = ', 'Any failed error rule or broken chain.'], ['warned = ', 'Rules with severity warn.'], ['verdict = ', 'held, signed off with warnings, or signed off.']] },
+      ] },
+    { intro: 'The sign-off runs in the daily DAG and in CI. A held contract fails both, so nothing publishes.',
+      panes: [
+        { label: 'Before the load', file: DAG, find: 'check_files = BashOperator(', count: 5,
+          notes: [['validate.py --scope files', 'GX on the delivered files; a failure stops the DAG before dbt seed.']] },
+        { label: 'After the test gate', file: DAG, find: 'with TaskGroup(group_id="contracts")', count: 13,
+          story: { playstation: 'Sign off the partner scorecard', royalties: 'Sign off the royalty statements', certification: 'Approve the release' },
+          notes: [['validate.py --scope models', 'GX tolerance checks on the built models.'], ['bash_command=contracts("reconcile.py")', 'The sign-off. A held contract fails this task.'], ['outlets=[CONTRACT_RESULTS]', 'Other DAGs can wait on the signed-off results.']] },
+        { label: 'The run order', file: DAG, find: 'validate >> check_files', count: 1,
+          notes: [['signoff >> publish', 'Nothing publishes until the contracts are signed off.']] },
+        { label: 'CI, on every push', file: '.github/workflows/ci.yml', find: 'Sign off the stakeholder contracts', count: 5,
+          notes: [['reconcile.py --check', 'Fails the build if a contract is held or its results are stale.']] },
+      ] },
   ];
   let extraFiles = null;
   const loadExtra = () => (extraFiles ??= Promise.all(
     ['assets/airflow_code.json', 'assets/code.json'].map((u) => fetch(u).then((r) => r.json()).catch(() => ({ folders: [] }))),
   ).then((sets) => sets.flatMap((d) => d.folders.flatMap((f) => f.files))));
-  const langOf = (f) => (f.language === 'markdown' ? 'md' : f.language === 'yml' ? 'yaml' : f.language);
 
   function mount(data) {
     clearTimeout(timer);
@@ -293,89 +292,73 @@ rules:
     [prev, play, next].forEach((b) => { b.type = 'button'; });
     controls.append(prev, play, next, badLabel);
 
-    // The full code behind the current step, always shown, with a translation
-    // table mapping the story's words to the lines that do the work.
+    // The code behind the current step: short, annotated excerpts.
     const code = el('section', 'gxs-code');
     code.setAttribute('aria-label', 'The code behind this step');
-    let codeFile = {};
     const ownFiles = [
       ...(data?.contracts ?? []).map((c) => ({ path: c.path, language: 'yaml', code: c.source })),
       ...(data?.files ?? []),
     ];
-    function filesFor(i, extra = []) {
-      const pool = [...ownFiles, ...extra];
-      return STEP_FILES[i].flatMap((want) => (want.endsWith('/')
-        ? pool.filter((f) => f.path.startsWith(want)).sort((x, y) => x.path.localeCompare(y.path))
-        : pool.filter((f) => f.path === want).slice(0, 1)));
-    }
-    // Resolve a translation row to a file and line range by searching for its anchor text.
-    function locate(row, files) {
-      const file = files.find((f) => f.path === row.file || (row.file.endsWith('/') && f.path.startsWith(row.file)) || f.path.endsWith(`/${row.file}`));
+    const langFor = (path) => (path.endsWith('.py') ? 'python' : path.endsWith('.sql') ? 'sql' : path.endsWith('.json') ? 'json' : 'yaml');
+    function excerpt(pane, pool) {
+      const file = pool.find((f) => f.path === pane.file);
       if (!file) return null;
-      const idx = file.code.split('\n').findIndex((l) => l.includes(row.find));
-      return idx < 0 ? null : { file, from: idx, to: idx + (row.span ?? 1) - 1 };
+      const all = file.code.split('\n');
+      const at = all.findIndex((l) => l.includes(pane.find));
+      if (at < 0) return null;
+      const from = Math.max(0, at - (pane.before ?? 0));
+      return { file, from, lines: all.slice(from, from + pane.count) };
     }
     function renderCode() {
       const i = step;
-      const draw = (files) => {
+      const spec = STEP_CODE[i];
+      const draw = (pool) => {
         if (i !== step) return;
-        const rows = (TRANSLATE[i] ?? []).map((r) => ({ ...r, at: locate(r, files) })).filter((r) => r.at);
-        const chosen = files.find((f) => f.path === codeFile[i]) ?? rows[0]?.at.file ?? files[0];
-        const marked = new Map();
-        rows.forEach((r, n) => { if (r.at.file === chosen) for (let l = r.at.from; l <= r.at.to; l += 1) marked.set(l, n + 1); });
-
         const head = el('div', 'gxs-code-head');
-        head.append(el('p', 'gxc-eyebrow', `The code behind step ${i + 1} · ${STATIONS[i].title}`), el('p', 'gxs-note', STEP_NOTES[i]));
-
-        const table = el('table', 'gxc-table gxs-translate');
-        table.innerHTML = `<thead><tr><th class="sr">#</th><th>In the story (${current.tab})</th><th>In this repository</th><th>Where</th></tr></thead>`;
-        const tbody = el('tbody');
-        rows.forEach((r, n) => {
-          const tr = el('tr', r.at.file === chosen ? 'is-here' : '');
-          const where = el('td');
-          const jump = el('button', 'gxs-jump', `${r.at.file.path.split('/').pop()}:${r.at.from + 1}`);
-          jump.type = 'button';
-          jump.title = `Show ${r.at.file.path}, line ${r.at.from + 1}`;
-          jump.addEventListener('click', () => {
-            pause();
-            codeFile[i] = r.at.file.path;
-            renderCode();
-            requestAnimationFrame(() => code.querySelector(`[data-line="${r.at.from}"]`)?.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' }));
-          });
-          where.append(jump);
-          const num = el('td'); num.append(el('b', 'gxs-pin gxs-pin-static', String(n + 1)));
-          tr.append(num, el('td', 'gxs-story', r.story[current.key] ?? r.story.default), el('td', '', r.code), where);
-          tbody.append(tr);
-        });
-        table.append(tbody);
-
-        const chips = el('div', 'gxs-code-files');
-        files.forEach((f) => {
-          const c = el('button', `gxs-code-chip${f === chosen ? ' is-active' : ''}`, f.path);
-          c.type = 'button';
-          c.addEventListener('click', () => { pause(); codeFile[i] = f.path; renderCode(); });
-          chips.append(c);
-        });
-
-        const viewer = el('div', 'gxc-code');
-        const vh = el('div', 'gxc-code-head');
-        const gh = el('a', '', 'GitHub ↗');
-        gh.href = `https://github.com/rfim/nexus-playstation-partners/blob/main/${chosen?.path ?? ''}`;
-        gh.target = '_blank'; gh.rel = 'noopener noreferrer';
-        vh.append(el('span', '', chosen ? `${chosen.path} · ${chosen.code.replace(/\n$/, '').split('\n').length} lines, full file` : 'Loading…'), gh);
-        const pre = el('pre');
-        if (chosen) {
-          const out = window.NexusHighlight ? window.NexusHighlight.highlightLines(chosen.code.replace(/\n$/, ''), langOf(chosen)) : chosen.code.split('\n');
-          pre.innerHTML = out.map((l, n) => {
-            const mark = marked.get(n);
-            return `<span class="code-line${mark ? ' is-marked' : ''}" data-line="${n}">${mark && !marked.has(n - 1) ? `<b class="gxs-pin">${mark}</b>` : ''}<span class="code-ln">${n + 1}</span>${l}</span>`;
-          }).join('');
+        head.append(el('p', 'gxc-eyebrow', `The code behind step ${i + 1} · ${STATIONS[i].title}`), el('p', 'gxs-note', spec.intro));
+        const panes = [];
+        let total = 0;
+        let pin = 0;
+        for (const pane of spec.panes) {
+          const ex = excerpt(pane, pool);
+          if (!ex) continue;
+          total += ex.lines.length;
+          if (pane.arrow) panes.push(el('p', 'gxs-arrow', `↓ ${pane.arrow}`));
+          const box = el('figure', 'gxs-pane');
+          const cap = el('figcaption');
+          const span = ex.lines.length > 1 ? `${ex.from + 1}–${ex.from + ex.lines.length}` : `${ex.from + 1}`;
+          const gh = el('a', '', `${pane.file}:${span} ↗`);
+          gh.href = `https://github.com/rfim/nexus-playstation-partners/blob/main/${pane.file}#L${ex.from + 1}${ex.lines.length > 1 ? `-L${ex.from + ex.lines.length}` : ''}`;
+          gh.target = '_blank'; gh.rel = 'noopener noreferrer';
+          cap.append(el('strong', '', pane.label), gh);
+          box.append(cap);
+          const story = pane.story && (pane.story[current.key] ?? pane.story.default);
+          if (story) { const p = el('p', 'gxs-pane-story'); p.append(el('span', '', `${current.tab}: `), document.createTextNode(story)); box.append(p); }
+          const pins = new Map();
+          const notes = [];
+          for (const [find, text] of pane.notes ?? []) {
+            const idx = ex.lines.findIndex((l) => l.includes(find));
+            if (idx < 0) continue;
+            pin += 1;
+            if (!pins.has(idx)) pins.set(idx, pin);
+            notes.push([pin, text]);
+          }
+          const pre = el('pre', 'gxs-pane-code');
+          const out = window.NexusHighlight ? window.NexusHighlight.highlightLines(ex.lines.join('\n'), langFor(pane.file)) : ex.lines;
+          pre.innerHTML = out.map((l, n) => `<span class="code-line${pins.has(n) ? ' is-marked' : ''}">${pins.has(n) ? `<b class="gxs-pin">${pins.get(n)}</b>` : ''}<span class="code-ln">${ex.from + n + 1}</span>${l}</span>`).join('');
+          box.append(pre);
+          if (notes.length) {
+            const ol = el('ol', 'gxs-notes');
+            notes.forEach(([n, text]) => { const li = el('li'); li.append(el('b', 'gxs-pin gxs-pin-static', String(n)), el('span', '', text)); ol.append(li); });
+            box.append(ol);
+          }
+          panes.push(box);
         }
-        viewer.append(vh, pre);
-        code.replaceChildren(head, table, chips, viewer);
+        head.append(el('p', 'gxs-lines', `${total} lines of real code, cut from the repository (max ${MAX_LINES})`));
+        code.replaceChildren(head, ...panes);
       };
-      if (STEP_FILES[i].some((w) => w.startsWith('airflow/') || w.startsWith('.github/'))) loadExtra().then((extra) => draw(filesFor(i, extra)));
-      else draw(filesFor(i));
+      if (spec.panes.some((pn) => !ownFiles.some((f) => f.path === pn.file))) loadExtra().then((extra) => draw([...ownFiles, ...extra]));
+      else draw(ownFiles);
     }
     // Reading the code pauses the animation, so the file never changes underneath.
     ['pointerdown', 'wheel', 'touchstart'].forEach((ev) => code.addEventListener(ev, () => { if (playing) pause(); }, { passive: true }));
