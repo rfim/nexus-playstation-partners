@@ -236,3 +236,9 @@ button.gxc-step-card{cursor:pointer}button.gxc-step-card:hover{border-color:var(
 .gxs-note{font-size:.92rem}
 .gxs-ex .gxc-snippet{font-size:.85rem;max-height:none}
 @media(max-width:560px){.gxs-panel{padding:.9rem}.gxs-step-text{font-size:1rem}.gxs-stamp b{font-size:2.2rem}.gxs-chain b{font-size:1.4rem}.gxs-pane-code{font-size:.74rem}}
+.gxs-step-title{align-items:center}
+.gxs-see-code{margin-left:auto;padding:.4rem .9rem;border:1px solid var(--gx);border-radius:999px;background:var(--gx);color:#fff;font:inherit;font-size:.8rem;font-weight:800;cursor:pointer;white-space:nowrap}
+.gxs-see-code:hover{background:#e0530a}
+.gxs-route{grid-template-columns:minmax(0,1fr) 1.5rem 7.5rem minmax(0,1fr)}
+.gxs-route .gxc-engine{justify-self:start}
+@media(max-width:560px){.gxs-see-code{margin-left:0}.gxs-route{grid-template-columns:minmax(0,1fr) auto}}

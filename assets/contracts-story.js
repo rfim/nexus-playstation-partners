@@ -472,6 +472,13 @@ rules:
       const s = stepFor(step);
       const title = el('p', 'gxs-step-title');
       title.append(el('span', 'gxs-step-n', `Step ${step + 1} of 6`), el('strong', '', `${STATIONS[step].title} · ${current.subtitles[step]}`));
+      const jump = el('button', 'gxs-see-code', `See the code for step ${step + 1} ↓`);
+      jump.type = 'button';
+      jump.addEventListener('click', () => {
+        pause();
+        code.scrollIntoView({ block: 'start', behavior: reduced() ? 'auto' : 'smooth' });
+      });
+      title.append(jump);
       panel.replaceChildren(title, el('p', 'gxs-step-text', s.text), example(s.example));
       renderCode();
       prev.disabled = step === 0;
