@@ -1,0 +1,803 @@
+{
+  "business_date": "2026-09-24",
+  "engines": {
+    "gx": "Great Expectations",
+    "dbt": "dbt test (generated)",
+    "dbt_existing": "dbt test (already in the project)"
+  },
+  "reasons": {
+    "boundary": "The file is not in the warehouse yet, so dbt cannot see it. GX checks the file as delivered and stops a bad drop before it loads.",
+    "tolerance": "A tolerance or distribution check. GX has it built in and reports the observed value; in dbt it would be a custom macro.",
+    "gx_only": "No set-based SQL form of this check, so it runs in GX.",
+    "set_based": "Set-based SQL on a model. It runs in the warehouse inside dbt build, moves no rows, and a failure stops downstream models.",
+    "reuse": "The project already runs this exact dbt test, so the contract links to it rather than testing twice."
+  },
+  "summary": {
+    "contracts": 2,
+    "rules": 24,
+    "engines": {
+      "gx": 13,
+      "dbt": 7,
+      "dbt_existing": 4
+    },
+    "status": {
+      "pass": 23,
+      "warn": 1,
+      "fail": 0
+    },
+    "reconciliations": 4,
+    "reconciled": 4
+  },
+  "contracts": [
+    {
+      "contract": "finance",
+      "title": "Warehouse cost chargeback",
+      "version": "2.1.0",
+      "stakeholder": "Finance (FP&A), monthly chargeback and budget forecast",
+      "consumer": "Platform cost dashboard (dbt exposure platform_cost_and_lineage)",
+      "owner_group": "platform_ops",
+      "sla": {
+        "refreshed_by": "06:30 UTC",
+        "signed_off_by": "23:00 UTC",
+        "breach": "A failed error rule stops the chargeback file going to Finance until it is fixed."
+      },
+      "path": "contracts/finance.yml",
+      "source": "# Data contract: what Finance relies on for the monthly warehouse chargeback.\n# Stakeholders own this file; contracts/compile.py turns each rule into a dbt test\n# or a Great Expectations expectation, whichever is cheaper to run (see README.md).\ncontract: finance\ntitle: Warehouse cost chargeback\nversion: 2.1.0\nstakeholder: Finance (FP&A), monthly chargeback and budget forecast\nconsumer: Platform cost dashboard (dbt exposure platform_cost_and_lineage)\nowner_group: platform_ops\nsla:\n  refreshed_by: \"06:30 UTC\"\n  signed_off_by: \"23:00 UTC\"\n  breach: A failed error rule stops the chargeback file going to Finance until it is fixed.\n\ndatasets:\n  - name: billing_export\n    kind: file\n    path: seeds/platform_warehouse_metering.csv\n    description: The warehouse metering export, checked as delivered and before it is loaded.\n  - name: mart_cost_budget_vs_actual\n    kind: model\n  - name: mart_cost_by_model\n    kind: model\n  - name: mart_cost_daily\n    kind: model\n\nrules:\n  - id: F-01\n    dataset: billing_export\n    check: columns_match\n    columns: [warehouse_name, usage_date, credits_used_compute, credits_used_cloud_services]\n    description: The export keeps the agreed column layout.\n  - id: F-02\n    dataset: billing_export\n    check: unique_combination\n    columns: [warehouse_name, usage_date]\n    description: One metering row per warehouse per day, so nothing is billed twice.\n  - id: F-03\n    dataset: billing_export\n    check: between\n    column: credits_used_compute\n    min: 0\n    max: 5\n    description: Daily compute credits are never negative or implausibly large.\n  - id: F-04\n    dataset: billing_export\n    check: row_count\n    min: 100\n    max: 130\n    description: A full month for four warehouses arrived, not a partial file.\n  - id: F-05\n    dataset: billing_export\n    check: sum\n    column: credits_used_compute\n    min: 0\n    max: 60\n    description: Monthly compute stays under the 60-credit contract ceiling.\n  - id: F-06\n    dataset: mart_cost_budget_vs_actual\n    check: unique\n    column: warehouse_name\n    description: Each warehouse is charged back once.\n  - id: F-07\n    dataset: mart_cost_budget_vs_actual\n    check: accepted_values\n    column: budget_status\n    values: [ok, notify, forecast_over, suspended]\n    description: Budget status uses the resource monitor's vocabulary.\n  - id: F-08\n    dataset: mart_cost_budget_vs_actual\n    check: expression\n    expression: \"abs(cost_usd_mtd - credits_used_mtd * {{ var('credit_price_usd') }}) <= 0.01\"\n    description: Dollars equal credits times the contracted credit price.\n  - id: F-09\n    dataset: mart_cost_budget_vs_actual\n    check: expression\n    expression: forecast_pct_of_budget <= 100\n    severity: warn\n    description: No warehouse is forecast to overrun its monthly budget. A warning, not a stop.\n  - id: F-10\n    dataset: mart_cost_by_model\n    check: reconciles\n    left: sum(pct_of_dbt_cost)\n    right: {value: 100}\n    tolerance: 0.5\n    description: Model cost shares add up to the whole dbt bill.\n  - id: F-11\n    dataset: mart_cost_daily\n    check: accepted_values\n    column: is_anomaly\n    values: [false]\n    mostly: 0.95\n    description: At least 95% of warehouse-days burn within the normal range.\n\nreconcile:\n  - id: R-F1\n    title: The billing export landed whole\n    tolerance: 0.0001\n    measures:\n      - {label: \"Billing export (file, GX)\", rule: F-05}\n      - {label: Loaded table, sql: \"select sum(credits_used_compute) from platform_warehouse_metering\"}\n  - id: R-F2\n    title: Reported spend equals billed spend, month to date\n    tolerance: 0.01\n    measures:\n      - {label: Billed credits, sql: \"select sum(credits_used_compute + credits_used_cloud_services) from platform_warehouse_metering where usage_date <= date '{{ var('cost_as_of_date') }}'\"}\n      - {label: Daily burn model, sql: \"select sum(credits_used) from mart_cost_daily\"}\n      - {label: Budget vs actual, sql: \"select sum(credits_used_mtd) from mart_cost_budget_vs_actual\"}\n",
+      "verdict": "signed_off_with_warnings",
+      "failed": [],
+      "warned": [
+        "F-09"
+      ],
+      "datasets": [
+        {
+          "name": "billing_export",
+          "kind": "file",
+          "path": "seeds/platform_warehouse_metering.csv",
+          "description": "The warehouse metering export, checked as delivered and before it is loaded."
+        },
+        {
+          "name": "mart_cost_budget_vs_actual",
+          "kind": "model"
+        },
+        {
+          "name": "mart_cost_by_model",
+          "kind": "model"
+        },
+        {
+          "name": "mart_cost_daily",
+          "kind": "model"
+        }
+      ],
+      "rules": [
+        {
+          "id": "F-01",
+          "description": "The export keeps the agreed column layout.",
+          "dataset": "billing_export",
+          "dataset_kind": "file",
+          "check": "columns_match",
+          "column": "warehouse_name, usage_date, credits_used_compute, credits_used_cloud_services",
+          "severity": "error",
+          "engine": "gx",
+          "reason": "boundary",
+          "artifact": {
+            "path": "contracts/gx/expectations/finance__billing_export.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_table_columns_to_match_ordered_list\",\n  \"kwargs\": {\n    \"column_list\": [\n      \"warehouse_name\",\n      \"usage_date\",\n      \"credits_used_compute\",\n      \"credits_used_cloud_services\"\n    ]\n  },\n  \"meta\": {\n    \"rule\": \"F-01\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "4 columns, in the agreed order",
+          "value": null,
+          "expectation": "expect_table_columns_to_match_ordered_list"
+        },
+        {
+          "id": "F-02",
+          "description": "One metering row per warehouse per day, so nothing is billed twice.",
+          "dataset": "billing_export",
+          "dataset_kind": "file",
+          "check": "unique_combination",
+          "column": "warehouse_name, usage_date",
+          "severity": "error",
+          "engine": "gx",
+          "reason": "boundary",
+          "artifact": {
+            "path": "contracts/gx/expectations/finance__billing_export.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_compound_columns_to_be_unique\",\n  \"kwargs\": {\n    \"column_list\": [\n      \"warehouse_name\",\n      \"usage_date\"\n    ]\n  },\n  \"meta\": {\n    \"rule\": \"F-02\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "0 of 120 rows outside (0.0%)",
+          "value": null,
+          "expectation": "expect_compound_columns_to_be_unique"
+        },
+        {
+          "id": "F-03",
+          "description": "Daily compute credits are never negative or implausibly large.",
+          "dataset": "billing_export",
+          "dataset_kind": "file",
+          "check": "between",
+          "column": "credits_used_compute",
+          "severity": "error",
+          "engine": "gx",
+          "reason": "boundary",
+          "artifact": {
+            "path": "contracts/gx/expectations/finance__billing_export.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_column_values_to_be_between\",\n  \"kwargs\": {\n    \"column\": \"credits_used_compute\",\n    \"min_value\": 0.0,\n    \"max_value\": 5.0\n  },\n  \"meta\": {\n    \"rule\": \"F-03\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "0 of 120 rows outside (0.0%)",
+          "value": null,
+          "expectation": "expect_column_values_to_be_between"
+        },
+        {
+          "id": "F-04",
+          "description": "A full month for four warehouses arrived, not a partial file.",
+          "dataset": "billing_export",
+          "dataset_kind": "file",
+          "check": "row_count",
+          "column": null,
+          "severity": "error",
+          "engine": "gx",
+          "reason": "boundary",
+          "artifact": {
+            "path": "contracts/gx/expectations/finance__billing_export.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_table_row_count_to_be_between\",\n  \"kwargs\": {\n    \"min_value\": 100,\n    \"max_value\": 130\n  },\n  \"meta\": {\n    \"rule\": \"F-04\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "observed 120",
+          "value": 120,
+          "expectation": "expect_table_row_count_to_be_between"
+        },
+        {
+          "id": "F-05",
+          "description": "Monthly compute stays under the 60-credit contract ceiling.",
+          "dataset": "billing_export",
+          "dataset_kind": "file",
+          "check": "sum",
+          "column": "credits_used_compute",
+          "severity": "error",
+          "engine": "gx",
+          "reason": "boundary",
+          "artifact": {
+            "path": "contracts/gx/expectations/finance__billing_export.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_column_sum_to_be_between\",\n  \"kwargs\": {\n    \"column\": \"credits_used_compute\",\n    \"min_value\": 0.0,\n    \"max_value\": 60.0\n  },\n  \"meta\": {\n    \"rule\": \"F-05\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "observed 40.0584",
+          "value": 40.0584,
+          "expectation": "expect_column_sum_to_be_between"
+        },
+        {
+          "id": "F-06",
+          "description": "Each warehouse is charged back once.",
+          "dataset": "mart_cost_budget_vs_actual",
+          "dataset_kind": "model",
+          "check": "unique",
+          "column": "warehouse_name",
+          "severity": "error",
+          "engine": "dbt_existing",
+          "reason": "reuse",
+          "artifact": {
+            "path": "models/platform/properties.yml",
+            "language": "text",
+            "code": "# Already declared in models/platform/properties.yml; dbt names it\nunique_mart_cost_budget_vs_actual_warehouse_name\n"
+          },
+          "sql": "select warehouse_name, count(*) as occurrences\nfrom mart_cost_budget_vs_actual\ngroup by warehouse_name\nhaving count(*) > 1",
+          "status": "pass",
+          "observed": "0 failing rows",
+          "value": 0
+        },
+        {
+          "id": "F-07",
+          "description": "Budget status uses the resource monitor's vocabulary.",
+          "dataset": "mart_cost_budget_vs_actual",
+          "dataset_kind": "model",
+          "check": "accepted_values",
+          "column": "budget_status",
+          "severity": "error",
+          "engine": "dbt_existing",
+          "reason": "reuse",
+          "artifact": {
+            "path": "models/platform/properties.yml",
+            "language": "text",
+            "code": "# Already declared in models/platform/properties.yml; dbt names it\naccepted_values_mart_cost_budget_vs_actual_budget_status__ok__notify__forecast_over__suspended\n"
+          },
+          "sql": "select *\nfrom mart_cost_budget_vs_actual\nwhere budget_status not in ('ok', 'notify', 'forecast_over', 'suspended')",
+          "status": "pass",
+          "observed": "0 failing rows",
+          "value": 0
+        },
+        {
+          "id": "F-08",
+          "description": "Dollars equal credits times the contracted credit price.",
+          "dataset": "mart_cost_budget_vs_actual",
+          "dataset_kind": "model",
+          "check": "expression",
+          "column": null,
+          "severity": "error",
+          "engine": "dbt",
+          "reason": "set_based",
+          "artifact": {
+            "path": "tests/contracts/contract_finance_f08.sql",
+            "language": "sql",
+            "code": "-- Generated by contracts/compile.py from contracts/finance.yml (rule F-08). Do not edit.\n-- Dollars equal credits times the contracted credit price.\n{{ config(tags=['contract', 'contract_finance'], severity='error',\n          meta={'contract': 'finance', 'rule': 'F-08'}) }}\n\nselect *\nfrom {{ ref('mart_cost_budget_vs_actual') }}\nwhere not (abs(cost_usd_mtd - credits_used_mtd * {{ var('credit_price_usd') }}) <= 0.01)\n"
+          },
+          "sql": "select *\nfrom mart_cost_budget_vs_actual\nwhere not (abs(cost_usd_mtd - credits_used_mtd * 3.0) <= 0.01)",
+          "status": "pass",
+          "observed": "0 failing rows",
+          "value": 0
+        },
+        {
+          "id": "F-09",
+          "description": "No warehouse is forecast to overrun its monthly budget. A warning, not a stop.",
+          "dataset": "mart_cost_budget_vs_actual",
+          "dataset_kind": "model",
+          "check": "expression",
+          "column": null,
+          "severity": "warn",
+          "engine": "dbt",
+          "reason": "set_based",
+          "artifact": {
+            "path": "tests/contracts/contract_finance_f09.sql",
+            "language": "sql",
+            "code": "-- Generated by contracts/compile.py from contracts/finance.yml (rule F-09). Do not edit.\n-- No warehouse is forecast to overrun its monthly budget. A warning, not a stop.\n{{ config(tags=['contract', 'contract_finance'], severity='warn',\n          meta={'contract': 'finance', 'rule': 'F-09'}) }}\n\nselect *\nfrom {{ ref('mart_cost_budget_vs_actual') }}\nwhere not (forecast_pct_of_budget <= 100)\n"
+          },
+          "sql": "select *\nfrom mart_cost_budget_vs_actual\nwhere not (forecast_pct_of_budget <= 100)",
+          "status": "warn",
+          "observed": "1 failing row",
+          "value": 1
+        },
+        {
+          "id": "F-10",
+          "description": "Model cost shares add up to the whole dbt bill.",
+          "dataset": "mart_cost_by_model",
+          "dataset_kind": "model",
+          "check": "reconciles",
+          "column": null,
+          "severity": "error",
+          "engine": "dbt",
+          "reason": "set_based",
+          "artifact": {
+            "path": "tests/contracts/contract_finance_f10.sql",
+            "language": "sql",
+            "code": "-- Generated by contracts/compile.py from contracts/finance.yml (rule F-10). Do not edit.\n-- Model cost shares add up to the whole dbt bill.\n{{ config(tags=['contract', 'contract_finance'], severity='error',\n          meta={'contract': 'finance', 'rule': 'F-10'}) }}\n\nwith contract_side as (\n    select sum(pct_of_dbt_cost) as value from {{ ref('mart_cost_by_model') }}\n),\nreference_side as (\n    select 100 as value\n)\nselect c.value as contract_value, r.value as reference_value\nfrom contract_side c cross join reference_side r\nwhere c.value is null or r.value is null or abs(c.value - r.value) > 0.5\n"
+          },
+          "sql": "with contract_side as (\n    select sum(pct_of_dbt_cost) as value from mart_cost_by_model\n),\nreference_side as (\n    select 100 as value\n)\nselect c.value as contract_value, r.value as reference_value\nfrom contract_side c cross join reference_side r\nwhere c.value is null or r.value is null or abs(c.value - r.value) > 0.5",
+          "status": "pass",
+          "observed": "0 failing rows",
+          "value": 0
+        },
+        {
+          "id": "F-11",
+          "description": "At least 95% of warehouse-days burn within the normal range.",
+          "dataset": "mart_cost_daily",
+          "dataset_kind": "model",
+          "check": "accepted_values",
+          "column": "is_anomaly",
+          "severity": "error",
+          "engine": "gx",
+          "reason": "tolerance",
+          "artifact": {
+            "path": "contracts/gx/expectations/finance__mart_cost_daily.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_column_values_to_be_in_set\",\n  \"kwargs\": {\n    \"column\": \"is_anomaly\",\n    \"mostly\": 0.95,\n    \"value_set\": [\n      false\n    ]\n  },\n  \"meta\": {\n    \"rule\": \"F-11\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "1 of 96 rows outside (1.0%); needs at least 95% inside",
+          "value": null,
+          "expectation": "expect_column_values_to_be_in_set"
+        }
+      ],
+      "reconcile": [
+        {
+          "id": "R-F1",
+          "title": "The billing export landed whole",
+          "tolerance": 0.0001,
+          "spread": 0.0,
+          "status": "match",
+          "measures": [
+            {
+              "label": "Billing export (file, GX)",
+              "value": 40.0584,
+              "source": "Great Expectations observed value of F-05",
+              "engine": "gx"
+            },
+            {
+              "label": "Loaded table",
+              "value": 40.0584,
+              "source": "select sum(credits_used_compute) from platform_warehouse_metering",
+              "engine": "sql"
+            }
+          ]
+        },
+        {
+          "id": "R-F2",
+          "title": "Reported spend equals billed spend, month to date",
+          "tolerance": 0.01,
+          "spread": 0.0001,
+          "status": "match",
+          "measures": [
+            {
+              "label": "Billed credits",
+              "value": 34.3119,
+              "source": "select sum(credits_used_compute + credits_used_cloud_services) from platform_warehouse_metering where usage_date <= date '2026-09-24'",
+              "engine": "sql"
+            },
+            {
+              "label": "Daily burn model",
+              "value": 34.3119,
+              "source": "select sum(credits_used) from mart_cost_daily",
+              "engine": "sql"
+            },
+            {
+              "label": "Budget vs actual",
+              "value": 34.312,
+              "source": "select sum(credits_used_mtd) from mart_cost_budget_vs_actual",
+              "engine": "sql"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "contract": "partners",
+      "title": "Partner publishing scorecard",
+      "version": "1.3.0",
+      "stakeholder": "Partner Success, on behalf of external partners",
+      "consumer": "Partner release health dashboard (dbt exposure partner_release_health)",
+      "owner_group": "partner_analytics",
+      "sla": {
+        "refreshed_by": "06:30 UTC",
+        "signed_off_by": "23:00 UTC",
+        "breach": "A failed error rule holds the partner portal on yesterday's scorecard."
+      },
+      "path": "contracts/partners.yml",
+      "source": "# Data contract: what the partner scorecard promises its partners.\n# Stakeholders own this file; contracts/compile.py turns each rule into a dbt test\n# or a Great Expectations expectation, whichever is cheaper to run (see README.md).\ncontract: partners\ntitle: Partner publishing scorecard\nversion: 1.3.0\nstakeholder: Partner Success, on behalf of external partners\nconsumer: Partner release health dashboard (dbt exposure partner_release_health)\nowner_group: partner_analytics\nsla:\n  refreshed_by: \"06:30 UTC\"\n  signed_off_by: \"23:00 UTC\"\n  breach: A failed error rule holds the partner portal on yesterday's scorecard.\n\ndatasets:\n  - name: partner_submission_feed\n    kind: file\n    path: seeds/raw_submissions.csv\n    description: The submission feed partners send, checked as delivered and before it is loaded.\n  - name: fct_submission\n    kind: model\n  - name: mart_partner_publishing\n    kind: model\n\nrules:\n  - id: P-01\n    dataset: partner_submission_feed\n    check: columns_match\n    columns: [submission_id, title_id, submitted_at, reviewed_at, status, build_version, return_reason]\n    description: The feed keeps the agreed column layout.\n  - id: P-02\n    dataset: partner_submission_feed\n    check: regex\n    column: submission_id\n    pattern: '^S\\d{3}$'\n    description: Submission ids follow the partner-facing format.\n  - id: P-03\n    dataset: partner_submission_feed\n    check: accepted_values\n    column: status\n    values: [approved, rejected, pending]\n    description: Partners only send statuses the review workflow knows.\n  - id: P-04\n    dataset: partner_submission_feed\n    check: row_count\n    min: 1\n    max: 5000\n    description: The daily drop is neither empty nor a runaway resend.\n  - id: P-05\n    dataset: partner_submission_feed\n    check: between\n    column: build_version\n    min: 1\n    max: 20\n    description: Build versions are plausible resubmission counts.\n  - id: P-06\n    dataset: fct_submission\n    check: unique\n    column: submission_id\n    description: Each review attempt is counted once.\n  - id: P-07\n    dataset: fct_submission\n    check: accepted_values\n    column: status\n    values: [approved, rejected, pending]\n    description: Every attempt carries a known review outcome.\n  - id: P-08\n    dataset: fct_submission\n    check: expression\n    expression: reviewed_at is null or reviewed_at >= submitted_at\n    description: No review finishes before the build was submitted.\n  - id: P-09\n    dataset: fct_submission\n    check: between\n    column: review_hours\n    max: 72\n    mostly: 0.95\n    description: At least 95% of reviews finish within the 72-hour review promise.\n  - id: P-10\n    dataset: mart_partner_publishing\n    check: between\n    column: first_pass_approval_pct\n    min: 0\n    max: 100\n    description: Approval rates shown to partners are valid percentages.\n  - id: P-11\n    dataset: mart_partner_publishing\n    check: reconciles\n    left: count(*)\n    right: {model: dim_partner, expression: count(*)}\n    description: Every partner gets exactly one scorecard row.\n  - id: P-12\n    dataset: mart_partner_publishing\n    check: reconciles\n    left: sum(titles_submitted)\n    right: {model: fct_submission, expression: count(distinct title_id)}\n    description: Titles on the scorecard add up to titles actually submitted.\n  - id: P-13\n    dataset: mart_partner_publishing\n    check: mean\n    column: avg_review_hours\n    min: 12\n    max: 48\n    description: The average review time stays inside the range partners were told to expect.\n\n# End-of-day reconciliation: each chain must agree from the delivered file to the\n# number partners see. A measure is either a rule's observed value or warehouse SQL.\nreconcile:\n  - id: R-P1\n    title: Every submission partners sent reaches their scorecard\n    tolerance: 0\n    measures:\n      - {label: \"Partner feed (file, GX)\", rule: P-04}\n      - {label: Loaded table, sql: \"select count(*) from raw_submissions\"}\n      - {label: Submission fact, sql: \"select count(*) from fct_submission\"}\n      - {label: Partner scorecard, sql: \"select sum(submission_attempts) from mart_partner_publishing\"}\n  - id: R-P2\n    title: Published titles agree across the publishing views\n    tolerance: 0\n    measures:\n      - {label: Storefront publications, sql: \"select count(distinct title_id) from raw_publications\"}\n      - {label: Partner scorecard, sql: \"select sum(titles_published) from mart_partner_publishing\"}\n      - {label: Time to shelf, sql: \"select count(*) from mart_title_time_to_shelf where shelf_status = 'published'\"}\n",
+      "verdict": "signed_off",
+      "failed": [],
+      "warned": [],
+      "datasets": [
+        {
+          "name": "partner_submission_feed",
+          "kind": "file",
+          "path": "seeds/raw_submissions.csv",
+          "description": "The submission feed partners send, checked as delivered and before it is loaded."
+        },
+        {
+          "name": "fct_submission",
+          "kind": "model"
+        },
+        {
+          "name": "mart_partner_publishing",
+          "kind": "model"
+        }
+      ],
+      "rules": [
+        {
+          "id": "P-01",
+          "description": "The feed keeps the agreed column layout.",
+          "dataset": "partner_submission_feed",
+          "dataset_kind": "file",
+          "check": "columns_match",
+          "column": "submission_id, title_id, submitted_at, reviewed_at, status, build_version, return_reason",
+          "severity": "error",
+          "engine": "gx",
+          "reason": "boundary",
+          "artifact": {
+            "path": "contracts/gx/expectations/partners__partner_submission_feed.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_table_columns_to_match_ordered_list\",\n  \"kwargs\": {\n    \"column_list\": [\n      \"submission_id\",\n      \"title_id\",\n      \"submitted_at\",\n      \"reviewed_at\",\n      \"status\",\n      \"build_version\",\n      \"return_reason\"\n    ]\n  },\n  \"meta\": {\n    \"rule\": \"P-01\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "7 columns, in the agreed order",
+          "value": null,
+          "expectation": "expect_table_columns_to_match_ordered_list"
+        },
+        {
+          "id": "P-02",
+          "description": "Submission ids follow the partner-facing format.",
+          "dataset": "partner_submission_feed",
+          "dataset_kind": "file",
+          "check": "regex",
+          "column": "submission_id",
+          "severity": "error",
+          "engine": "gx",
+          "reason": "boundary",
+          "artifact": {
+            "path": "contracts/gx/expectations/partners__partner_submission_feed.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_column_values_to_match_regex\",\n  \"kwargs\": {\n    \"column\": \"submission_id\",\n    \"regex\": \"^S\\\\d{3}$\"\n  },\n  \"meta\": {\n    \"rule\": \"P-02\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "0 of 9 rows outside (0.0%)",
+          "value": null,
+          "expectation": "expect_column_values_to_match_regex"
+        },
+        {
+          "id": "P-03",
+          "description": "Partners only send statuses the review workflow knows.",
+          "dataset": "partner_submission_feed",
+          "dataset_kind": "file",
+          "check": "accepted_values",
+          "column": "status",
+          "severity": "error",
+          "engine": "gx",
+          "reason": "boundary",
+          "artifact": {
+            "path": "contracts/gx/expectations/partners__partner_submission_feed.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_column_values_to_be_in_set\",\n  \"kwargs\": {\n    \"column\": \"status\",\n    \"value_set\": [\n      \"approved\",\n      \"rejected\",\n      \"pending\"\n    ]\n  },\n  \"meta\": {\n    \"rule\": \"P-03\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "0 of 9 rows outside (0.0%)",
+          "value": null,
+          "expectation": "expect_column_values_to_be_in_set"
+        },
+        {
+          "id": "P-04",
+          "description": "The daily drop is neither empty nor a runaway resend.",
+          "dataset": "partner_submission_feed",
+          "dataset_kind": "file",
+          "check": "row_count",
+          "column": null,
+          "severity": "error",
+          "engine": "gx",
+          "reason": "boundary",
+          "artifact": {
+            "path": "contracts/gx/expectations/partners__partner_submission_feed.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_table_row_count_to_be_between\",\n  \"kwargs\": {\n    \"min_value\": 1,\n    \"max_value\": 5000\n  },\n  \"meta\": {\n    \"rule\": \"P-04\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "observed 9",
+          "value": 9,
+          "expectation": "expect_table_row_count_to_be_between"
+        },
+        {
+          "id": "P-05",
+          "description": "Build versions are plausible resubmission counts.",
+          "dataset": "partner_submission_feed",
+          "dataset_kind": "file",
+          "check": "between",
+          "column": "build_version",
+          "severity": "error",
+          "engine": "gx",
+          "reason": "boundary",
+          "artifact": {
+            "path": "contracts/gx/expectations/partners__partner_submission_feed.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_column_values_to_be_between\",\n  \"kwargs\": {\n    \"column\": \"build_version\",\n    \"min_value\": 1.0,\n    \"max_value\": 20.0\n  },\n  \"meta\": {\n    \"rule\": \"P-05\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "0 of 9 rows outside (0.0%)",
+          "value": null,
+          "expectation": "expect_column_values_to_be_between"
+        },
+        {
+          "id": "P-06",
+          "description": "Each review attempt is counted once.",
+          "dataset": "fct_submission",
+          "dataset_kind": "model",
+          "check": "unique",
+          "column": "submission_id",
+          "severity": "error",
+          "engine": "dbt_existing",
+          "reason": "reuse",
+          "artifact": {
+            "path": "models/marts/properties.yml",
+            "language": "text",
+            "code": "# Already declared in models/marts/properties.yml; dbt names it\nunique_fct_submission_submission_id\n"
+          },
+          "sql": "select submission_id, count(*) as occurrences\nfrom fct_submission\ngroup by submission_id\nhaving count(*) > 1",
+          "status": "pass",
+          "observed": "0 failing rows",
+          "value": 0
+        },
+        {
+          "id": "P-07",
+          "description": "Every attempt carries a known review outcome.",
+          "dataset": "fct_submission",
+          "dataset_kind": "model",
+          "check": "accepted_values",
+          "column": "status",
+          "severity": "error",
+          "engine": "dbt_existing",
+          "reason": "reuse",
+          "artifact": {
+            "path": "models/marts/properties.yml",
+            "language": "text",
+            "code": "# Already declared in models/marts/properties.yml; dbt names it\naccepted_values_fct_submission_status__approved__rejected__pending\n"
+          },
+          "sql": "select *\nfrom fct_submission\nwhere status not in ('approved', 'rejected', 'pending')",
+          "status": "pass",
+          "observed": "0 failing rows",
+          "value": 0
+        },
+        {
+          "id": "P-08",
+          "description": "No review finishes before the build was submitted.",
+          "dataset": "fct_submission",
+          "dataset_kind": "model",
+          "check": "expression",
+          "column": null,
+          "severity": "error",
+          "engine": "dbt",
+          "reason": "set_based",
+          "artifact": {
+            "path": "tests/contracts/contract_partners_p08.sql",
+            "language": "sql",
+            "code": "-- Generated by contracts/compile.py from contracts/partners.yml (rule P-08). Do not edit.\n-- No review finishes before the build was submitted.\n{{ config(tags=['contract', 'contract_partners'], severity='error',\n          meta={'contract': 'partners', 'rule': 'P-08'}) }}\n\nselect *\nfrom {{ ref('fct_submission') }}\nwhere not (reviewed_at is null or reviewed_at >= submitted_at)\n"
+          },
+          "sql": "select *\nfrom fct_submission\nwhere not (reviewed_at is null or reviewed_at >= submitted_at)",
+          "status": "pass",
+          "observed": "0 failing rows",
+          "value": 0
+        },
+        {
+          "id": "P-09",
+          "description": "At least 95% of reviews finish within the 72-hour review promise.",
+          "dataset": "fct_submission",
+          "dataset_kind": "model",
+          "check": "between",
+          "column": "review_hours",
+          "severity": "error",
+          "engine": "gx",
+          "reason": "tolerance",
+          "artifact": {
+            "path": "contracts/gx/expectations/partners__fct_submission.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_column_values_to_be_between\",\n  \"kwargs\": {\n    \"column\": \"review_hours\",\n    \"mostly\": 0.95,\n    \"max_value\": 72.0\n  },\n  \"meta\": {\n    \"rule\": \"P-09\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "0 of 9 rows outside (0.0%); needs at least 95% inside",
+          "value": null,
+          "expectation": "expect_column_values_to_be_between"
+        },
+        {
+          "id": "P-10",
+          "description": "Approval rates shown to partners are valid percentages.",
+          "dataset": "mart_partner_publishing",
+          "dataset_kind": "model",
+          "check": "between",
+          "column": "first_pass_approval_pct",
+          "severity": "error",
+          "engine": "dbt",
+          "reason": "set_based",
+          "artifact": {
+            "path": "tests/contracts/contract_partners_p10.sql",
+            "language": "sql",
+            "code": "-- Generated by contracts/compile.py from contracts/partners.yml (rule P-10). Do not edit.\n-- Approval rates shown to partners are valid percentages.\n{{ config(tags=['contract', 'contract_partners'], severity='error',\n          meta={'contract': 'partners', 'rule': 'P-10'}) }}\n\nselect *\nfrom {{ ref('mart_partner_publishing') }}\nwhere first_pass_approval_pct < 0 or first_pass_approval_pct > 100\n"
+          },
+          "sql": "select *\nfrom mart_partner_publishing\nwhere first_pass_approval_pct < 0 or first_pass_approval_pct > 100",
+          "status": "pass",
+          "observed": "0 failing rows",
+          "value": 0
+        },
+        {
+          "id": "P-11",
+          "description": "Every partner gets exactly one scorecard row.",
+          "dataset": "mart_partner_publishing",
+          "dataset_kind": "model",
+          "check": "reconciles",
+          "column": null,
+          "severity": "error",
+          "engine": "dbt",
+          "reason": "set_based",
+          "artifact": {
+            "path": "tests/contracts/contract_partners_p11.sql",
+            "language": "sql",
+            "code": "-- Generated by contracts/compile.py from contracts/partners.yml (rule P-11). Do not edit.\n-- Every partner gets exactly one scorecard row.\n{{ config(tags=['contract', 'contract_partners'], severity='error',\n          meta={'contract': 'partners', 'rule': 'P-11'}) }}\n\nwith contract_side as (\n    select count(*) as value from {{ ref('mart_partner_publishing') }}\n),\nreference_side as (\n    select count(*) as value from {{ ref('dim_partner') }}\n)\nselect c.value as contract_value, r.value as reference_value\nfrom contract_side c cross join reference_side r\nwhere c.value is null or r.value is null or abs(c.value - r.value) > 0\n"
+          },
+          "sql": "with contract_side as (\n    select count(*) as value from mart_partner_publishing\n),\nreference_side as (\n    select count(*) as value from dim_partner\n)\nselect c.value as contract_value, r.value as reference_value\nfrom contract_side c cross join reference_side r\nwhere c.value is null or r.value is null or abs(c.value - r.value) > 0",
+          "status": "pass",
+          "observed": "0 failing rows",
+          "value": 0
+        },
+        {
+          "id": "P-12",
+          "description": "Titles on the scorecard add up to titles actually submitted.",
+          "dataset": "mart_partner_publishing",
+          "dataset_kind": "model",
+          "check": "reconciles",
+          "column": null,
+          "severity": "error",
+          "engine": "dbt",
+          "reason": "set_based",
+          "artifact": {
+            "path": "tests/contracts/contract_partners_p12.sql",
+            "language": "sql",
+            "code": "-- Generated by contracts/compile.py from contracts/partners.yml (rule P-12). Do not edit.\n-- Titles on the scorecard add up to titles actually submitted.\n{{ config(tags=['contract', 'contract_partners'], severity='error',\n          meta={'contract': 'partners', 'rule': 'P-12'}) }}\n\nwith contract_side as (\n    select sum(titles_submitted) as value from {{ ref('mart_partner_publishing') }}\n),\nreference_side as (\n    select count(distinct title_id) as value from {{ ref('fct_submission') }}\n)\nselect c.value as contract_value, r.value as reference_value\nfrom contract_side c cross join reference_side r\nwhere c.value is null or r.value is null or abs(c.value - r.value) > 0\n"
+          },
+          "sql": "with contract_side as (\n    select sum(titles_submitted) as value from mart_partner_publishing\n),\nreference_side as (\n    select count(distinct title_id) as value from fct_submission\n)\nselect c.value as contract_value, r.value as reference_value\nfrom contract_side c cross join reference_side r\nwhere c.value is null or r.value is null or abs(c.value - r.value) > 0",
+          "status": "pass",
+          "observed": "0 failing rows",
+          "value": 0
+        },
+        {
+          "id": "P-13",
+          "description": "The average review time stays inside the range partners were told to expect.",
+          "dataset": "mart_partner_publishing",
+          "dataset_kind": "model",
+          "check": "mean",
+          "column": "avg_review_hours",
+          "severity": "error",
+          "engine": "gx",
+          "reason": "tolerance",
+          "artifact": {
+            "path": "contracts/gx/expectations/partners__mart_partner_publishing.json",
+            "language": "json",
+            "code": "{\n  \"type\": \"expect_column_mean_to_be_between\",\n  \"kwargs\": {\n    \"column\": \"avg_review_hours\",\n    \"min_value\": 12.0,\n    \"max_value\": 48.0\n  },\n  \"meta\": {\n    \"rule\": \"P-13\"\n  },\n  \"severity\": \"critical\"\n}\n"
+          },
+          "sql": null,
+          "status": "pass",
+          "observed": "observed 26.8333",
+          "value": 26.8333,
+          "expectation": "expect_column_mean_to_be_between"
+        }
+      ],
+      "reconcile": [
+        {
+          "id": "R-P1",
+          "title": "Every submission partners sent reaches their scorecard",
+          "tolerance": 0,
+          "spread": 0,
+          "status": "match",
+          "measures": [
+            {
+              "label": "Partner feed (file, GX)",
+              "value": 9,
+              "source": "Great Expectations observed value of P-04",
+              "engine": "gx"
+            },
+            {
+              "label": "Loaded table",
+              "value": 9,
+              "source": "select count(*) from raw_submissions",
+              "engine": "sql"
+            },
+            {
+              "label": "Submission fact",
+              "value": 9,
+              "source": "select count(*) from fct_submission",
+              "engine": "sql"
+            },
+            {
+              "label": "Partner scorecard",
+              "value": 9,
+              "source": "select sum(submission_attempts) from mart_partner_publishing",
+              "engine": "sql"
+            }
+          ]
+        },
+        {
+          "id": "R-P2",
+          "title": "Published titles agree across the publishing views",
+          "tolerance": 0,
+          "spread": 0,
+          "status": "match",
+          "measures": [
+            {
+              "label": "Storefront publications",
+              "value": 4,
+              "source": "select count(distinct title_id) from raw_publications",
+              "engine": "sql"
+            },
+            {
+              "label": "Partner scorecard",
+              "value": 4,
+              "source": "select sum(titles_published) from mart_partner_publishing",
+              "engine": "sql"
+            },
+            {
+              "label": "Time to shelf",
+              "value": 4,
+              "source": "select count(*) from mart_title_time_to_shelf where shelf_status = 'published'",
+              "engine": "sql"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "contracts/README.md",
+      "language": "markdown",
+      "code": "# Stakeholder data contracts\n\nEach stakeholder owns one YAML file listing what they rely on. `partners.yml` covers\nthe partner scorecard and `finance.yml` the warehouse chargeback. Nobody hand-writes\nthe tests: a compiler turns each rule into a dbt test or a Great Expectations (GX)\nexpectation, depending on which is cheaper to run. At the end of the day the results\nfrom both engines are reconciled into one verdict per stakeholder.\n\nAll data is synthetic.\n\n## Where each rule runs\n\n`contract_plan.py` routes every rule, checking in this order:\n\n| Rule | Engine | Why |\n| --- | --- | --- |\n| On a delivered file (partner feed, billing export) | Great Expectations | dbt can only test what is already loaded. GX checks the file as delivered, so a bad drop never loads. |\n| Tolerance or distribution (`mostly`, mean, sum, row count) | Great Expectations | GX has these built in and reports the observed value. In dbt each would need a custom macro. |\n| Set-based SQL on a model (unique, accepted values, ranges, expressions, cross-model totals) | dbt test | Runs in the warehouse inside `dbt build`, moves no rows, and a failure stops downstream models. |\n| Same as a test the project already has | dbt (reused) | Linked to the existing test rather than run twice. |\n\nGX on a model reads only the columns its expectations need.\n\n## The daily run\n\n```bash\ndbt parse --profiles-dir .\npython contracts/compile.py      # contracts -> tests/contracts/*.sql + contracts/gx/expectations/*.json\npython contracts/validate.py --scope files   # GX on the delivered files; stops a bad drop before it loads\ndbt build --profiles-dir .                   # models + every dbt test, generated contract tests included\npython contracts/validate.py --scope models  # GX tolerance checks on the built models\npython contracts/reconcile.py                # both engines + reconcile chains -> assets/contracts.json\n```\n\nThe Airflow DAG runs the same steps. `validate_contract_files` runs before the\nseed load. After the test gate, `contracts.validate_contract_models` and\n`contracts.reconcile_contracts` give the daily sign-off, and publishing waits on it.\n\n## Reconciliation\n\nRule results alone don't prove that the number a stakeholder sees is the number\nthat was delivered. Each contract therefore lists `reconcile` chains: the same\nmeasure taken at every hop, from the delivered file (a GX observed value) through\nthe loaded table to the mart, which must agree within a tolerance. A contract is:\n\n- **signed off** when every rule passes and every chain matches,\n- **signed off with warnings** when only `severity: warn` rules fail,\n- **held** when an error rule fails or a chain breaks. `reconcile.py` then exits\n  non-zero, so CI fails and nothing publishes.\n\n## Rule vocabulary\n\n`unique`, `not_null`, `accepted_values` (`values`), `between` (`min`, `max`),\n`regex` (`pattern`), `expression`, `reconciles` (`left`, `right`, `tolerance`),\n`columns_match` and `unique_combination` (`columns`), `row_count`, `sum` and `mean`\n(`min`, `max`). Any rule can take `mostly` (a share of rows that must pass) and\n`severity: warn`.\n"
+    },
+    {
+      "path": "contracts/contract_plan.py",
+      "language": "python",
+      "code": "\"\"\"Read the stakeholder contracts and decide where each rule runs.\n\nShared by compile.py (writes the dbt tests and GX suites), validate.py (runs the\nGX suites) and reconcile.py (joins both engines' results at the end of the day).\n\nRouting, cheapest place first:\n  1. A rule on a file that is not loaded yet goes to Great Expectations: dbt can\n     only test what is already in the warehouse.\n  2. A rule with a tolerance or a distribution (mostly, mean, sum, row count)\n     goes to Great Expectations, which has these built in and reports the\n     observed value. In dbt each would be a hand-written macro.\n  3. Any other rule on a model is set-based SQL, so it becomes a dbt test that\n     runs in the warehouse inside `dbt build`. If the project already has the\n     same generic test, the contract reuses it instead of running it twice.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport json\nimport re\nfrom pathlib import Path\n\nimport yaml\n\nROOT = Path(__file__).resolve().parents[1]\nCONTRACTS = ROOT / \"contracts\"\nDBT_TESTS = ROOT / \"tests\" / \"contracts\"\nGX_SUITES = CONTRACTS / \"gx\" / \"expectations\"\nMANIFEST = ROOT / \"target\" / \"manifest.json\"\nPROJECT = \"nexus_partner_analytics\"\n\nDBT_CHECKS = {\"unique\", \"not_null\", \"accepted_values\", \"between\", \"regex\", \"expression\", \"reconciles\"}\nGX_CHECKS = {\n    \"columns_match\", \"regex\", \"accepted_values\", \"row_count\", \"between\",\n    \"unique_combination\", \"sum\", \"mean\", \"unique\", \"not_null\",\n}\nTOLERANCE_CHECKS = {\"row_count\", \"sum\", \"mean\"}\nREUSABLE = {\"unique\", \"not_null\", \"accepted_values\"}\n\nENGINES = {\n    \"gx\": \"Great Expectations\",\n    \"dbt\": \"dbt test (generated)\",\n    \"dbt_existing\": \"dbt test (already in the project)\",\n}\nREASONS = {\n    \"boundary\": \"The file is not in the warehouse yet, so dbt cannot see it. GX checks the file as delivered and stops a bad drop before it loads.\",\n    \"tolerance\": \"A tolerance or distribution check. GX has it built in and reports the observed value; in dbt it would be a custom macro.\",\n    \"gx_only\": \"No set-based SQL form of this check, so it runs in GX.\",\n    \"set_based\": \"Set-based SQL on a model. It runs in the warehouse inside dbt build, moves no rows, and a failure stops downstream models.\",\n    \"reuse\": \"The project already runs this exact dbt test, so the contract links to it rather than testing twice.\",\n}\n\n\ndef contract_files() -> list[Path]:\n    return sorted(CONTRACTS.glob(\"*.yml\"))\n\n\ndef dbt_vars() -> dict:\n    return yaml.safe_load((ROOT / \"dbt_project.yml\").read_text()).get(\"vars\", {})\n\n\ndef render_vars(text: str) -> str:\n    \"\"\"Replace {{ var('x') }} with its dbt_project.yml value, for SQL run outside dbt.\"\"\"\n    values = dbt_vars()\n    return re.sub(r\"\\{\\{\\s*var\\(['\\\"](\\w+)['\\\"]\\)\\s*\\}\\}\", lambda m: str(values[m.group(1)]), text)\n\n\ndef existing_tests() -> dict[tuple, dict]:\n    \"\"\"Generic tests already in the project, keyed by (check, model, column, values).\"\"\"\n    if not MANIFEST.exists():\n        raise SystemExit(\"target/manifest.json is missing; run `dbt parse --profiles-dir .` first\")\n    found = {}\n    for node in json.loads(MANIFEST.read_text())[\"nodes\"].values():\n        meta = node.get(\"test_metadata\")\n        if node[\"resource_type\"] != \"test\" or not meta or not node.get(\"attached_node\"):\n            continue\n        if node[\"original_file_path\"].startswith(\"tests/contracts/\"):\n            continue\n        values = meta.get(\"kwargs\", {}).get(\"values\")\n        key = (meta[\"name\"], node[\"attached_node\"].split(\".\")[-1], node.get(\"column_name\"),\n               tuple(map(str, values)) if values else None)\n        found[key] = {\"name\": node[\"name\"], \"unique_id\": node[\"unique_id\"], \"path\": node[\"original_file_path\"]}\n    return found\n\n\ndef route(rule: dict, dataset: dict, existing: dict) -> tuple[str, str, dict | None]:\n    check = rule[\"check\"]\n    if dataset[\"kind\"] == \"file\":\n        engine, reason = \"gx\", \"boundary\"\n    elif rule.get(\"mostly\") is not None or check in TOLERANCE_CHECKS:\n        engine, reason = \"gx\", \"tolerance\"\n    elif check not in DBT_CHECKS:\n        engine, reason = \"gx\", \"gx_only\"\n    else:\n        engine, reason = \"dbt\", \"set_based\"\n    if engine == \"gx\" and check not in GX_CHECKS:\n        raise SystemExit(f\"{rule['id']}: Great Expectations has no mapping for check '{check}'\")\n    reused = None\n    if engine == \"dbt\" and check in REUSABLE and rule.get(\"severity\", \"error\") == \"error\":\n        values = tuple(map(str, rule[\"values\"])) if rule.get(\"values\") else None\n        reused = existing.get((check, rule[\"dataset\"], rule.get(\"column\"), values))\n        if reused:\n            engine, reason = \"dbt_existing\", \"reuse\"\n    return engine, reason, reused\n\n\ndef load() -> list[dict]:\n    \"\"\"Every contract, with each rule's engine, reason and artifact name.\"\"\"\n    existing = existing_tests()\n    contracts = []\n    for path in contract_files():\n        spec = yaml.safe_load(path.read_text())\n        datasets = {d[\"name\"]: d for d in spec[\"datasets\"]}\n        rules = []\n        for rule in spec[\"rules\"]:\n            dataset = datasets[rule[\"dataset\"]]\n            engine, reason, reused = route(rule, dataset, existing)\n            slug = rule[\"id\"].lower().replace(\"-\", \"\")\n            rules.append({\n                **rule,\n                \"severity\": rule.get(\"severity\", \"error\"),\n                \"dataset_kind\": dataset[\"kind\"],\n                \"engine\": engine,\n                \"reason\": reason,\n                \"test_name\": reused[\"name\"] if reused else f\"contract_{spec['contract']}_{slug}\" if engine == \"dbt\" else None,\n                \"reused\": reused,\n                \"suite\": f\"{spec['contract']}__{rule['dataset']}\" if engine == \"gx\" else None,\n            })\n        contracts.append({**spec, \"path\": path.relative_to(ROOT).as_posix(), \"source\": path.read_text(),\n                          \"datasets\": datasets, \"rules\": rules})\n    return contracts\n\n\n# ---- dbt: one singular test per rule ------------------------------------------\n\ndef _literal(value) -> str:\n    if isinstance(value, bool):\n        return \"true\" if value else \"false\"\n    if isinstance(value, (int, float)):\n        return str(value)\n    return \"'\" + str(value).replace(\"'\", \"''\") + \"'\"\n\n\ndef dbt_body(rule: dict, ref) -> str:\n    \"\"\"The failing-rows query for a dbt-routed rule. `ref` renders a model reference.\"\"\"\n    check, model, col = rule[\"check\"], ref(rule[\"dataset\"]), rule.get(\"column\")\n    if check == \"unique\":\n        return f\"select {col}, count(*) as occurrences\\nfrom {model}\\ngroup by {col}\\nhaving count(*) > 1\"\n    if check == \"not_null\":\n        return f\"select *\\nfrom {model}\\nwhere {col} is null\"\n    if check == \"accepted_values\":\n        values = \", \".join(_literal(v) for v in rule[\"values\"])\n        return f\"select *\\nfrom {model}\\nwhere {col} not in ({values})\"\n    if check == \"between\":\n        bounds = [f\"{col} < {rule['min']}\" if \"min\" in rule else None, f\"{col} > {rule['max']}\" if \"max\" in rule else None]\n        return f\"select *\\nfrom {model}\\nwhere \" + \" or \".join(b for b in bounds if b)\n    if check == \"regex\":\n        return f\"select *\\nfrom {model}\\nwhere not regexp_matches({col}, {_literal(rule['pattern'])})\"\n    if check == \"expression\":\n        return f\"select *\\nfrom {model}\\nwhere not ({rule['expression']})\"\n    if check == \"reconciles\":\n        right = rule[\"right\"]\n        reference = (f\"select {right['value']} as value\" if \"value\" in right\n                     else f\"select {right['expression']} as value from {ref(right['model'])}\")\n        tolerance = rule.get(\"tolerance\", 0)\n        return (\n            f\"with contract_side as (\\n    select {rule['left']} as value from {model}\\n),\\n\"\n            f\"reference_side as (\\n    {reference}\\n)\\n\"\n            \"select c.value as contract_value, r.value as reference_value\\n\"\n            \"from contract_side c cross join reference_side r\\n\"\n            f\"where c.value is null or r.value is null or abs(c.value - r.value) > {tolerance}\"\n        )\n    raise SystemExit(f\"{rule['id']}: no dbt template for check '{check}'\")\n\n\ndef dbt_test(contract: dict, rule: dict) -> str:\n    \"\"\"The generated dbt singular test file for a rule.\"\"\"\n    config = (\n        f\"{{{{ config(tags=['contract', 'contract_{contract['contract']}'], severity='{rule['severity']}',\\n\"\n        f\"          meta={{'contract': '{contract['contract']}', 'rule': '{rule['id']}'}}) }}}}\"\n    )\n    header = (\n        f\"-- Generated by contracts/compile.py from {contract['path']} (rule {rule['id']}). Do not edit.\\n\"\n        f\"-- {rule['description']}\\n\"\n    )\n    return header + config + \"\\n\\n\" + dbt_body(rule, lambda m: f\"{{{{ ref('{m}') }}}}\") + \"\\n\"\n\n\ndef plain_sql(rule: dict) -> str:\n    \"\"\"The same failing-rows query with plain table names, to run in the browser.\"\"\"\n    return render_vars(dbt_body(rule, lambda m: m))\n\n\n# ---- Great Expectations: one suite per contract and dataset --------------------\n\ndef expectation(rule: dict):\n    import great_expectations.expectations as gxe\n\n    check, col = rule[\"check\"], rule.get(\"column\")\n    extra = {\"meta\": {\"rule\": rule[\"id\"]}, \"severity\": \"warning\" if rule[\"severity\"] == \"warn\" else \"critical\"}\n    if rule.get(\"mostly\") is not None:\n        extra[\"mostly\"] = rule[\"mostly\"]\n    bounds = {\"min_value\": rule.get(\"min\"), \"max_value\": rule.get(\"max\")}\n    if check == \"columns_match\":\n        return gxe.ExpectTableColumnsToMatchOrderedList(column_list=rule[\"columns\"], **extra)\n    if check == \"regex\":\n        return gxe.ExpectColumnValuesToMatchRegex(column=col, regex=rule[\"pattern\"], **extra)\n    if check == \"accepted_values\":\n        return gxe.ExpectColumnValuesToBeInSet(column=col, value_set=rule[\"values\"], **extra)\n    if check == \"row_count\":\n        return gxe.ExpectTableRowCountToBeBetween(**bounds, **extra)\n    if check == \"between\":\n        return gxe.ExpectColumnValuesToBeBetween(column=col, **bounds, **extra)\n    if check == \"unique_combination\":\n        return gxe.ExpectCompoundColumnsToBeUnique(column_list=rule[\"columns\"], **extra)\n    if check == \"sum\":\n        return gxe.ExpectColumnSumToBeBetween(column=col, **bounds, **extra)\n    if check == \"mean\":\n        return gxe.ExpectColumnMeanToBeBetween(column=col, **bounds, **extra)\n    if check == \"unique\":\n        return gxe.ExpectColumnValuesToBeUnique(column=col, **extra)\n    if check == \"not_null\":\n        return gxe.ExpectColumnValuesToNotBeNull(column=col, **extra)\n    raise SystemExit(f\"{rule['id']}: no Great Expectations mapping for check '{check}'\")\n\n\ndef gx_suites(contract: dict) -> dict[str, dict]:\n    \"\"\"Suite name -> serialised GX expectation suite, for this contract's GX rules.\"\"\"\n    import great_expectations as gx\n\n    suites = {}\n    for dataset in contract[\"datasets\"].values():\n        rules = [r for r in contract[\"rules\"] if r[\"engine\"] == \"gx\" and r[\"dataset\"] == dataset[\"name\"]]\n        if not rules:\n            continue\n        name = f\"{contract['contract']}__{dataset['name']}\"\n        suite = gx.ExpectationSuite(\n            name=name,\n            expectations=[expectation(r) for r in rules],\n            meta={\"contract\": contract[\"contract\"], \"contract_version\": contract[\"version\"],\n                  \"dataset\": dataset[\"name\"], \"dataset_kind\": dataset[\"kind\"],\n                  **({\"path\": dataset[\"path\"]} if dataset[\"kind\"] == \"file\" else {}),\n                  \"generated_from\": contract[\"path\"]},\n        )\n        suites[name] = suite.to_json_dict()\n    return suites\n"
+    },
+    {
+      "path": "contracts/compile.py",
+      "language": "python",
+      "code": "\"\"\"Compile the stakeholder contracts into dbt tests and Great Expectations suites.\n\n    python contracts/compile.py          # write tests/contracts/*.sql and contracts/gx/expectations/*.json\n    python contracts/compile.py --check  # fail if the committed files differ from the contracts\n\nNeeds target/manifest.json (from `dbt parse`) to find dbt tests the project already has.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport argparse\nimport json\nimport sys\n\nfrom contract_plan import DBT_TESTS, GX_SUITES, ROOT, dbt_test, gx_suites, load\n\n\ndef render() -> dict:\n    files = {}\n    for contract in load():\n        for rule in contract[\"rules\"]:\n            if rule[\"engine\"] == \"dbt\":\n                files[DBT_TESTS / f\"{rule['test_name']}.sql\"] = dbt_test(contract, rule)\n        for name, suite in gx_suites(contract).items():\n            files[GX_SUITES / f\"{name}.json\"] = json.dumps(suite, indent=2) + \"\\n\"\n    return files\n\n\ndef main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--check\", action=\"store_true\")\n    args = parser.parse_args()\n    files = render()\n    current = set(DBT_TESTS.glob(\"*.sql\")) | set(GX_SUITES.glob(\"*.json\"))\n    stale = sorted(\n        [p for p, text in files.items() if not p.exists() or p.read_text() != text] + list(current - set(files))\n    )\n    if args.check:\n        if stale:\n            sys.exit(\"Contract tests are stale; run contracts/compile.py: \"\n                     + \", \".join(p.relative_to(ROOT).as_posix() for p in stale))\n        print(f\"{len(files)} generated contract files match the contracts\")\n        return\n    for path in current - set(files):\n        path.unlink()\n    for path, text in files.items():\n        path.parent.mkdir(parents=True, exist_ok=True)\n        path.write_text(text)\n    dbt = sum(p.suffix == \".sql\" for p in files)\n    print(f\"Wrote {dbt} dbt tests and {len(files) - dbt} GX suites\")\n\n\nif __name__ == \"__main__\":\n    main()\n"
+    },
+    {
+      "path": "contracts/validate.py",
+      "language": "python",
+      "code": "\"\"\"Run the generated Great Expectations suites and record the results.\n\n    python contracts/validate.py                 # every suite\n    python contracts/validate.py --scope files   # delivered files only, before they load\n    python contracts/validate.py --scope models  # models only, after the dbt build\n\nFile datasets are read as delivered (the CSV a partner or the billing system\nsends). Model datasets are read from the dbt build, selecting only the columns\nthe suite needs. Results go to target/gx_results/<scope>.json for reconcile.py. Exits\nnon-zero if an error-severity expectation fails, so a bad file never loads.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport argparse\nimport json\nimport logging\nimport sys\n\nimport duckdb\nimport great_expectations as gx\n\nfrom contract_plan import GX_SUITES, ROOT\n\nDATABASE = ROOT / \"target\" / \"nexus_partner_analytics.duckdb\"\nRESULTS = ROOT / \"target\" / \"gx_results\"\nSCOPES = {\"files\": (\"file\",), \"models\": (\"model\",), \"all\": (\"file\", \"model\")}\n\n\ndef columns(suite: dict) -> list[str]:\n    needed = []\n    for exp in suite[\"expectations\"]:\n        kwargs = exp[\"kwargs\"]\n        for col in [kwargs.get(\"column\"), *kwargs.get(\"column_list\", [])]:\n            if col and col not in needed:\n                needed.append(col)\n    return needed\n\n\ndef main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--scope\", choices=SCOPES, default=\"all\")\n    kinds = SCOPES[parser.parse_args().scope]\n    logging.getLogger(\"great_expectations\").setLevel(logging.ERROR)\n    context = gx.get_context(mode=\"ephemeral\")\n    context.variables.progress_bars = {\"globally\": False}\n    files = context.data_sources.add_pandas(\"delivered_files\")\n    warehouse = context.data_sources.add_pandas(\"dbt_build\")\n    con = duckdb.connect(str(DATABASE), read_only=True) if \"model\" in kinds else None\n\n    results, blocking = {kind: [] for kind in kinds}, []\n    for path in sorted(GX_SUITES.glob(\"*.json\")):\n        spec = json.loads(path.read_text())\n        meta = spec[\"meta\"]\n        if meta[\"dataset_kind\"] not in kinds:\n            continue\n        if meta[\"dataset_kind\"] == \"file\":\n            asset = files.add_csv_asset(spec[\"name\"], filepath_or_buffer=str(ROOT / meta[\"path\"]))\n            batch = asset.add_batch_definition_whole_dataframe(\"delivered\").get_batch()\n        else:\n            frame = con.execute(f\"select {', '.join(columns(spec))} from {meta['dataset']}\").df()\n            asset = warehouse.add_dataframe_asset(spec[\"name\"])\n            batch = asset.add_batch_definition_whole_dataframe(\"built\").get_batch(batch_parameters={\"dataframe\": frame})\n        suite = context.suites.add(gx.ExpectationSuite(**{k: v for k, v in spec.items() if k != \"id\"}))\n        validation = batch.validate(suite)\n        for item in validation.results:\n            config = item.expectation_config\n            result = {k: v for k, v in item.result.items() if k in (\n                \"observed_value\", \"element_count\", \"unexpected_count\", \"unexpected_percent\", \"partial_unexpected_list\")}\n            results[meta[\"dataset_kind\"]].append({\n                \"rule\": config.meta[\"rule\"],\n                \"suite\": spec[\"name\"],\n                \"expectation\": config.type,\n                \"success\": bool(item.success),\n                \"severity\": config.severity.value if hasattr(config.severity, \"value\") else str(config.severity),\n                \"result\": json.loads(json.dumps(result, default=str)),\n            })\n            if not item.success and results[meta[\"dataset_kind\"]][-1][\"severity\"] == \"critical\":\n                blocking.append(config.meta[\"rule\"])\n\n    RESULTS.mkdir(parents=True, exist_ok=True)\n    for kind, found in results.items():\n        payload = {\"great_expectations_version\": gx.__version__, \"scope\": f\"{kind}s\", \"results\": found}\n        (RESULTS / f\"{kind}s.json\").write_text(json.dumps(payload, indent=2) + \"\\n\")\n    flat = [r for found in results.values() for r in found]\n    print(f\"Great Expectations: {sum(r['success'] for r in flat)} of {len(flat)} expectations met\")\n    if blocking:\n        sys.exit(\"Blocking expectations failed: \" + \", \".join(blocking))\n\n\nif __name__ == \"__main__\":\n    main()\n"
+    },
+    {
+      "path": "contracts/reconcile.py",
+      "language": "python",
+      "code": "\"\"\"End-of-day reconciliation: one verdict per stakeholder contract.\n\n    python contracts/reconcile.py          # write assets/contracts.json\n    python contracts/reconcile.py --check  # fail if it is stale, or a contract is held\n\nJoins the two engines' results rule by rule (dbt from target/run_results.json,\nGreat Expectations from target/gx_results/), then checks each reconcile\nchain in the contracts: the same number, measured from the delivered file\nthrough to the mart a stakeholder reads, must agree within tolerance.\n\"\"\"\n\nfrom __future__ import annotations\n\nimport argparse\nimport json\nimport sys\n\nimport duckdb\n\nfrom contract_plan import ENGINES, REASONS, ROOT, dbt_test, dbt_vars, load, plain_sql, render_vars\n\nDATABASE = ROOT / \"target\" / \"nexus_partner_analytics.duckdb\"\nRUN_RESULTS = ROOT / \"target\" / \"run_results.json\"\nGX_RESULTS = ROOT / \"target\" / \"gx_results\"\nOUTPUT = ROOT / \"assets\" / \"contracts.json\"\nSOURCES = [\n    \"contracts/README.md\", \"contracts/contract_plan.py\", \"contracts/compile.py\",\n    \"contracts/validate.py\", \"contracts/reconcile.py\",\n]\n\n\ndef _dbt_results() -> dict:\n    if not RUN_RESULTS.exists():\n        sys.exit(\"target/run_results.json is missing; run `dbt build --profiles-dir .` first\")\n    return {r[\"unique_id\"]: r for r in json.loads(RUN_RESULTS.read_text())[\"results\"]}\n\n\ndef _gx_results() -> dict:\n    files = sorted(GX_RESULTS.glob(\"*.json\"))\n    if not files:\n        sys.exit(\"target/gx_results/ is empty; run contracts/validate.py first\")\n    return {r[\"rule\"]: r for f in files for r in json.loads(f.read_text())[\"results\"]}\n\n\ndef _num(value):\n    if isinstance(value, bool) or not isinstance(value, (int, float)):\n        return value\n    value = round(float(value), 4)\n    return int(value) if value.is_integer() else value\n\n\ndef _gx_outcome(rule: dict, gx: dict) -> dict:\n    found = gx.get(rule[\"id\"])\n    if not found:\n        sys.exit(f\"{rule['id']}: no Great Expectations result; rerun contracts/validate.py\")\n    res = found[\"result\"]\n    status = \"pass\" if found[\"success\"] else (\"warn\" if rule[\"severity\"] == \"warn\" else \"fail\")\n    if \"unexpected_count\" in res:\n        n, bad = res[\"element_count\"], res[\"unexpected_count\"]\n        observed = f\"{bad} of {n} rows outside ({round(res['unexpected_percent'], 1)}%)\"\n        if rule.get(\"mostly\") is not None:\n            observed += f\"; needs at least {int(rule['mostly'] * 100)}% inside\"\n    elif isinstance(res.get(\"observed_value\"), list):\n        observed = f\"{len(res['observed_value'])} columns, in the agreed order\" if found[\"success\"] else \"column layout differs\"\n    else:\n        observed = f\"observed {_num(res.get('observed_value'))}\"\n    return {\"status\": status, \"observed\": observed, \"value\": _num(res.get(\"observed_value\")) if not isinstance(res.get(\"observed_value\"), list) else None,\n            \"expectation\": found[\"expectation\"]}\n\n\ndef _dbt_outcome(rule: dict, dbt: dict) -> dict:\n    unique_id = rule[\"reused\"][\"unique_id\"] if rule[\"reused\"] else f\"test.nexus_partner_analytics.{rule['test_name']}\"\n    found = dbt.get(unique_id)\n    if not found:\n        sys.exit(f\"{rule['id']}: {rule['test_name']} did not run; run `dbt build --profiles-dir .` first\")\n    status = {\"pass\": \"pass\", \"warn\": \"warn\", \"fail\": \"fail\"}.get(found[\"status\"], \"fail\")\n    failures = found.get(\"failures\") or 0\n    return {\"status\": status, \"observed\": f\"{failures} failing row{'s' if failures != 1 else ''}\", \"value\": failures}\n\n\ndef _artifact(contract: dict, rule: dict, suites: dict) -> dict:\n    if rule[\"engine\"] == \"dbt\":\n        return {\"path\": f\"tests/contracts/{rule['test_name']}.sql\", \"language\": \"sql\", \"code\": dbt_test(contract, rule)}\n    if rule[\"engine\"] == \"dbt_existing\":\n        reused = rule[\"reused\"]\n        return {\"path\": reused[\"path\"], \"language\": \"text\",\n                \"code\": f\"# Already declared in {reused['path']}; dbt names it\\n{reused['name']}\\n\"}\n    suite = suites[rule[\"suite\"]]\n    exp = next(e for e in suite[\"expectations\"] if e[\"meta\"][\"rule\"] == rule[\"id\"])\n    return {\"path\": f\"contracts/gx/expectations/{rule['suite']}.json\", \"language\": \"json\",\n            \"code\": json.dumps(exp, indent=2) + \"\\n\"}\n\n\ndef _reconcile(spec: dict, rules: dict, con) -> dict:\n    measures = []\n    for m in spec[\"measures\"]:\n        if \"rule\" in m:\n            value, source = rules[m[\"rule\"]][\"value\"], f\"Great Expectations observed value of {m['rule']}\"\n        else:\n            sql = render_vars(m[\"sql\"])\n            value, source = _num(con.execute(sql).fetchone()[0]), sql\n        measures.append({\"label\": m[\"label\"], \"value\": value, \"source\": source, \"engine\": \"gx\" if \"rule\" in m else \"sql\"})\n    values = [m[\"value\"] for m in measures]\n    spread = round(max(values) - min(values), 4) if all(v is not None for v in values) else None\n    tolerance = spec.get(\"tolerance\", 0)\n    status = \"match\" if spread is not None and spread <= tolerance else \"mismatch\"\n    return {\"id\": spec[\"id\"], \"title\": spec[\"title\"], \"tolerance\": tolerance, \"spread\": spread,\n            \"status\": status, \"measures\": measures}\n\n\ndef render() -> tuple[str, list[str]]:\n    dbt, gx = _dbt_results(), _gx_results()\n    from contract_plan import gx_suites  # imports great_expectations only when needed\n\n    con = duckdb.connect(str(DATABASE), read_only=True)\n    contracts, held = [], []\n    for contract in load():\n        suites = gx_suites(contract)\n        rules = []\n        for rule in contract[\"rules\"]:\n            outcome = _gx_outcome(rule, gx) if rule[\"engine\"] == \"gx\" else _dbt_outcome(rule, dbt)\n            rules.append({\n                \"id\": rule[\"id\"], \"description\": rule[\"description\"], \"dataset\": rule[\"dataset\"],\n                \"dataset_kind\": rule[\"dataset_kind\"], \"check\": rule[\"check\"],\n                \"column\": rule.get(\"column\") or \", \".join(rule.get(\"columns\", [])) or None,\n                \"severity\": rule[\"severity\"], \"engine\": rule[\"engine\"], \"reason\": rule[\"reason\"],\n                \"artifact\": _artifact(contract, rule, suites),\n                \"sql\": plain_sql(rule) if rule[\"engine\"] != \"gx\" else None,\n                **outcome,\n            })\n        by_id = {r[\"id\"]: r for r in rules}\n        recs = [_reconcile(spec, by_id, con) for spec in contract.get(\"reconcile\", [])]\n        failed = [r[\"id\"] for r in rules if r[\"status\"] == \"fail\"] + [r[\"id\"] for r in recs if r[\"status\"] == \"mismatch\"]\n        warned = [r[\"id\"] for r in rules if r[\"status\"] == \"warn\"]\n        verdict = \"held\" if failed else \"signed_off_with_warnings\" if warned else \"signed_off\"\n        if failed:\n            held.append(f\"{contract['contract']}: {', '.join(failed)}\")\n        contracts.append({\n            \"contract\": contract[\"contract\"], \"title\": contract[\"title\"], \"version\": contract[\"version\"],\n            \"stakeholder\": contract[\"stakeholder\"], \"consumer\": contract[\"consumer\"],\n            \"owner_group\": contract[\"owner_group\"], \"sla\": contract[\"sla\"], \"path\": contract[\"path\"],\n            \"source\": contract[\"source\"], \"verdict\": verdict, \"failed\": failed, \"warned\": warned,\n            \"datasets\": list(contract[\"datasets\"].values()), \"rules\": rules, \"reconcile\": recs,\n        })\n\n    all_rules = [r for c in contracts for r in c[\"rules\"]]\n    all_recs = [r for c in contracts for r in c[\"reconcile\"]]\n    generated = sorted({r[\"artifact\"][\"path\"] for r in all_rules if r[\"engine\"] != \"dbt_existing\"})\n    files = [{\"path\": p, \"language\": \"markdown\" if p.endswith(\".md\") else \"python\", \"code\": (ROOT / p).read_text()} for p in SOURCES]\n    files += [{\"path\": p, \"language\": \"sql\" if p.endswith(\".sql\") else \"json\", \"code\": (ROOT / p).read_text()} for p in generated]\n    data = {\n        \"business_date\": dbt_vars()[\"cost_as_of_date\"],\n        \"engines\": ENGINES,\n        \"reasons\": REASONS,\n        \"summary\": {\n            \"contracts\": len(contracts),\n            \"rules\": len(all_rules),\n            \"engines\": {e: sum(r[\"engine\"] == e for r in all_rules) for e in ENGINES},\n            \"status\": {s: sum(r[\"status\"] == s for r in all_rules) for s in (\"pass\", \"warn\", \"fail\")},\n            \"reconciliations\": len(all_recs),\n            \"reconciled\": sum(r[\"status\"] == \"match\" for r in all_recs),\n        },\n        \"contracts\": contracts,\n        \"files\": files,\n    }\n    return json.dumps(data, indent=2) + \"\\n\", held\n\n\ndef main() -> None:\n    parser = argparse.ArgumentParser()\n    parser.add_argument(\"--check\", action=\"store_true\")\n    args = parser.parse_args()\n    rendered, held = render()\n    if args.check:\n        if not OUTPUT.exists() or OUTPUT.read_text() != rendered:\n            sys.exit(\"assets/contracts.json is stale; run contracts/reconcile.py\")\n        print(\"Contract results match the build\")\n    else:\n        OUTPUT.write_text(rendered)\n        print(f\"Wrote {OUTPUT.relative_to(ROOT)}\")\n    if held:\n        sys.exit(\"Contracts held at end of day: \" + \"; \".join(held))\n\n\nif __name__ == \"__main__\":\n    main()\n"
+    },
+    {
+      "path": "contracts/gx/expectations/finance__billing_export.json",
+      "language": "json",
+      "code": "{\n  \"name\": \"finance__billing_export\",\n  \"id\": null,\n  \"expectations\": [\n    {\n      \"type\": \"expect_table_columns_to_match_ordered_list\",\n      \"kwargs\": {\n        \"column_list\": [\n          \"warehouse_name\",\n          \"usage_date\",\n          \"credits_used_compute\",\n          \"credits_used_cloud_services\"\n        ]\n      },\n      \"meta\": {\n        \"rule\": \"F-01\"\n      },\n      \"severity\": \"critical\"\n    },\n    {\n      \"type\": \"expect_compound_columns_to_be_unique\",\n      \"kwargs\": {\n        \"column_list\": [\n          \"warehouse_name\",\n          \"usage_date\"\n        ]\n      },\n      \"meta\": {\n        \"rule\": \"F-02\"\n      },\n      \"severity\": \"critical\"\n    },\n    {\n      \"type\": \"expect_column_values_to_be_between\",\n      \"kwargs\": {\n        \"column\": \"credits_used_compute\",\n        \"min_value\": 0.0,\n        \"max_value\": 5.0\n      },\n      \"meta\": {\n        \"rule\": \"F-03\"\n      },\n      \"severity\": \"critical\"\n    },\n    {\n      \"type\": \"expect_table_row_count_to_be_between\",\n      \"kwargs\": {\n        \"min_value\": 100,\n        \"max_value\": 130\n      },\n      \"meta\": {\n        \"rule\": \"F-04\"\n      },\n      \"severity\": \"critical\"\n    },\n    {\n      \"type\": \"expect_column_sum_to_be_between\",\n      \"kwargs\": {\n        \"column\": \"credits_used_compute\",\n        \"min_value\": 0.0,\n        \"max_value\": 60.0\n      },\n      \"meta\": {\n        \"rule\": \"F-05\"\n      },\n      \"severity\": \"critical\"\n    }\n  ],\n  \"meta\": {\n    \"contract\": \"finance\",\n    \"contract_version\": \"2.1.0\",\n    \"dataset\": \"billing_export\",\n    \"dataset_kind\": \"file\",\n    \"path\": \"seeds/platform_warehouse_metering.csv\",\n    \"generated_from\": \"contracts/finance.yml\",\n    \"great_expectations_version\": \"1.24.0\"\n  },\n  \"notes\": null\n}\n"
+    },
+    {
+      "path": "contracts/gx/expectations/finance__mart_cost_daily.json",
+      "language": "json",
+      "code": "{\n  \"name\": \"finance__mart_cost_daily\",\n  \"id\": null,\n  \"expectations\": [\n    {\n      \"type\": \"expect_column_values_to_be_in_set\",\n      \"kwargs\": {\n        \"column\": \"is_anomaly\",\n        \"mostly\": 0.95,\n        \"value_set\": [\n          false\n        ]\n      },\n      \"meta\": {\n        \"rule\": \"F-11\"\n      },\n      \"severity\": \"critical\"\n    }\n  ],\n  \"meta\": {\n    \"contract\": \"finance\",\n    \"contract_version\": \"2.1.0\",\n    \"dataset\": \"mart_cost_daily\",\n    \"dataset_kind\": \"model\",\n    \"generated_from\": \"contracts/finance.yml\",\n    \"great_expectations_version\": \"1.24.0\"\n  },\n  \"notes\": null\n}\n"
+    },
+    {
+      "path": "contracts/gx/expectations/partners__fct_submission.json",
+      "language": "json",
+      "code": "{\n  \"name\": \"partners__fct_submission\",\n  \"id\": null,\n  \"expectations\": [\n    {\n      \"type\": \"expect_column_values_to_be_between\",\n      \"kwargs\": {\n        \"column\": \"review_hours\",\n        \"mostly\": 0.95,\n        \"max_value\": 72.0\n      },\n      \"meta\": {\n        \"rule\": \"P-09\"\n      },\n      \"severity\": \"critical\"\n    }\n  ],\n  \"meta\": {\n    \"contract\": \"partners\",\n    \"contract_version\": \"1.3.0\",\n    \"dataset\": \"fct_submission\",\n    \"dataset_kind\": \"model\",\n    \"generated_from\": \"contracts/partners.yml\",\n    \"great_expectations_version\": \"1.24.0\"\n  },\n  \"notes\": null\n}\n"
+    },
+    {
+      "path": "contracts/gx/expectations/partners__mart_partner_publishing.json",
+      "language": "json",
+      "code": "{\n  \"name\": \"partners__mart_partner_publishing\",\n  \"id\": null,\n  \"expectations\": [\n    {\n      \"type\": \"expect_column_mean_to_be_between\",\n      \"kwargs\": {\n        \"column\": \"avg_review_hours\",\n        \"min_value\": 12.0,\n        \"max_value\": 48.0\n      },\n      \"meta\": {\n        \"rule\": \"P-13\"\n      },\n      \"severity\": \"critical\"\n    }\n  ],\n  \"meta\": {\n    \"contract\": \"partners\",\n    \"contract_version\": \"1.3.0\",\n    \"dataset\": \"mart_partner_publishing\",\n    \"dataset_kind\": \"model\",\n    \"generated_from\": \"contracts/partners.yml\",\n    \"great_expectations_version\": \"1.24.0\"\n  },\n  \"notes\": null\n}\n"
+    },
+    {
+      "path": "contracts/gx/expectations/partners__partner_submission_feed.json",
+      "language": "json",
+      "code": "{\n  \"name\": \"partners__partner_submission_feed\",\n  \"id\": null,\n  \"expectations\": [\n    {\n      \"type\": \"expect_table_columns_to_match_ordered_list\",\n      \"kwargs\": {\n        \"column_list\": [\n          \"submission_id\",\n          \"title_id\",\n          \"submitted_at\",\n          \"reviewed_at\",\n          \"status\",\n          \"build_version\",\n          \"return_reason\"\n        ]\n      },\n      \"meta\": {\n        \"rule\": \"P-01\"\n      },\n      \"severity\": \"critical\"\n    },\n    {\n      \"type\": \"expect_column_values_to_match_regex\",\n      \"kwargs\": {\n        \"column\": \"submission_id\",\n        \"regex\": \"^S\\\\d{3}$\"\n      },\n      \"meta\": {\n        \"rule\": \"P-02\"\n      },\n      \"severity\": \"critical\"\n    },\n    {\n      \"type\": \"expect_column_values_to_be_in_set\",\n      \"kwargs\": {\n        \"column\": \"status\",\n        \"value_set\": [\n          \"approved\",\n          \"rejected\",\n          \"pending\"\n        ]\n      },\n      \"meta\": {\n        \"rule\": \"P-03\"\n      },\n      \"severity\": \"critical\"\n    },\n    {\n      \"type\": \"expect_table_row_count_to_be_between\",\n      \"kwargs\": {\n        \"min_value\": 1,\n        \"max_value\": 5000\n      },\n      \"meta\": {\n        \"rule\": \"P-04\"\n      },\n      \"severity\": \"critical\"\n    },\n    {\n      \"type\": \"expect_column_values_to_be_between\",\n      \"kwargs\": {\n        \"column\": \"build_version\",\n        \"min_value\": 1.0,\n        \"max_value\": 20.0\n      },\n      \"meta\": {\n        \"rule\": \"P-05\"\n      },\n      \"severity\": \"critical\"\n    }\n  ],\n  \"meta\": {\n    \"contract\": \"partners\",\n    \"contract_version\": \"1.3.0\",\n    \"dataset\": \"partner_submission_feed\",\n    \"dataset_kind\": \"file\",\n    \"path\": \"seeds/raw_submissions.csv\",\n    \"generated_from\": \"contracts/partners.yml\",\n    \"great_expectations_version\": \"1.24.0\"\n  },\n  \"notes\": null\n}\n"
+    },
+    {
+      "path": "tests/contracts/contract_finance_f08.sql",
+      "language": "sql",
+      "code": "-- Generated by contracts/compile.py from contracts/finance.yml (rule F-08). Do not edit.\n-- Dollars equal credits times the contracted credit price.\n{{ config(tags=['contract', 'contract_finance'], severity='error',\n          meta={'contract': 'finance', 'rule': 'F-08'}) }}\n\nselect *\nfrom {{ ref('mart_cost_budget_vs_actual') }}\nwhere not (abs(cost_usd_mtd - credits_used_mtd * {{ var('credit_price_usd') }}) <= 0.01)\n"
+    },
+    {
+      "path": "tests/contracts/contract_finance_f09.sql",
+      "language": "sql",
+      "code": "-- Generated by contracts/compile.py from contracts/finance.yml (rule F-09). Do not edit.\n-- No warehouse is forecast to overrun its monthly budget. A warning, not a stop.\n{{ config(tags=['contract', 'contract_finance'], severity='warn',\n          meta={'contract': 'finance', 'rule': 'F-09'}) }}\n\nselect *\nfrom {{ ref('mart_cost_budget_vs_actual') }}\nwhere not (forecast_pct_of_budget <= 100)\n"
+    },
+    {
+      "path": "tests/contracts/contract_finance_f10.sql",
+      "language": "sql",
+      "code": "-- Generated by contracts/compile.py from contracts/finance.yml (rule F-10). Do not edit.\n-- Model cost shares add up to the whole dbt bill.\n{{ config(tags=['contract', 'contract_finance'], severity='error',\n          meta={'contract': 'finance', 'rule': 'F-10'}) }}\n\nwith contract_side as (\n    select sum(pct_of_dbt_cost) as value from {{ ref('mart_cost_by_model') }}\n),\nreference_side as (\n    select 100 as value\n)\nselect c.value as contract_value, r.value as reference_value\nfrom contract_side c cross join reference_side r\nwhere c.value is null or r.value is null or abs(c.value - r.value) > 0.5\n"
+    },
+    {
+      "path": "tests/contracts/contract_partners_p08.sql",
+      "language": "sql",
+      "code": "-- Generated by contracts/compile.py from contracts/partners.yml (rule P-08). Do not edit.\n-- No review finishes before the build was submitted.\n{{ config(tags=['contract', 'contract_partners'], severity='error',\n          meta={'contract': 'partners', 'rule': 'P-08'}) }}\n\nselect *\nfrom {{ ref('fct_submission') }}\nwhere not (reviewed_at is null or reviewed_at >= submitted_at)\n"
+    },
+    {
+      "path": "tests/contracts/contract_partners_p10.sql",
+      "language": "sql",
+      "code": "-- Generated by contracts/compile.py from contracts/partners.yml (rule P-10). Do not edit.\n-- Approval rates shown to partners are valid percentages.\n{{ config(tags=['contract', 'contract_partners'], severity='error',\n          meta={'contract': 'partners', 'rule': 'P-10'}) }}\n\nselect *\nfrom {{ ref('mart_partner_publishing') }}\nwhere first_pass_approval_pct < 0 or first_pass_approval_pct > 100\n"
+    },
+    {
+      "path": "tests/contracts/contract_partners_p11.sql",
+      "language": "sql",
+      "code": "-- Generated by contracts/compile.py from contracts/partners.yml (rule P-11). Do not edit.\n-- Every partner gets exactly one scorecard row.\n{{ config(tags=['contract', 'contract_partners'], severity='error',\n          meta={'contract': 'partners', 'rule': 'P-11'}) }}\n\nwith contract_side as (\n    select count(*) as value from {{ ref('mart_partner_publishing') }}\n),\nreference_side as (\n    select count(*) as value from {{ ref('dim_partner') }}\n)\nselect c.value as contract_value, r.value as reference_value\nfrom contract_side c cross join reference_side r\nwhere c.value is null or r.value is null or abs(c.value - r.value) > 0\n"
+    },
+    {
+      "path": "tests/contracts/contract_partners_p12.sql",
+      "language": "sql",
+      "code": "-- Generated by contracts/compile.py from contracts/partners.yml (rule P-12). Do not edit.\n-- Titles on the scorecard add up to titles actually submitted.\n{{ config(tags=['contract', 'contract_partners'], severity='error',\n          meta={'contract': 'partners', 'rule': 'P-12'}) }}\n\nwith contract_side as (\n    select sum(titles_submitted) as value from {{ ref('mart_partner_publishing') }}\n),\nreference_side as (\n    select count(distinct title_id) as value from {{ ref('fct_submission') }}\n)\nselect c.value as contract_value, r.value as reference_value\nfrom contract_side c cross join reference_side r\nwhere c.value is null or r.value is null or abs(c.value - r.value) > 0\n"
+    }
+  ]
+}

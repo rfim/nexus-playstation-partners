@@ -3,7 +3,7 @@
     "models": 23,
     "public_models": 12,
     "contracts_enforced": 4,
-    "data_tests": 99,
+    "data_tests": 106,
     "exposures": 3,
     "groups": 3
   },
@@ -600,7 +600,7 @@
       "access": "public",
       "contract_enforced": true,
       "classification": "partner_confidential",
-      "tests": 3,
+      "tests": 4,
       "upstream": [
         "stg_partners"
       ],
@@ -724,7 +724,7 @@
       "access": "public",
       "contract_enforced": true,
       "classification": "partner_confidential",
-      "tests": 7,
+      "tests": 9,
       "upstream": [
         "int_submission_lifecycle"
       ],
@@ -1005,7 +1005,7 @@
       "access": "public",
       "contract_enforced": true,
       "classification": "partner_confidential",
-      "tests": 2,
+      "tests": 5,
       "upstream": [
         "dim_partner",
         "int_title_outcomes"
@@ -1701,7 +1701,7 @@
       "access": "public",
       "contract_enforced": true,
       "classification": "internal",
-      "tests": 3,
+      "tests": 5,
       "upstream": [
         "cost_warehouse_daily"
       ],
@@ -1813,7 +1813,7 @@
       "access": "public",
       "contract_enforced": false,
       "classification": "internal",
-      "tests": 3,
+      "tests": 4,
       "upstream": [
         "cost_warehouse_daily"
       ],

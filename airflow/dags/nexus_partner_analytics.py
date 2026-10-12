@@ -4,7 +4,8 @@ The public demo builds in GitHub Actions; this DAG shows how the same commands
 would run on a schedule. It follows the run graph on the site: ingest,
 snapshot, stage, test, publish. Each dbt layer builds and tests before the next
 opens, failures retry with backoff, and the run publishes only after the
-exports match the build.
+stakeholder contracts (contracts/*.yml) are signed off and the exports match
+the build.
 
 Run it locally with `airflow dags test nexus_partner_analytics` (see
 airflow/README.md). All data is synthetic.
@@ -27,6 +28,7 @@ DBT_ARGS = "--profiles-dir . --target dev"
 
 # What downstream consumers wait on: the site's data, refreshed by this run.
 SITE_DATA = Asset(f"file://{PROJECT_DIR}/assets/data/tables.json")
+CONTRACT_RESULTS = Asset(f"file://{PROJECT_DIR}/assets/contracts.json")
 PLATFORM_DATA = Asset(f"file://{PROJECT_DIR}/assets/platform.json")
 
 # Model layers. Each builds its models and runs the tests that belong wholly to
@@ -56,6 +58,10 @@ def script(name: str) -> str:
     return f"cd {PROJECT_DIR} && {PYTHON} scripts/{name}"
 
 
+def contracts(command: str) -> str:
+    return f"cd {PROJECT_DIR} && {PYTHON} contracts/{command}"
+
+
 with DAG(
     dag_id="nexus_partner_analytics",
     description="Ingest, snapshot, stage, test and publish the NEXUS partner analytics build.",
@@ -71,6 +77,13 @@ with DAG(
     # 01 / Ingest: validate the project, then land the synthetic source extracts.
     # In production the seed step would be a sensor on the partner file drop.
     validate = BashOperator(task_id="dbt_parse", bash_command=dbt("parse"))
+    # Great Expectations checks the delivered files (partner feed, billing export)
+    # against their contracts before they load: dbt cannot test what is not loaded.
+    check_files = BashOperator(
+        task_id="validate_contract_files",
+        bash_command=contracts("validate.py --scope files"),
+        doc_md="Run the GX suites for delivered files. A failed error rule stops the load.",
+    )
     ingest = BashOperator(task_id="ingest_sources", bash_command=dbt("seed"))
 
     # 02 / Snapshot: keep partner tier history before anything reads it as-of.
@@ -92,6 +105,22 @@ with DAG(
     # The test gate: every test, including those spanning layers (fanout,
     # reconciliation, point-in-time). Nothing publishes unless this passes.
     test_gate = BashOperator(task_id="test_gate", bash_command=dbt("test"))
+
+    # Daily sign-off: GX tolerance checks on the built models, then one verdict per
+    # stakeholder from both engines plus the file-to-mart reconcile chains.
+    with TaskGroup(group_id="contracts") as signoff:
+        check_models = BashOperator(
+            task_id="validate_contract_models",
+            bash_command=contracts("validate.py --scope models"),
+            doc_md="Run the GX suites for built models (mostly, mean and sum checks).",
+        )
+        reconcile = BashOperator(
+            task_id="reconcile_contracts",
+            bash_command=contracts("reconcile.py"),
+            outlets=[CONTRACT_RESULTS],
+            doc_md="Join dbt and GX results per contract and check every reconcile chain. A held contract fails the run.",
+        )
+        check_models >> reconcile
 
     # 05 / Publish: regenerate the site's evidence from the build, then verify it.
     with TaskGroup(group_id="publish") as publish:
@@ -117,4 +146,4 @@ with DAG(
             print(f"Budget warning for platform_ops: {line}")
         return flagged
 
-    validate >> ingest >> snapshot >> transform >> test_gate >> publish >> check_budgets()
+    validate >> check_files >> ingest >> snapshot >> transform >> test_gate >> signoff >> publish >> check_budgets()

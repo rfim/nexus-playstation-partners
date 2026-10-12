@@ -32,16 +32,21 @@ def test_run_order(dag):
     def downstream(task_id):
         return {t.task_id for t in dag.get_task(task_id).get_flat_relatives(upstream=False)}
 
-    assert "ingest_sources" in downstream("dbt_parse")
+    assert "validate_contract_files" in downstream("dbt_parse")
+    # Delivered files are checked against their contracts before they load.
+    assert "ingest_sources" in downstream("validate_contract_files")
     assert "snapshot_partner_tiers" in downstream("ingest_sources")
     assert "transform.build_intermediate" in downstream("transform.build_staging")
     assert "transform.build_marts" in downstream("transform.build_intermediate")
     assert "test_gate" in downstream("transform.build_marts")
     assert "test_gate" in downstream("transform.build_platform")
-    # Nothing publishes before every test has passed.
+    assert "contracts.validate_contract_models" in downstream("test_gate")
+    assert "contracts.reconcile_contracts" in downstream("contracts.validate_contract_models")
+    # Nothing publishes before every test has passed and the contracts are signed off.
     for task_id in dag.task_ids:
         if task_id.startswith("publish."):
             assert task_id in downstream("test_gate")
+            assert task_id in downstream("contracts.reconcile_contracts")
 
 
 def test_every_model_directory_has_a_layer_task(dag):

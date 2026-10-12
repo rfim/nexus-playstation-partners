@@ -1,121 +1,142 @@
 {
   "airflow_version": "3.2.2",
   "command": "airflow dags test nexus_partner_analytics 2026-10-11",
-  "recorded_at": "2026-10-11T16:03:51.992288+00:00",
+  "recorded_at": "2026-10-12T20:37:01.802726+00:00",
   "state": "success",
   "tasks": [
     {
       "task_id": "dbt_parse",
       "offset_s": 0.0,
-      "duration_s": 8.9,
+      "duration_s": 7.1,
       "state": "success",
       "log": [
         "Running with dbt=1.11.15"
       ]
     },
     {
+      "task_id": "validate_contract_files",
+      "offset_s": 10.0,
+      "duration_s": 4.4,
+      "state": "success",
+      "log": [
+        "Great Expectations: 10 of 10 expectations met"
+      ]
+    },
+    {
       "task_id": "ingest_sources",
-      "offset_s": 12.4,
-      "duration_s": 5.8,
+      "offset_s": 17.3,
+      "duration_s": 4.6,
       "state": "success",
       "log": [
         "Running with dbt=1.11.15",
-        "Found 23 models, 1 snapshot, 99 data tests, 9 seeds, 4 sources, 3 exposures, 505 macros, 3 groups",
+        "Found 23 models, 1 snapshot, 106 data tests, 9 seeds, 4 sources, 3 exposures, 505 macros, 3 groups",
         "Completed successfully",
         "Done. PASS=9 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=9"
       ]
     },
     {
       "task_id": "snapshot_partner_tiers",
-      "offset_s": 21.8,
-      "duration_s": 5.6,
+      "offset_s": 24.1,
+      "duration_s": 4.3,
       "state": "success",
       "log": [
         "Running with dbt=1.11.15",
-        "Found 23 models, 1 snapshot, 99 data tests, 9 seeds, 4 sources, 3 exposures, 505 macros, 3 groups",
+        "Found 23 models, 1 snapshot, 106 data tests, 9 seeds, 4 sources, 3 exposures, 505 macros, 3 groups",
         "Completed successfully",
         "Done. PASS=1 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=1"
       ]
     },
     {
+      "task_id": "transform.build_platform",
+      "offset_s": 31.3,
+      "duration_s": 4.9,
+      "state": "success",
+      "log": [
+        "Completed with 1 warning:",
+        "Warning in test contract_finance_f09 (tests/contracts/contract_finance_f09.sql)",
+        "compiled code at target/compiled/nexus_partner_analytics/tests/contracts/contract_finance_f09.sql",
+        "Done. PASS=18 WARN=1 ERROR=0 SKIP=0 NO-OP=1 TOTAL=20"
+      ]
+    },
+    {
       "task_id": "transform.build_staging",
-      "offset_s": 31.1,
-      "duration_s": 5.8,
+      "offset_s": 38.6,
+      "duration_s": 5.0,
       "state": "success",
       "log": [
         "Running with dbt=1.11.15",
-        "Found 23 models, 1 snapshot, 99 data tests, 9 seeds, 4 sources, 3 exposures, 505 macros, 3 groups",
+        "Found 23 models, 1 snapshot, 106 data tests, 9 seeds, 4 sources, 3 exposures, 505 macros, 3 groups",
         "Completed successfully",
         "Done. PASS=19 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=19"
       ]
     },
     {
-      "task_id": "transform.build_platform",
-      "offset_s": 40.7,
-      "duration_s": 6.2,
-      "state": "success",
-      "log": [
-        "Completed successfully",
-        "Done. PASS=16 WARN=0 ERROR=0 SKIP=0 NO-OP=1 TOTAL=17"
-      ]
-    },
-    {
       "task_id": "transform.build_intermediate",
-      "offset_s": 50.2,
-      "duration_s": 6.3,
+      "offset_s": 45.9,
+      "duration_s": 5.2,
       "state": "success",
       "log": [
         "Running with dbt=1.11.15",
-        "Found 23 models, 1 snapshot, 99 data tests, 9 seeds, 4 sources, 3 exposures, 505 macros, 3 groups",
+        "Found 23 models, 1 snapshot, 106 data tests, 9 seeds, 4 sources, 3 exposures, 505 macros, 3 groups",
         "Completed successfully",
         "Done. PASS=25 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=25"
       ]
     },
     {
       "task_id": "transform.build_marts",
-      "offset_s": 59.6,
+      "offset_s": 54.2,
       "duration_s": 7.5,
       "state": "success",
       "log": [
-        "Running with dbt=1.11.15",
-        "Found 23 models, 1 snapshot, 99 data tests, 9 seeds, 4 sources, 3 exposures, 505 macros, 3 groups",
         "Completed successfully",
-        "Done. PASS=43 WARN=0 ERROR=0 SKIP=0 NO-OP=2 TOTAL=45"
+        "Done. PASS=47 WARN=0 ERROR=0 SKIP=0 NO-OP=2 TOTAL=49"
       ]
     },
     {
       "task_id": "test_gate",
-      "offset_s": 70.0,
-      "duration_s": 8.4,
+      "offset_s": 64.5,
+      "duration_s": 8.6,
       "state": "success",
       "log": [
-        "Completed successfully",
-        "Done. PASS=99 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=99"
+        "Completed with 1 warning:",
+        "Warning in test contract_finance_f09 (tests/contracts/contract_finance_f09.sql)",
+        "compiled code at target/compiled/nexus_partner_analytics/tests/contracts/contract_finance_f09.sql",
+        "Done. PASS=105 WARN=1 ERROR=0 SKIP=0 NO-OP=0 TOTAL=106"
+      ]
+    },
+    {
+      "task_id": "contracts.validate_contract_models",
+      "offset_s": 75.8,
+      "duration_s": 4.1,
+      "state": "success",
+      "log": [
+        "Great Expectations: 3 of 3 expectations met"
+      ]
+    },
+    {
+      "task_id": "contracts.reconcile_contracts",
+      "offset_s": 82.3,
+      "duration_s": 4.5,
+      "state": "success",
+      "log": [
+        "Wrote assets/contracts.json"
       ]
     },
     {
       "task_id": "publish.build_snippets",
-      "offset_s": 82.0,
+      "offset_s": 90.2,
       "duration_s": 0.1,
       "state": "success",
       "log": [
         "Wrote assets/snippets.json",
-        "Wrote assets/code.json"
-      ]
-    },
-    {
-      "task_id": "publish.export_governance",
-      "offset_s": 85.7,
-      "duration_s": 0.3,
-      "state": "success",
-      "log": [
-        "Wrote assets/governance.json"
+        "Wrote assets/code.json",
+        "Wrote assets/airflow_code.json"
       ]
     },
     {
       "task_id": "publish.export_platform",
-      "offset_s": 89.1,
-      "duration_s": 0.4,
+      "offset_s": 93.5,
+      "duration_s": 0.3,
       "state": "success",
       "log": [
         "Wrote assets/platform.json"
@@ -123,17 +144,26 @@
     },
     {
       "task_id": "publish.export_metrics",
-      "offset_s": 93.4,
-      "duration_s": 0.3,
+      "offset_s": 96.4,
+      "duration_s": 0.4,
       "state": "success",
       "log": [
         "Wrote assets/metrics.json"
       ]
     },
     {
+      "task_id": "publish.export_governance",
+      "offset_s": 100.1,
+      "duration_s": 0.3,
+      "state": "success",
+      "log": [
+        "Wrote assets/governance.json"
+      ]
+    },
+    {
       "task_id": "publish.export_parquet",
-      "offset_s": 97.5,
-      "duration_s": 0.6,
+      "offset_s": 103.5,
+      "duration_s": 0.7,
       "state": "success",
       "log": [
         "Wrote 37 tables to assets/data"
@@ -141,7 +171,7 @@
     },
     {
       "task_id": "check_budgets",
-      "offset_s": 101.3,
+      "offset_s": 106.9,
       "duration_s": 0.1,
       "state": "success",
       "log": [

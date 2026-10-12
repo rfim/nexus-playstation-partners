@@ -1,0 +1,79 @@
+{
+  "name": "finance__billing_export",
+  "id": null,
+  "expectations": [
+    {
+      "type": "expect_table_columns_to_match_ordered_list",
+      "kwargs": {
+        "column_list": [
+          "warehouse_name",
+          "usage_date",
+          "credits_used_compute",
+          "credits_used_cloud_services"
+        ]
+      },
+      "meta": {
+        "rule": "F-01"
+      },
+      "severity": "critical"
+    },
+    {
+      "type": "expect_compound_columns_to_be_unique",
+      "kwargs": {
+        "column_list": [
+          "warehouse_name",
+          "usage_date"
+        ]
+      },
+      "meta": {
+        "rule": "F-02"
+      },
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "credits_used_compute",
+        "min_value": 0.0,
+        "max_value": 5.0
+      },
+      "meta": {
+        "rule": "F-03"
+      },
+      "severity": "critical"
+    },
+    {
+      "type": "expect_table_row_count_to_be_between",
+      "kwargs": {
+        "min_value": 100,
+        "max_value": 130
+      },
+      "meta": {
+        "rule": "F-04"
+      },
+      "severity": "critical"
+    },
+    {
+      "type": "expect_column_sum_to_be_between",
+      "kwargs": {
+        "column": "credits_used_compute",
+        "min_value": 0.0,
+        "max_value": 60.0
+      },
+      "meta": {
+        "rule": "F-05"
+      },
+      "severity": "critical"
+    }
+  ],
+  "meta": {
+    "contract": "finance",
+    "contract_version": "2.1.0",
+    "dataset": "billing_export",
+    "dataset_kind": "file",
+    "path": "seeds/platform_warehouse_metering.csv",
+    "generated_from": "contracts/finance.yml",
+    "great_expectations_version": "1.24.0"
+  },
+  "notes": null
+}

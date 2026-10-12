@@ -4,10 +4,12 @@ The public demo builds in GitHub Actions. `dags/nexus_partner_analytics.py` show
 same project would run on a schedule in Airflow 3. It follows the run graph on the site:
 
 ```
-dbt_parse → ingest_sources → snapshot_partner_tiers
+dbt_parse → validate_contract_files (Great Expectations on the delivered files)
+  → ingest_sources → snapshot_partner_tiers
   → transform: build_staging → build_intermediate → build_marts
                build_platform (parallel; reads only its own seeds)
-  → test_gate (every dbt test, including cross-layer ones)
+  → test_gate (every dbt test, including cross-layer ones and generated contract tests)
+  → contracts: validate_contract_models → reconcile_contracts (the daily sign-off)
   → publish: export_governance, export_platform → export_parquet; export_metrics; build_snippets
   → check_budgets (warns platform_ops when a warehouse is forecast over budget)
 ```
@@ -16,7 +18,12 @@ dbt_parse → ingest_sources → snapshot_partner_tiers
 - **Layer gates:** each layer builds its models and runs the tests that belong wholly to it
   (`--indirect-selection cautious`); tests that span layers wait for `test_gate`. Nothing
   publishes unless every test passes.
-- **Assets:** `export_parquet` and `export_platform` update Airflow assets for the site's data,
+- **Contracts:** stakeholder contracts in `contracts/*.yml` compile to dbt tests and Great
+  Expectations suites (see `contracts/README.md`). GX checks each delivered file before it
+  loads; after the test gate, `reconcile_contracts` joins both engines' results and the
+  file-to-mart reconcile chains into one verdict per stakeholder. A held contract fails the
+  run, so nothing publishes.
+- **Assets:** `export_parquet`, `export_platform` and `reconcile_contracts` update Airflow assets for the site's data,
   so a downstream DAG could schedule on them.
 - **Backfills:** `catchup=False` and one active run; reprocessing an interval is an explicit
   `airflow dags backfill`, not an accident.
@@ -46,7 +53,7 @@ export NEXUS_DBT_BIN="$PWD/.venv/bin/dbt" NEXUS_PYTHON_BIN="$PWD/.venv/bin/pytho
 ```
 
 A full `dags test` run rebuilds the project from scratch (parse, 9 seeds, snapshot, four
-layer builds, 99 tests at the gate), regenerates the site exports and logs the budget
+layer builds, 106 tests at the gate, both contract checks), regenerates the site exports and logs the budget
 warning for `NEXUS_BI_WH`. `airflow standalone` starts the UI on http://localhost:8080 if
 you want to see the graph. CI runs the integrity checks on every push.
 

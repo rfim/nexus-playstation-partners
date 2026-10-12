@@ -1410,6 +1410,104 @@
           "type": "VARCHAR"
         }
       ]
+    },
+    {
+      "name": "contract_rules",
+      "layer": "contracts",
+      "rows": 24,
+      "columns": [
+        {
+          "name": "contract",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "rule_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "description",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "dataset",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "dataset_kind",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "check",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "column",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "severity",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "engine",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "reason",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "observed",
+          "type": "VARCHAR"
+        }
+      ]
+    },
+    {
+      "name": "contract_reconciliation",
+      "layer": "contracts",
+      "rows": 12,
+      "columns": [
+        {
+          "name": "contract",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "reconcile_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "title",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "tolerance",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "spread",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "status",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "measure",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "measured_by",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "value",
+          "type": "DOUBLE"
+        }
+      ]
     }
   ],
   "macros": [

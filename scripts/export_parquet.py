@@ -16,6 +16,7 @@ MANIFEST = OUTPUT / "tables.json"
 DBT_MANIFEST = ROOT / "target" / "manifest.json"
 GOVERNANCE = (ROOT / "assets" / "governance.json").as_posix()
 PLATFORM = (ROOT / "assets" / "platform.json").as_posix()
+CONTRACTS = (ROOT / "assets" / "contracts.json").as_posix()
 
 # Layer of each exported table; the SQL page groups these into source,
 # bronze, silver and gold.
@@ -61,6 +62,23 @@ LINEAGE_TABLES = {
 }
 
 
+# Stakeholder contract results from contracts/reconcile.py: one row per rule, and
+# one per measure in each end-of-day reconcile chain.
+_CONTRACTS = f"(select unnest(contracts) as c from read_json('{CONTRACTS}', maximum_object_size=67108864))"
+CONTRACT_TABLES = {
+    "contract_rules": f"""
+        select c.contract, r.id as rule_id, r.description, r.dataset, r.dataset_kind, r."check",
+               r."column", r.severity, r.engine, r.reason, r.status, r.observed
+        from (select c, unnest(c.rules) as r from {_CONTRACTS}) order by c.contract, r.id""",
+    "contract_reconciliation": f"""
+        select c.contract, x.id as reconcile_id, x.title, x.tolerance, x.spread, x.status,
+               m.label as measure, m.engine as measured_by, m.value
+        from (select c, x, unnest(x.measures) as m
+              from (select c, unnest(c.reconcile) as x from {_CONTRACTS}))
+        order by c.contract, x.id""",
+}
+
+
 def _layer(name: str) -> str | None:
     return next((layer for prefix, layer in LAYERS if name.startswith(prefix)), None)
 
@@ -74,6 +92,7 @@ def _relations(con) -> list[tuple[str, str, str]]:
     relations = [(n, _layer(n), f'select * from main."{n}"') for n in names if _layer(n)]
     relations += [(n, "governance", sql) for n, sql in GOVERNANCE_TABLES.items()]
     relations += [(n, "lineage", sql) for n, sql in LINEAGE_TABLES.items()]
+    relations += [(n, "contracts", sql) for n, sql in CONTRACT_TABLES.items()]
     return relations
 
 

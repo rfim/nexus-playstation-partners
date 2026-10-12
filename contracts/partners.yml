@@ -1,0 +1,123 @@
+# Data contract: what the partner scorecard promises its partners.
+# Stakeholders own this file; contracts/compile.py turns each rule into a dbt test
+# or a Great Expectations expectation, whichever is cheaper to run (see README.md).
+contract: partners
+title: Partner publishing scorecard
+version: 1.3.0
+stakeholder: Partner Success, on behalf of external partners
+consumer: Partner release health dashboard (dbt exposure partner_release_health)
+owner_group: partner_analytics
+sla:
+  refreshed_by: "06:30 UTC"
+  signed_off_by: "23:00 UTC"
+  breach: A failed error rule holds the partner portal on yesterday's scorecard.
+
+datasets:
+  - name: partner_submission_feed
+    kind: file
+    path: seeds/raw_submissions.csv
+    description: The submission feed partners send, checked as delivered and before it is loaded.
+  - name: fct_submission
+    kind: model
+  - name: mart_partner_publishing
+    kind: model
+
+rules:
+  - id: P-01
+    dataset: partner_submission_feed
+    check: columns_match
+    columns: [submission_id, title_id, submitted_at, reviewed_at, status, build_version, return_reason]
+    description: The feed keeps the agreed column layout.
+  - id: P-02
+    dataset: partner_submission_feed
+    check: regex
+    column: submission_id
+    pattern: '^S\d{3}$'
+    description: Submission ids follow the partner-facing format.
+  - id: P-03
+    dataset: partner_submission_feed
+    check: accepted_values
+    column: status
+    values: [approved, rejected, pending]
+    description: Partners only send statuses the review workflow knows.
+  - id: P-04
+    dataset: partner_submission_feed
+    check: row_count
+    min: 1
+    max: 5000
+    description: The daily drop is neither empty nor a runaway resend.
+  - id: P-05
+    dataset: partner_submission_feed
+    check: between
+    column: build_version
+    min: 1
+    max: 20
+    description: Build versions are plausible resubmission counts.
+  - id: P-06
+    dataset: fct_submission
+    check: unique
+    column: submission_id
+    description: Each review attempt is counted once.
+  - id: P-07
+    dataset: fct_submission
+    check: accepted_values
+    column: status
+    values: [approved, rejected, pending]
+    description: Every attempt carries a known review outcome.
+  - id: P-08
+    dataset: fct_submission
+    check: expression
+    expression: reviewed_at is null or reviewed_at >= submitted_at
+    description: No review finishes before the build was submitted.
+  - id: P-09
+    dataset: fct_submission
+    check: between
+    column: review_hours
+    max: 72
+    mostly: 0.95
+    description: At least 95% of reviews finish within the 72-hour review promise.
+  - id: P-10
+    dataset: mart_partner_publishing
+    check: between
+    column: first_pass_approval_pct
+    min: 0
+    max: 100
+    description: Approval rates shown to partners are valid percentages.
+  - id: P-11
+    dataset: mart_partner_publishing
+    check: reconciles
+    left: count(*)
+    right: {model: dim_partner, expression: count(*)}
+    description: Every partner gets exactly one scorecard row.
+  - id: P-12
+    dataset: mart_partner_publishing
+    check: reconciles
+    left: sum(titles_submitted)
+    right: {model: fct_submission, expression: count(distinct title_id)}
+    description: Titles on the scorecard add up to titles actually submitted.
+  - id: P-13
+    dataset: mart_partner_publishing
+    check: mean
+    column: avg_review_hours
+    min: 12
+    max: 48
+    description: The average review time stays inside the range partners were told to expect.
+
+# End-of-day reconciliation: each chain must agree from the delivered file to the
+# number partners see. A measure is either a rule's observed value or warehouse SQL.
+reconcile:
+  - id: R-P1
+    title: Every submission partners sent reaches their scorecard
+    tolerance: 0
+    measures:
+      - {label: "Partner feed (file, GX)", rule: P-04}
+      - {label: Loaded table, sql: "select count(*) from raw_submissions"}
+      - {label: Submission fact, sql: "select count(*) from fct_submission"}
+      - {label: Partner scorecard, sql: "select sum(submission_attempts) from mart_partner_publishing"}
+  - id: R-P2
+    title: Published titles agree across the publishing views
+    tolerance: 0
+    measures:
+      - {label: Storefront publications, sql: "select count(distinct title_id) from raw_publications"}
+      - {label: Partner scorecard, sql: "select sum(titles_published) from mart_partner_publishing"}
+      - {label: Time to shelf, sql: "select count(*) from mart_title_time_to_shelf where shelf_status = 'published'"}

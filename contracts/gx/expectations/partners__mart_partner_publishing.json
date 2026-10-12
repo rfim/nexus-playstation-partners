@@ -1,0 +1,27 @@
+{
+  "name": "partners__mart_partner_publishing",
+  "id": null,
+  "expectations": [
+    {
+      "type": "expect_column_mean_to_be_between",
+      "kwargs": {
+        "column": "avg_review_hours",
+        "min_value": 12.0,
+        "max_value": 48.0
+      },
+      "meta": {
+        "rule": "P-13"
+      },
+      "severity": "critical"
+    }
+  ],
+  "meta": {
+    "contract": "partners",
+    "contract_version": "1.3.0",
+    "dataset": "mart_partner_publishing",
+    "dataset_kind": "model",
+    "generated_from": "contracts/partners.yml",
+    "great_expectations_version": "1.24.0"
+  },
+  "notes": null
+}

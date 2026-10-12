@@ -7,11 +7,12 @@ const STORAGE_KEY = "nexus-sql-workspace-v1";
 // Views that open as tabs beside the queries. Each is a page of this site,
 // embedded once and kept alive while its tab is open.
 // Bumped whenever a view page changes, so an open workspace never shows a stale copy.
-const VIEW_VERSION = "15";
+const VIEW_VERSION = "16";
 const VIEWS = {
   lineage: { label: "Lineage", src: `platform.html?view=lineage&v=${VIEW_VERSION}`, hint: "dbt lineage graph · select a node, then query it in a new tab" },
   dbt: { label: "dbt", src: `code.html?v=${VIEW_VERSION}`, hint: "dbt project · every model, macro, test and script, with each model's build cost" },
   airflow: { label: "Airflow", src: `airflow.html?v=${VIEW_VERSION}`, hint: "Airflow DAG · trigger a replay of the recorded run, or inspect any task" },
+  contracts: { label: "Contracts", src: `contracts.html?v=${VIEW_VERSION}`, hint: "Stakeholder contracts · each rule runs in dbt or Great Expectations, reconciled at the end of the day" },
 };
 
 const PRESETS = {
@@ -100,6 +101,30 @@ from mart_cost_by_model m
 left join lineage_nodes n on n.name = m.model_name
 order by m.cost_usd_mtd desc;`,
   },
+  contracts: {
+    label: "Contract sign-off",
+    sql: `-- End-of-day sign-off: each stakeholder contract's rules, by the engine
+-- that ran them (dbt or Great Expectations), and its reconcile chains.
+with rules as (
+  select contract,
+         count(*) as rules,
+         count(*) filter (where engine = 'gx') as great_expectations,
+         count(*) filter (where engine like 'dbt%') as dbt_tests,
+         count(*) filter (where status = 'warn') as warnings,
+         count(*) filter (where status = 'fail') as failures
+  from contract_rules group by contract
+), chains as (
+  select contract, count(distinct reconcile_id) as chains,
+         count(distinct reconcile_id) filter (where status = 'match') as chains_matched
+  from contract_reconciliation group by contract
+)
+select r.*, c.chains, c.chains_matched,
+       case when r.failures > 0 or c.chains_matched < c.chains then 'held'
+            when r.warnings > 0 then 'signed off with warnings'
+            else 'signed off' end as verdict
+from rules r join chains c using (contract)
+order by contract`,
+  },
   impact: {
     label: "Impact analysis",
     sql: `-- Everything that breaks if raw_submissions changes:
@@ -153,6 +178,7 @@ const TIERS = [
   ] },
   { key: "governance", label: "Governance", note: "owners + contracts", match: inLayer("governance") },
   { key: "lineage", label: "Lineage", note: "dbt ref() graph", match: inLayer("lineage") },
+  { key: "contracts", label: "Contracts", note: "dbt + GX results", match: inLayer("contracts") },
 ];
 const OPEN_TIERS = new Set(["gold"]);
 
@@ -220,8 +246,8 @@ function setup(root) {
     const { type, title, kind, sql, view, id } = event.data;
     if (type === "open-sql" && typeof sql === "string") openTab({ title, kind: kind ?? "query", sql, run: true });
     if (type === "open-view" && VIEWS[view]) {
-      const { file } = event.data;
-      openView(view, id ? { type: "lineage-select", id } : file ? { type: "code-open", path: file } : null);
+      const { file, task } = event.data;
+      openView(view, id ? { type: "lineage-select", id } : file ? { type: "code-open", path: file } : task ? { type: "airflow-select", task } : null);
     }
   });
 
