@@ -1,6 +1,7 @@
 // Animated walk-through of a data contract, from YAML to the end-of-day sign-off,
-// told through three use cases. The PlayStation case reads its numbers from the
-// live build (assets/contracts.json); the other two are illustrative.
+// told through three PlayStation use cases. Partner submissions reads its numbers
+// from the live build (assets/contracts.json); royalties and certification are
+// illustrative.
 (() => {
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text !== undefined) n.textContent = text; return n; };
   const reduced = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -26,91 +27,92 @@
 
     return [
       {
-        key: 'insurance',
-        tab: 'Insurance loss ratio',
-        tag: 'From Lifepal',
-        intro: 'Loss ratio is claims paid out divided by premium earned. If it is wrong, the business misprices policies or looks more or less profitable than it is. Finance and the insurer partners agree one contract for it.',
-        subtitles: ['Loss-ratio contract', 'Pick the checker', 'Claims file arrives', 'Warehouse tests', 'Claims and premium tie-out', 'Finance signs off'],
-        tokens: ['claims.csv', 'premiums.csv'],
+        key: 'royalties',
+        tab: 'Partner royalties',
+        tag: 'PS Store → Finance',
+        intro: 'Each month PlayStation pays partners their share of PS Store sales. If the statement is wrong, a partner is overpaid or underpaid, and that is money and trust. Finance and the partners agree one contract for it. Figures are illustrative.',
+        subtitles: ['Royalty contract', 'Pick the checker', 'Store sales file arrives', 'Warehouse tests', 'Sales tie out to payout', 'Statement signed off'],
+        tokens: ['store_sales.csv', 'rev_share.csv'],
         steps: [
-          { text: 'Finance and the insurers write down what "loss ratio" means and what the data must look like. Nobody writes tests by hand.',
-            example: { kind: 'code', lang: 'yaml', code: `contract: loss_ratio
-stakeholder: Finance + insurer partners
-metric: claims incurred / earned premium, by product and month
+          { text: 'Finance and the partners write down how a royalty is calculated and what the sales data must look like. Nobody writes tests by hand.',
+            example: { kind: 'code', lang: 'yaml', code: `contract: partner_royalties
+stakeholder: Finance + partners
+metric: royalty = net PS Store sales x revenue share, by title and month
 rules:
-  - claims_file: claim_id is unique
-  - claims_file: claim_amount >= 0
-  - claims_file: diagnosis_code present (mostly: 0.98)
-  - fct_claim: every claim matches a policy
-  - fct_claim: claim date inside the policy's cover
-  - mart_loss_ratio: loss_ratio between 0 and 3` } },
-          { text: 'Each rule goes where it is cheapest to check: rules on the delivered file to Great Expectations, SQL rules on warehouse tables to dbt.',
+  - store_sales_file: transaction_id is unique
+  - store_sales_file: currency in [USD, EUR, GBP, JPY]
+  - store_sales_file: sku is valid (mostly: 0.99)
+  - fct_store_sale: every sku maps to a partner title
+  - fct_store_sale: no sale before the title's release date
+  - mart_royalty: revenue share between 0 and 100%` } },
+          { text: 'Each rule goes where it is cheapest to check: rules on the delivered sales file to Great Expectations, SQL rules on warehouse tables to dbt.',
             example: { kind: 'routes', rows: [
-              ['claim_id is unique (in the file)', 'gx', 'file not loaded yet'],
-              ['diagnosis code present, mostly 98%', 'gx', 'a tolerance'],
-              ['every claim matches a policy', 'dbt', 'a join, in SQL'],
-              ['claim date inside cover', 'dbt', 'a row check, in SQL'],
+              ['transaction_id is unique (in the file)', 'gx', 'file not loaded yet'],
+              ['sku is valid, mostly 99%', 'gx', 'a tolerance'],
+              ['every sku maps to a partner title', 'dbt', 'a join, in SQL'],
+              ['no sale before release', 'dbt', 'a row check, in SQL'],
             ] } },
-          { text: 'The insurer\'s claims file is checked as delivered, before it loads. A broken or resent file never reaches the warehouse.',
-            example: { kind: 'checks', rows: [['1,204 claims in the file', 'pass'], ['claim_id unique', 'pass'], ['amounts never negative', 'pass'], ['98.9% have a diagnosis code (needs 98%)', 'pass']] } },
-          { text: 'Loaded and joined to policies, the claims are tested with SQL inside dbt build. A failure stops the loss-ratio mart from rebuilding.',
-            example: { kind: 'checks', rows: [['every claim matches a policy', 'pass'], ['claim date inside the policy\'s cover', 'pass'], ['loss ratio between 0 and 3', 'pass']] } },
-          { text: 'Passing tests are not enough: the money must tie out. The same total is measured at every hop, from the insurer\'s file to the number Finance reads.',
-            example: { kind: 'chain', rows: [['Insurer file', 'Rp 1.28 bn'], ['Loaded claims', 'Rp 1.28 bn'], ['Loss-ratio mart', 'Rp 1.28 bn']], note: 'Premiums tie out the same way: policy system Rp 2.00 bn = earned premium in the mart.' } },
-          { text: 'Every rule passed and every total tied out, so the day is signed off.',
-            example: { kind: 'stamp', status: 'ok', big: '64.0%', label: 'loss ratio, signed off for Finance at 23:00', note: 'Rp 1.28 bn claims / Rp 2.00 bn earned premium' } },
+          { text: 'The PS Store sales file is checked as delivered, before it loads. A broken or resent file never reaches the warehouse.',
+            example: { kind: 'checks', rows: [['48,200 transactions in the file', 'pass'], ['transaction_id unique', 'pass'], ['currencies all expected', 'pass'], ['99.6% have a valid SKU (needs 99%)', 'pass']] } },
+          { text: 'Loaded and joined to titles, the sales are tested with SQL inside dbt build. A failure stops the royalty mart from rebuilding.',
+            example: { kind: 'checks', rows: [['every SKU maps to a partner title', 'pass'], ['no sale before the release date', 'pass'], ['revenue share between 0 and 100%', 'pass']] } },
+          { text: 'Passing tests are not enough: the money must tie out. The same total is measured at every hop, from the store file to the statement the partner receives.',
+            example: { kind: 'chain', rows: [['PS Store file', '$1.93m'], ['Loaded sales', '$1.93m'], ['Royalty mart', '$1.93m']], note: 'Payouts tie out the same way: the sum of partner statements = net sales x each title\'s share.' } },
+          { text: 'Every rule passed and every total tied out, so the statements are signed off.',
+            example: { kind: 'stamp', status: 'ok', big: '$1.35m', label: 'partner royalties for September, signed off for Finance', note: '$1.93m net sales at a 70% revenue share' } },
         ],
         bad: {
           at: 2,
-          label: 'The insurer resends yesterday\'s file',
-          step: { text: 'The file arrives with yesterday\'s claims in it again. Great Expectations stops it at the door, before anything loads.',
-            example: { kind: 'checks', rows: [['1,516 claims in the file', 'pass'], ['claim_id unique: 312 duplicates', 'fail'], ['amounts never negative', 'pass']] } },
-          stamp: { status: 'held', big: '63.1%', label: 'Finance keeps yesterday\'s signed-off loss ratio', note: 'The insurer is asked for a corrected file. Without the gate, the double-counted claims would push the ratio to about 80%.' },
+          label: 'The store resends a day of sales',
+          step: { text: 'The file arrives with one day\'s sales in it twice. Great Expectations stops it at the door, before anything loads.',
+            example: { kind: 'checks', rows: [['52,300 transactions in the file', 'pass'], ['transaction_id unique: 4,100 duplicates', 'fail'], ['currencies all expected', 'pass']] } },
+          stamp: { status: 'held', big: 'Held', label: 'September statements wait for a corrected file', note: 'Without the gate, the duplicated day would overpay partners by about $115k.' },
         },
       },
       {
-        key: 'bakery',
-        tab: 'Bakery (simple analogy)',
-        tag: 'Analogy',
-        intro: 'The same idea in a corner shop. The bakery delivers bread every morning, and the shop manager needs to trust what is on the shelves and in the till by closing time.',
-        subtitles: ['The agreed order', 'Who checks what', 'Back-door check', 'Shelf check', 'Closing-time count', 'Manager signs the sheet'],
-        tokens: ['bread crate', 'pastry crate'],
+        key: 'certification',
+        tab: 'Game certification',
+        tag: 'Simple analogy',
+        intro: 'Every game goes through certification before it reaches the PS Store: an agreed checklist, automatic checks when the build is submitted, testing on devkits, and an approval at the end. A data contract is the same idea, applied to data. This is an analogy, not Sony\'s real checklist.',
+        subtitles: ['The cert checklist', 'Who checks what', 'Checks on submission', 'Testing on devkits', 'Same build everywhere', 'Release approved'],
+        tokens: ['build v1.02', 'store metadata'],
         steps: [
-          { text: 'The shop and the bakery agree an order in writing: how much, how fresh, how labelled. That written order is the contract.',
-            example: { kind: 'code', lang: 'yaml', code: `contract: morning_bread
-stakeholder: Shop manager
+          { text: 'The partner and publishing QA agree a checklist before anything is submitted. A data contract is that checklist, written for data.',
+            example: { kind: 'code', lang: 'yaml', code: `contract: release_checklist   # an analogy
+stakeholder: Partner + publishing QA
 rules:
-  - delivery: 110 to 130 loaves
-  - delivery: no mouldy loaves (mostly: 0.99)
-  - shelf: every loaf has a price tag
-  - shelf: price is above cost` } },
-          { text: 'Checks on the delivery happen at the back door (Great Expectations). Checks on what is already in the shop happen on the shelves (dbt).',
+  - submission: package format is valid
+  - submission: age rating present for every region
+  - submission: build size under the limit
+  - devkit: every trophy can be unlocked
+  - devkit: save data survives suspend and resume` } },
+          { text: 'Checks on the uploaded package run automatically at submission (Great Expectations). Checks that need the game running happen on devkits (dbt).',
             example: { kind: 'routes', rows: [
-              ['count the loaves', 'gx', 'at the back door'],
-              ['look for mould', 'gx', 'at the back door'],
-              ['every loaf has a price tag', 'dbt', 'on the shelf'],
-              ['price above cost', 'dbt', 'on the shelf'],
+              ['package format valid', 'gx', 'at submission'],
+              ['age rating for every region', 'gx', 'at submission'],
+              ['every trophy unlockable', 'dbt', 'on a devkit'],
+              ['save survives suspend and resume', 'dbt', 'on a devkit'],
             ] } },
-          { text: 'Before anything goes on a shelf, someone counts the crates and looks at the bread. Bad bread is refused at the door, not found by a customer.',
-            example: { kind: 'checks', rows: [['120 loaves (needs 110 to 130)', 'pass'], ['0 mouldy', 'pass']] } },
-          { text: 'Inside, staff walk the shelves: every loaf priced, and priced above cost.',
-            example: { kind: 'checks', rows: [['every loaf has a price tag', 'pass'], ['every price above cost', 'pass']] } },
-          { text: 'At closing time the numbers must agree: what arrived equals what was sold plus what is left.',
-            example: { kind: 'chain', rows: [['Delivery note', '120'], ['Counted at the door', '120'], ['Sold 97 + left 23', '120']], note: 'The till is counted the same way: cash in the drawer = the till receipts.' } },
-          { text: 'Everything agrees, so the manager signs the day sheet.',
-            example: { kind: 'stamp', status: 'ok', big: '120 / 120', label: 'loaves accounted for; day signed off', note: 'The shop opens tomorrow trusting today\'s numbers.' } },
+          { text: 'The moment the build is uploaded, the package is checked. A broken package goes straight back to the partner and never wastes a tester\'s day.',
+            example: { kind: 'checks', rows: [['package format valid', 'pass'], ['age ratings: EU, US, JP, ASIA', 'pass'], ['size 38.4 GB (limit 100 GB)', 'pass']] } },
+          { text: 'Testers play the build on devkits: trophies, save data, suspend and resume.',
+            example: { kind: 'checks', rows: [['52 of 52 trophies unlockable', 'pass'], ['save data survives suspend and resume', 'pass']] } },
+          { text: 'Before release, the build is the same at every step: the one submitted is the one certified is the one on the store.',
+            example: { kind: 'chain', rows: [['Submitted', 'v1.02 · 9f3a'], ['Certified', 'v1.02 · 9f3a'], ['On PS Store', 'v1.02 · 9f3a']], note: 'The same version and checksum at every step, like the same total from file to mart.' } },
+          { text: 'Every check passed and the build matches everywhere, so the release is approved.',
+            example: { kind: 'stamp', status: 'ok', big: 'v1.02', label: 'approved for release on PS Store', note: 'First-pass approval, the number the partner scorecard tracks.' } },
         ],
         bad: {
           at: 2,
-          label: 'A crate of mouldy bread',
-          step: { text: 'One crate is mouldy. It is refused at the back door, so it never reaches a shelf or a customer.',
-            example: { kind: 'checks', rows: [['120 loaves', 'pass'], ['mouldy: 20 loaves, only 83% good (needs 99%)', 'fail']] } },
-          stamp: { status: 'held', big: '100 / 120', label: 'loaves on the shelf; short delivery noted, bakery called', note: 'Nobody bought mouldy bread, and the sheet explains the gap.' },
+          label: 'The age rating for Japan is missing',
+          step: { text: 'The package has no Japanese age rating. It is returned at submission, before any devkit testing, like S001\'s metadata_incomplete rejection in this site\'s data.',
+            example: { kind: 'checks', rows: [['package format valid', 'pass'], ['age ratings: JP missing', 'fail']] } },
+          stamp: { status: 'held', big: 'Returned', label: 'build v1.02 goes back to the partner', note: 'Resubmission adds days to time to shelf, which the resubmission-cost mart measures.' },
         },
       },
       {
         key: 'playstation',
-        tab: 'PlayStation partners',
+        tab: 'Partner submissions',
         tag: 'This build, live',
         intro: 'What this site runs. Partners send a daily submission feed, and the partner scorecard must match it. These numbers come from the latest CI build.',
         subtitles: ['contracts/partners.yml', 'contract_plan.py', 'validate.py --scope files', 'dbt build', 'R-P1 and R-P2', 'Partner scorecard'],
@@ -150,6 +152,7 @@ rules:
   function mount(data) {
     clearTimeout(timer);
     const all = cases(data);
+    all.unshift(all.pop()); // the live build first
     let current = all[0];
     let step = 0;
     let bad = false;
@@ -212,7 +215,7 @@ rules:
       }));
       intro.textContent = current.intro;
       stations.forEach((s, i) => { s.sub.textContent = current.subtitles[i]; });
-      badText.textContent = `Bad day: ${current.bad.label.toLowerCase()}`;
+      badText.textContent = `Bad day: ${current.bad.label[0].toLowerCase()}${current.bad.label.slice(1)}`;
       tokens.forEach((t) => t.remove());
       tokens = current.tokens.map((label) => el('span', 'gxs-token', label));
       stations[0].tray.append(...tokens);
