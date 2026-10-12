@@ -167,6 +167,76 @@ rules:
     'Joins dbt and GX results, checks each reconcile chain and writes the verdicts.',
     'Where the sign-off runs: the daily Airflow DAG and the CI workflow. A held contract fails both.',
   ];
+  // Story words → repository code, per step. `find` is text on the line to mark;
+  // story labels are per use case (playstation, royalties, certification).
+  const TRANSLATE = [
+    [
+      { story: { playstation: 'Partner Success owns the contract', royalties: 'Finance and the partners agree the contract', certification: 'Partner and publishing QA agree the checklist' },
+        code: 'Who owns the contract. A royalties or certification contract would be one more YAML file like this.', file: 'contracts/partners.yml', find: 'stakeholder:' },
+      { story: { playstation: 'The partner submission feed', royalties: 'The PS Store sales file', certification: 'The uploaded build package' },
+        code: 'A dataset with kind: file is checked as delivered, before it loads.', file: 'contracts/partners.yml', find: 'kind: file', span: 3 },
+      { story: { playstation: 'P-03: only known statuses', royalties: 'currency in USD, EUR, GBP, JPY', certification: 'age rating present for every region' },
+        code: 'One rule: a check, its column and the allowed values.', file: 'contracts/partners.yml', find: '- id: P-03', span: 5 },
+      { story: { playstation: 'P-09: 95% of reviews within 72h', royalties: 'valid SKU, mostly 99%', certification: 'size under the limit' },
+        code: 'A rule with a tolerance: mostly is the share of rows that must pass.', file: 'contracts/partners.yml', find: '- id: P-09', span: 6 },
+      { story: { playstation: 'R-P1: feed = scorecard', royalties: 'store file = loaded sales = royalty mart', certification: 'same build from submission to store' },
+        code: 'A reconcile chain: the same measure at every hop, within a tolerance.', file: 'contracts/partners.yml', find: '- id: R-P1', span: 7 },
+    ],
+    [
+      { story: { playstation: 'P-02 on the delivered feed', royalties: 'transaction_id unique in the store file', certification: 'checks on submission' },
+        code: 'Rule 1: a file that is not loaded yet goes to Great Expectations.', file: 'contracts/contract_plan.py', find: 'if dataset["kind"] == "file":', span: 2 },
+      { story: { playstation: 'P-09, mostly 95%', royalties: 'valid SKU, mostly 99%', certification: 'size under a limit' },
+        code: 'Rule 2: a tolerance or distribution goes to Great Expectations.', file: 'contracts/contract_plan.py', find: 'elif rule.get("mostly") is not None', span: 2 },
+      { story: { playstation: 'P-12 titles add up across models', royalties: 'every SKU maps to a title', certification: 'testing on devkits' },
+        code: 'Rule 3: set-based SQL on a model becomes a dbt test.', file: 'contracts/contract_plan.py', find: 'engine, reason = "dbt", "set_based"' },
+      { story: { playstation: 'P-06 already tested by the project', royalties: 'a check Finance already runs', certification: 'a check QA already runs' },
+        code: 'If the same dbt test exists, the contract links to it instead of testing twice.', file: 'contracts/contract_plan.py', find: 'engine, reason = "dbt_existing", "reuse"' },
+      { story: { default: 'Nobody writes the tests by hand' },
+        code: 'compile.py writes one dbt test per dbt rule and one GX suite per dataset.', file: 'contracts/compile.py', find: 'files[DBT_TESTS', span: 4 },
+    ],
+    [
+      { story: { playstation: 'raw_submissions.csv as delivered', royalties: 'the store sales file as delivered', certification: 'the package as uploaded' },
+        code: 'The file is read straight from disk, before dbt seed loads it.', file: 'contracts/validate.py', find: 'asset = files.add_csv_asset', span: 2 },
+      { story: { default: 'Run every check on it' },
+        code: 'Great Expectations validates the batch against the generated suite.', file: 'contracts/validate.py', find: 'validation = batch.validate(suite)' },
+      { story: { playstation: 'P-03: status in the allowed set', royalties: 'currency in the allowed set', certification: 'age rating for each region' },
+        code: 'The generated expectation for an accepted-values rule.', file: 'partners__partner_submission_feed.json', find: '"expect_column_values_to_be_in_set"', span: 9 },
+      { story: { playstation: 'A bad feed never loads', royalties: 'A resent file never loads', certification: 'A broken package goes back' },
+        code: 'An error-severity failure exits non-zero, so the DAG stops before ingest.', file: 'contracts/validate.py', find: 'sys.exit("Blocking expectations failed', span: 1 },
+    ],
+    [
+      { story: { playstation: 'P-08: no review before submission', royalties: 'no sale before release', certification: 'save data survives suspend and resume' },
+        code: 'A row-level rule: any row returned is a failure.', file: 'contract_partners_p08.sql', find: 'where not (', span: 1 },
+      { story: { playstation: 'P-12: titles add up across models', royalties: 'every sale belongs to a partner title', certification: 'every trophy can be unlocked' },
+        code: 'A cross-model check: two totals that must agree.', file: 'contract_partners_p12.sql', find: 'with contract_side as (', span: 9 },
+      { story: { playstation: 'F-08: dollars = credits x price', royalties: 'royalty = net sales x revenue share', certification: 'price matches the agreed SKU' },
+        code: 'A formula check against a dbt var, the contracted price.', file: 'contract_finance_f08.sql', find: 'where not (', span: 1 },
+      { story: { playstation: 'F-09: forecast over budget is a warning', royalties: 'a late file is a warning, not a stop', certification: 'a minor issue is noted, not a fail' },
+        code: "severity='warn': reported, but dbt build still passes.", file: 'contract_finance_f09.sql', find: "severity='warn'" },
+    ],
+    [
+      { story: { playstation: 'Feed → loaded → fact → scorecard', royalties: 'Store file → loaded → royalty mart', certification: 'Submitted → certified → on the store' },
+        code: 'Each reconcile chain is checked measure by measure.', file: 'contracts/reconcile.py', find: 'def _reconcile(', span: 1 },
+      { story: { playstation: 'The count GX saw in the feed', royalties: 'The total GX saw in the file', certification: 'The checksum seen at submission' },
+        code: 'A measure can be the value Great Expectations observed on the delivered file.', file: 'contracts/reconcile.py', find: 'value, source = rules[m["rule"]]["value"]' },
+      { story: { default: 'The same number in the warehouse' },
+        code: 'Or a SQL query against the dbt build.', file: 'contracts/reconcile.py', find: 'value, source = _num(con.execute(sql)' },
+      { story: { default: 'Must agree within tolerance' },
+        code: 'The spread across every hop must be within the tolerance.', file: 'contracts/reconcile.py', find: 'status = "match" if spread', span: 1 },
+      { story: { default: 'Signed off, with warnings, or held' },
+        code: 'One verdict per contract from both engines and the chains.', file: 'contracts/reconcile.py', find: 'verdict = "held" if failed', span: 1 },
+    ],
+    [
+      { story: { default: 'Check the delivery at the door' },
+        code: 'The DAG runs the GX file check before the load.', file: 'airflow/dags/nexus_partner_analytics.py', find: 'task_id="validate_contract_files"', span: 3 },
+      { story: { playstation: 'Sign off the partner scorecard', royalties: 'Sign off the royalty statements', certification: 'Approve the release' },
+        code: 'After the test gate, the reconciler gives the daily sign-off.', file: 'airflow/dags/nexus_partner_analytics.py', find: 'task_id="reconcile_contracts"', span: 4 },
+      { story: { playstation: 'The portal waits for the sign-off', royalties: 'No statement goes out unsigned', certification: 'Nothing ships unapproved' },
+        code: 'Publishing is downstream of the sign-off, so a held contract stops it.', file: 'airflow/dags/nexus_partner_analytics.py', find: 'test_gate >> signoff >> publish' },
+      { story: { default: 'Every change is checked the same way' },
+        code: 'CI runs the same sign-off on every push and fails if a contract is held.', file: '.github/workflows/ci.yml', find: 'contracts/reconcile.py --check' },
+    ],
+  ];
   let extraFiles = null;
   const loadExtra = () => (extraFiles ??= Promise.all(
     ['assets/airflow_code.json', 'assets/code.json'].map((u) => fetch(u).then((r) => r.json()).catch(() => ({ folders: [] }))),
@@ -223,11 +293,10 @@ rules:
     [prev, play, next].forEach((b) => { b.type = 'button'; });
     controls.append(prev, play, next, badLabel);
 
-    // Full source for the current step, opened on demand.
-    const code = el('details', 'gxs-code');
-    const codeSummary = el('summary');
-    const codeBody = el('div', 'gxs-code-body');
-    code.append(codeSummary, codeBody);
+    // The full code behind the current step, always shown, with a translation
+    // table mapping the story's words to the lines that do the work.
+    const code = el('section', 'gxs-code');
+    code.setAttribute('aria-label', 'The code behind this step');
     let codeFile = {};
     const ownFiles = [
       ...(data?.contracts ?? []).map((c) => ({ path: c.path, language: 'yaml', code: c.source })),
@@ -236,41 +305,80 @@ rules:
     function filesFor(i, extra = []) {
       const pool = [...ownFiles, ...extra];
       return STEP_FILES[i].flatMap((want) => (want.endsWith('/')
-        ? pool.filter((f) => f.path.startsWith(want)).sort((a, b) => a.path.localeCompare(b.path))
+        ? pool.filter((f) => f.path.startsWith(want)).sort((x, y) => x.path.localeCompare(y.path))
         : pool.filter((f) => f.path === want).slice(0, 1)));
+    }
+    // Resolve a translation row to a file and line range by searching for its anchor text.
+    function locate(row, files) {
+      const file = files.find((f) => f.path === row.file || (row.file.endsWith('/') && f.path.startsWith(row.file)) || f.path.endsWith(`/${row.file}`));
+      if (!file) return null;
+      const idx = file.code.split('\n').findIndex((l) => l.includes(row.find));
+      return idx < 0 ? null : { file, from: idx, to: idx + (row.span ?? 1) - 1 };
     }
     function renderCode() {
       const i = step;
       const draw = (files) => {
         if (i !== step) return;
-        codeSummary.textContent = `Full code for step ${i + 1} · ${STATIONS[i].title} (${files.length} file${files.length === 1 ? '' : 's'})`;
-        if (!code.open) return;
-        const chosen = files.find((f) => f.path === codeFile[i]) ?? files[0];
+        const rows = (TRANSLATE[i] ?? []).map((r) => ({ ...r, at: locate(r, files) })).filter((r) => r.at);
+        const chosen = files.find((f) => f.path === codeFile[i]) ?? rows[0]?.at.file ?? files[0];
+        const marked = new Map();
+        rows.forEach((r, n) => { if (r.at.file === chosen) for (let l = r.at.from; l <= r.at.to; l += 1) marked.set(l, n + 1); });
+
+        const head = el('div', 'gxs-code-head');
+        head.append(el('p', 'gxc-eyebrow', `The code behind step ${i + 1} · ${STATIONS[i].title}`), el('p', 'gxs-note', STEP_NOTES[i]));
+
+        const table = el('table', 'gxc-table gxs-translate');
+        table.innerHTML = `<thead><tr><th class="sr">#</th><th>In the story (${current.tab})</th><th>In this repository</th><th>Where</th></tr></thead>`;
+        const tbody = el('tbody');
+        rows.forEach((r, n) => {
+          const tr = el('tr', r.at.file === chosen ? 'is-here' : '');
+          const where = el('td');
+          const jump = el('button', 'gxs-jump', `${r.at.file.path.split('/').pop()}:${r.at.from + 1}`);
+          jump.type = 'button';
+          jump.title = `Show ${r.at.file.path}, line ${r.at.from + 1}`;
+          jump.addEventListener('click', () => {
+            pause();
+            codeFile[i] = r.at.file.path;
+            renderCode();
+            requestAnimationFrame(() => code.querySelector(`[data-line="${r.at.from}"]`)?.scrollIntoView({ block: 'center', behavior: reduced() ? 'auto' : 'smooth' }));
+          });
+          where.append(jump);
+          const num = el('td'); num.append(el('b', 'gxs-pin gxs-pin-static', String(n + 1)));
+          tr.append(num, el('td', 'gxs-story', r.story[current.key] ?? r.story.default), el('td', '', r.code), where);
+          tbody.append(tr);
+        });
+        table.append(tbody);
+
         const chips = el('div', 'gxs-code-files');
         files.forEach((f) => {
-          const b = el('button', `gxs-code-chip${f === chosen ? ' is-active' : ''}`, f.path);
-          b.type = 'button';
-          b.addEventListener('click', () => { codeFile[i] = f.path; renderCode(); });
-          chips.append(b);
+          const c = el('button', `gxs-code-chip${f === chosen ? ' is-active' : ''}`, f.path);
+          c.type = 'button';
+          c.addEventListener('click', () => { pause(); codeFile[i] = f.path; renderCode(); });
+          chips.append(c);
         });
+
         const viewer = el('div', 'gxc-code');
-        const headEl = el('div', 'gxc-code-head');
+        const vh = el('div', 'gxc-code-head');
         const gh = el('a', '', 'GitHub ↗');
         gh.href = `https://github.com/rfim/nexus-playstation-partners/blob/main/${chosen?.path ?? ''}`;
         gh.target = '_blank'; gh.rel = 'noopener noreferrer';
-        headEl.append(el('span', '', chosen ? `${chosen.path} · ${chosen.code.replace(/\n$/, '').split('\n').length} lines` : 'Loading…'), gh);
+        vh.append(el('span', '', chosen ? `${chosen.path} · ${chosen.code.replace(/\n$/, '').split('\n').length} lines, full file` : 'Loading…'), gh);
         const pre = el('pre');
         if (chosen) {
-          const lines = window.NexusHighlight ? window.NexusHighlight.highlightLines(chosen.code.replace(/\n$/, ''), langOf(chosen)) : chosen.code.split('\n');
-          pre.innerHTML = lines.map((l, n) => `<span class="code-line"><span class="code-ln">${n + 1}</span>${l}</span>`).join('');
+          const out = window.NexusHighlight ? window.NexusHighlight.highlightLines(chosen.code.replace(/\n$/, ''), langOf(chosen)) : chosen.code.split('\n');
+          pre.innerHTML = out.map((l, n) => {
+            const mark = marked.get(n);
+            return `<span class="code-line${mark ? ' is-marked' : ''}" data-line="${n}">${mark && !marked.has(n - 1) ? `<b class="gxs-pin">${mark}</b>` : ''}<span class="code-ln">${n + 1}</span>${l}</span>`;
+          }).join('');
         }
-        viewer.append(headEl, pre);
-        codeBody.replaceChildren(el('p', 'gxs-note', STEP_NOTES[i]), chips, viewer);
+        viewer.append(vh, pre);
+        code.replaceChildren(head, table, chips, viewer);
       };
       if (STEP_FILES[i].some((w) => w.startsWith('airflow/') || w.startsWith('.github/'))) loadExtra().then((extra) => draw(filesFor(i, extra)));
       else draw(filesFor(i));
     }
-    code.addEventListener('toggle', () => { if (code.open) pause(); renderCode(); });
+    // Reading the code pauses the animation, so the file never changes underneath.
+    ['pointerdown', 'wheel', 'touchstart'].forEach((ev) => code.addEventListener(ev, () => { if (playing) pause(); }, { passive: true }));
 
     root.append(head, intro, stage, progress, panel, controls, code);
 
