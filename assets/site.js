@@ -817,3 +817,15 @@ setupCodeInspector().catch(() => {
   $('#proof-code').textContent = 'Code preview could not load. Open the repository to inspect the source.';
 });
 setupPotential();
+
+// The appendix (maths, sizing) starts closed; open it when a link points inside it.
+(() => {
+  const appendix = document.querySelector('#appendix');
+  if (!appendix) return;
+  const reveal = () => {
+    const target = location.hash && document.getElementById(location.hash.slice(1));
+    if (target && appendix.contains(target)) { appendix.open = true; target.scrollIntoView(); }
+  };
+  window.addEventListener('hashchange', reveal);
+  reveal();
+})();
