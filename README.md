@@ -10,7 +10,7 @@ The hero labels this independent application **“Presented to PlayStation”** 
 
 | Where | What it shows |
 |---|---|
-| **Main page** (`index.html`) | The NEXUS architecture, game-world examples, the Lifepal production story, role-fit walkthroughs, the maths, synthetic results, business potential, working code (08) and dbt governance (09). The nav is Architecture · Built at Lifepal · Results · **dbt workspace**. |
+| **Main page** (`index.html`) | Opens with **Decisions**: three decision cards (grain, data quality, cost), each with what I chose, what I rejected, why, the cost I accept and one number from the build; the other calls in one line each; how the design maps to Snowflake, dbt Cloud and Domo; and where AI would help. Then the architecture, game-world examples, the Lifepal story, role fit, results, working code, governance and my week-one answers. The maths and sizing calculator sit in a closed appendix. The nav is Decisions · Architecture · Built at Lifepal · Results · **dbt workspace**. |
 | **dbt workspace** (`sql.html`) | Live SQL over the whole dbt build, run by DuckDB-WASM in the browser, plus four view tabs: **dbt** (the project's code, governance and build cost), **Lineage** (the dbt graph), **Airflow** (the hypothetical DAG in an Airflow-style UI) and **Contracts → GX + dbt tests** (stakeholder YAML contracts compiled into Great Expectations and dbt tests, with the end-of-day sign-off). |
 
 `platform.html`, `code.html`, `airflow.html` and `contracts.html` are the pages the workspace embeds as tabs; opening `platform.html` on its own forwards to the workspace.
